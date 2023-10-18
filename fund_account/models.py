@@ -1,0 +1,79 @@
+# fund_account/models.py
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+CURRENCY_CHOICES = (
+        ('NGN', 'Nigerian Naira'),
+        ('USD', 'United States Dollar'),
+        ('GBP', 'British Pound Sterling'),
+        ('EUR', 'Euro'),
+        ('JPY', 'Japanese Yen'),
+        ('CAD', 'Canadian Dollar'),
+        ('AUD', 'Australian Dollar'),
+        ('INR', 'Indian Rupee'),
+        ('CNY', 'Chinese Yuan'),
+        ('ZAR', 'South African Rand'),
+        ('BRL', 'Brazilian Real'),
+        ('KES', 'Kenyan Shilling'),
+        ('GHS', 'Ghanaian Cedi'),
+        ('AED', 'United Arab Emirates Dirham'),
+        ('SAR', 'Saudi Riyal'),
+        ('GBP', 'British Pound Sterling'),
+    )
+
+PAYMENT_METHOD_CHOICES = (
+        ('credit_card', 'Credit Card'),
+        ('bank_transfer', 'Bank Transfer'),
+        # ('USSD', 'USSD'),
+        ('paypal', 'PayPal'),
+        ('google_pay', 'Google Pay'),
+        ('apple_pay', 'Apple Pay'),
+    )
+
+PAYMENT_PROVIDER_CHOICES = (
+        ('paypal', 'PayPal'),
+        ('stripe', 'Stripe'),
+        ('paypal', 'PayPal'),
+        ('gtb', 'GTB'),
+        ('fidelity', 'Fidelity'),
+    )
+
+
+class FundAccount(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_user")
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, null=True, blank=True)
+    is_success = models.BooleanField(default=False)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
+    payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES, null=True, blank=True)
+    fund_account_id = models.CharField(max_length=10, unique=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True) 
+
+    def __str__(self):
+        return f"{self.user} - {self.amount}"
+
+
+class AccountFundBalance(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_balance_user")
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} -  {self.balance}"
+
+
+class DebitAccountFund(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_debit_user")
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, null=True, blank=True)
+    is_success = models.BooleanField(default=False)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
+    payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES)
+    debit_account_id = models.CharField(max_length=10, unique=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} -  {self.amount}" 
