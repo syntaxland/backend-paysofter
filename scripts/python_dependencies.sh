@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/venv bash
 
 virtualenv /home/ubuntu/venv
 source /home/ubuntu/venv/bin/activate
-pip install -r /home/ubuntu/backend_drf/requirements.txt
+pip install -r /home/ubuntu/backend-paysofter/requirements.txt
