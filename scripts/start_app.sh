@@ -1,6 +1,6 @@
 #!/usr/bin/bash 
 
-sed -i 's/\[]/\["54.159.74.226"]/' /home/ubuntu/backend-paysofter/backend-paysofter/settings.py
+sed -i 's/\[]/\["2-3-91-70-252"]/' /home/ubuntu/backend-paysofter/backend-paysofter/settings.py
 
 python manage.py migrate 
 python manage.py makemigrations     
