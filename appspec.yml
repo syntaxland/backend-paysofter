@@ -2,9 +2,9 @@ version: 0.0
 os: linux
 files: 
   - source: /
-    destination: /home/ubuntu/backend_drf 
+    destination: /home/ubuntu/backend-paysofter 
 permissions:
-  - object: /home/ubuntu/backend_drf
+  - object: /home/ubuntu/backend-paysofter
     owner: ubuntu
     group: ubuntu
 hooks:
