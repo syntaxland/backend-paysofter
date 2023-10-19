@@ -101,7 +101,7 @@ def seller_payout_payment():
         
         
         commission.save()
-    return f"{len(payouts_to_create)} seller payout payments processed successfully"
+    return f"{len(payouts_to_create)} seller payout payments processed successfully" 
 
 
 
