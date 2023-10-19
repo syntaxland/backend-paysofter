@@ -13,8 +13,8 @@ from .serializers import ReferralSerializer
 from decimal import Decimal, ROUND_DOWN
 from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from django.utils import timezone
+from django.conf import settings
 from django.contrib.auth import get_user_model
-
 User = get_user_model()
 
 
@@ -55,13 +55,14 @@ def generate_referral_link(request):
 @permission_classes([IsAuthenticated])
 def generate_referral_link_button(request):
     user = request.user
+    url = settings.PAYSOFTER_URL
+    print('url:', url) 
     try:
         if user.referral_code:
             user.referral_code = generate_referral_code()
             user.save()
         if user.referral_link:
-            referral_link =  f"http://localhost:3000/register?ref={user.referral_code}"
-            # referral_link =  f"http://mcdofglobal.s3-website-us-east-1.amazonaws.com/register?ref={user.referral_code}"
+            referral_link =  f"{url}/register?ref={user.referral_code}"
             user.referral_link = referral_link
             user.save()
         return Response(

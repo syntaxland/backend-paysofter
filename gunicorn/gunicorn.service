@@ -5,8 +5,8 @@ After=network.target
 [Service]
 User=ubuntu
 Group=www-data
-WorkingDirectory=/home/ubuntu/backend_drf
-ExecStart=/home/ubuntu/env/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/ubuntu/backend_drf/backend_drf/backend_drf.sock backend_drf.wsgi:application
+WorkingDirectory=/home/ubuntu/backend-paysofter
+ExecStart=/home/ubuntu/env/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/ubuntu/backend-paysofter/backend-paysofter/backend-paysofter.sock backend-paysofter.wsgi:application
 
        
 [Install]
