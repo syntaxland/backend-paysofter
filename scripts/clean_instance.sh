@@ -1,3 +1,3 @@
-#!/usr/bin/env bash
+#!/usr/bin/venv bash
 #
 sudo rm -rf /home/ubuntu/backend-paysofter/* 
