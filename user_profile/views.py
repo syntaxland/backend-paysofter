@@ -127,7 +127,7 @@ def user_register_view(request):
                     user.save()
             except Exception as e:
                 print(e)
-                        
+                         
         referral_code = data.get('referral_code')
         print('referral_code:', referral_code)
         
