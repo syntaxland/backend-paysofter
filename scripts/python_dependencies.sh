@@ -1,4 +1,4 @@
-#!/usr/bin/venv bash
+#!/usr/bin/env bash
 
 virtualenv /home/ubuntu/venv
 source /home/ubuntu/venv/bin/activate
