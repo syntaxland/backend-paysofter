@@ -55,6 +55,7 @@ oauthlib==3.2.2
 paystack==1.5.0
 Pillow==9.3.0
 prompt-toolkit==3.0.39
+psycopg2-binary==2.9.5
 py-moneyed==2.0
 pyasn1==0.5.0
 pyasn1-modules==0.3.0
