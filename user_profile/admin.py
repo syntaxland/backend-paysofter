@@ -18,9 +18,9 @@ class AuthorAdmin(admin.ModelAdmin):
                     'is_superuser', 
                     )
     
-    def get_readonly_fields(self, request, obj=None):
-        readonly_fields = ['username', 'account_id', 'test_api_key', 'test_api_secret_key', 'live_api_key', 'live_api_secret_key', 'referral_code', 'referral_link']
-        if obj and obj.is_superuser:
-            readonly_fields.remove('referral_code', 'referral_link')
-        return readonly_fields
+    # def get_readonly_fields(self, request, obj=None):
+    #     readonly_fields = ['username', 'account_id', 'test_api_key', 'test_api_secret_key', 'live_api_key', 'live_api_secret_key', 'referral_code', 'referral_link']
+    #     if obj and obj.is_superuser:
+    #         readonly_fields.remove('referral_code', 'referral_link')
+    #     return readonly_fields
 
