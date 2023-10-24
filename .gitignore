@@ -129,6 +129,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+staticfiles/
+
 =======
 .env
 >>>>>>> cd93676 (First commit)
