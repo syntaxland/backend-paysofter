@@ -30,20 +30,20 @@ class TestTransaction(models.Model):
     currency = models.CharField(max_length=3, null=True, blank=True)
     payment_method = models.CharField(max_length=50, null=True, blank=True)
     is_success = models.BooleanField(default=False)
-    payment_id = models.CharField(max_length=10, unique=True, null=True)
-    transaction_id = models.CharField(max_length=10, unique=True, null=True)
+    payment_id = models.CharField(max_length=14, unique=True, null=True)
+    transaction_id = models.CharField(max_length=14, unique=True, null=True)
     payment_provider = models.CharField(max_length=50)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.seller} - NGN {self.amount} - Payment ID: {self.payment_id}"
 
-
+ 
 class TransactionCreditCard(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.SET_NULL, null=True, blank=True)
     card_number = models.CharField(max_length=30, null=True, blank=True)
-    expiration_month = models.CharField(max_length=10, null=True, blank=True)
-    expiration_year = models.CharField(max_length=10, null=True, blank=True)
-    expiration_month_year = models.CharField(max_length=10, null=True, blank=True)
+    expiration_month = models.CharField(max_length=30, null=True, blank=True)
+    expiration_year = models.CharField(max_length=30, null=True, blank=True)
+    expiration_month_year = models.CharField(max_length=30, null=True, blank=True)
     cvv = models.CharField(max_length=5, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)

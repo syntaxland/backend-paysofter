@@ -194,7 +194,7 @@ def send_seller_email(request, sender_name, sender_email, amount, seller_email, 
         print("Email sent!\n")
     except ApiException as e:
         print(e)
-        return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
 
 
 @api_view(['GET'])

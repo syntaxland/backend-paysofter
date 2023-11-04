@@ -71,62 +71,79 @@ def generate_account_id():
 def user_register_view(request):
     data = request.data
     serializer = UserSerializer(data=data)
+
+    email = data.get('email')
+    phone_number = data.get('phone_number')
+
+    try:
+        user_with_email = User.objects.get(email=email) 
+        if user_with_email.is_verified:
+            return Response({'detail': 'A user with this email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        pass
+    
+    try:
+        user_with_phone = User.objects.get(phone_number=phone_number) 
+        if user_with_phone.is_verified:
+            return Response({'detail': 'A user with this phone number already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        pass
      
     if serializer.is_valid():
-        email = data.get('email')
-        phone_number = data.get('phone_number')
+        # email = data.get('email')
+        # phone_number = data.get('phone_number')
 
-        try:
-            user_with_email = User.objects.get(email=email)
-            if user_with_email.is_verified:
-                return Response({'detail': 'A user with this email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-        except User.DoesNotExist:
-            pass
+        # try:
+        #     user_with_email = User.objects.get(email=email)
+        #     if user_with_email.is_verified:
+        #         return Response({'detail': 'A user with this email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        # except User.DoesNotExist:
+        #     pass
         
-        try:
-            user_with_phone = User.objects.get(phone_number=phone_number) 
-            if user_with_phone.is_verified:
-                return Response({'detail': 'A user with this phone number already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-        except User.DoesNotExist:
-            pass
+        # try:
+        #     user_with_phone = User.objects.get(phone_number=phone_number) 
+        #     if user_with_phone.is_verified:
+        #         return Response({'detail': 'A user with this phone number already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        # except User.DoesNotExist:
+        #     pass
             
-            test_api_key = generate_test_api_key()
-            test_api_secret_key = generate_test_api_secret_key()
-            live_api_key = generate_live_api_key()
-            live_api_secret_key = generate_live_api_secret_key()
-            account_id = generate_account_id()
+        test_api_key = generate_test_api_key()
+        test_api_secret_key = generate_test_api_secret_key()
+        live_api_key = generate_live_api_key()
+        live_api_secret_key = generate_live_api_secret_key()
+        account_id = generate_account_id()
 
-            # User does not exist, create the user and send verification OTP
-            print('\nCreating user...')
-            user = User.objects.create_user(
-                username=email,
-                email=email,
-                first_name=data.get('first_name'),
-                last_name=data.get('last_name'),
-                phone_number=data.get('phone_number'),
-                password=data.get('password'),
+        # User does not exist, create the user and send verification OTP
+        print('\nCreating user...')
+        user = User.objects.create_user(
+            username=email,
+            email=email,
+            first_name=data.get('first_name'),
+            last_name=data.get('last_name'),
+            phone_number=data.get('phone_number'),
+            password=data.get('password'),
 
-                test_api_key=test_api_key,
-                test_api_secret_key=test_api_secret_key,
-                live_api_key=live_api_key,
-                live_api_secret_key=live_api_secret_key,
+            test_api_key=test_api_key,
+            test_api_secret_key=test_api_secret_key,
+            live_api_key=live_api_key,
+            live_api_secret_key=live_api_secret_key,
 
-                account_id=account_id,
-            )
+            account_id=account_id,
+        )
 
-            try:
-                url = settings.PAYSOFTER_URL
-                print('url:', url)
-                if not user.referral_code:
-                    user.referral_code = generate_referral_code()
-                    user.save()
-                if not user.referral_link:
-                    referral_link =  f"{url}/register?ref={user.referral_code}" 
-                    # referral_link =  f"http://mcdofglobal.s3-website-us-east-1.amazonaws.com/register?ref={user.referral_code}"
-                    user.referral_link = referral_link
-                    user.save()
-            except Exception as e:
-                print(e)
+        try:
+            url = settings.PAYSOFTER_URL
+            print('url:', url)
+            if not user.referral_code:
+                user.referral_code = generate_referral_code()
+                user.save()
+            if not user.referral_link:
+                referral_link =  f"{url}/register?ref={user.referral_code}" 
+                # referral_link =  f"http://mcdofglobal.s3-website-us-east-1.amazonaws.com/register?ref={user.referral_code}"
+                user.referral_link = referral_link
+                user.save()
+        except Exception as e:
+            print(e)
                          
         referral_code = data.get('referral_code')
         print('referral_code:', referral_code)

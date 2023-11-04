@@ -90,7 +90,7 @@ def seller_payout_payment():
         # Create a Commission instance to save the commission details
         commission = Commission.objects.create(
             payout_payment=payout_payment,
-            commission_amount=commission_amount,
+            commission_amount=commission_amount, 
             commission_percentage=commission_percentage,
             currency='NGN', 
             payment_method='Commission Deduction',  

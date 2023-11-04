@@ -16,15 +16,18 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-
+ 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def send_email_otp(request):
     data=request.data
     serializer = EmailOTPSendSerializer(data=data)
+    # email = serializer.validated_data['email']
+    # first_name = serializer.validated_data['first_name']
+    email = data.get('email')
+    first_name = data.get('first_name')
     if serializer.is_valid():
-        email = serializer.validated_data['email']
-        first_name = serializer.validated_data['first_name']
+        
         try:
             # Send email OTP
             email_otp, created = EmailOtp.objects.get_or_create(email=email)
@@ -51,12 +54,12 @@ def send_email_otp(request):
                     <h2>OTP: {email_otp.email_otp}</h2><br/>
                     <p>This OTP is valid for 30 minutes.</p>
                     <p>If you didn't request this verification email, please ignore it.</p>
-                    <p>Best regards,<br>McdofGlobal Team</p>
+                    <p>Best regards,<br>Paysofter Inc.</p>
                 </body>
                 </html>
             """ 
-            sender_name = settings.EMAIL_SENDER_NAME
-            sender_email = settings.EMAIL_HOST_USER
+            sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
+            sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
             sender = {"name": sender_name, "email": sender_email}
             to = [{"email": email, "name": first_name}]
             send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
@@ -111,12 +114,12 @@ def resend_email_otp(request):
                     <h2>OTP: {email_otp.email_otp}</h2><br/>
                     <p>This OTP is valid for 30 minutes.</p>
                     <p>If you didn't request this verification email, please ignore it.</p>
-                    <p>Best regards,<br>McdofGlobal Team</p>
+                    <p>Best regards,<br>Paysofter Inc.</p>
                 </body>
                 </html>
             """ 
-            sender_name = settings.EMAIL_SENDER_NAME
-            sender_email = settings.EMAIL_HOST_USER
+            sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
+            sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
             sender = {"name": sender_name, "email": sender_email}
             to = [{"email": email, "name": first_name}]
             send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
