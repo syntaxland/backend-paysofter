@@ -7,7 +7,7 @@ User = get_user_model()
 
 class Transaction(models.Model):
     seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="transaction_seller")
-    buyer_email = models.CharField(max_length=100, null=True, blank=True) 
+    buyer_email = models.CharField(max_length=225, null=True, blank=True) 
     amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True)
     currency = models.CharField(max_length=3, null=True, blank=True)
     payment_method = models.CharField(max_length=50, null=True, blank=True)
@@ -22,7 +22,7 @@ class Transaction(models.Model):
     def __str__(self):
         return f"{self.seller} - NGN {self.amount} - Payment ID: {self.payment_id}"
 
-
+ 
 class TestTransaction(models.Model):
     seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="test_transaction_seller")
     buyer_email = models.CharField(max_length=100, null=True, blank=True) 

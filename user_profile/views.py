@@ -76,6 +76,13 @@ def user_register_view(request):
     phone_number = data.get('phone_number')
 
     try:
+        user_with_email_not_verified = User.objects.get(email=email)
+        if not user_with_email_not_verified.is_verified:
+            return Response({'detail': 'A user with this email already exists but not verified. Login to verify your account.'}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        pass
+
+    try:
         user_with_email = User.objects.get(email=email) 
         if user_with_email.is_verified:
             return Response({'detail': 'A user with this email already exists.'}, status=status.HTTP_400_BAD_REQUEST)

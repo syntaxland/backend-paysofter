@@ -25,7 +25,7 @@ def generate_transaction_id():
 
 
 @api_view(['POST'])
-# @permission_classes([AllowAny])
+@permission_classes([AllowAny])
 def initiate_transaction(request): 
     print('Initiateed test transaction...')
 
