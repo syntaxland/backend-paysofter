@@ -95,7 +95,7 @@ def initiate_transaction(request):
         print("\nbuyer_email:", buyer_email)
         print("seller_email:", seller_email)
         print("\nsender_email:", sender_email)
-
+ 
         try:
             send_buyer_email(request, sender_name, sender_email, amount, seller_email, payment_id, seller_name, created_at, buyer_email)
         except Exception as e:

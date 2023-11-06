@@ -3,7 +3,7 @@ import random
 import string
 from decimal import Decimal
 
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, generics
@@ -88,7 +88,7 @@ def get_user_account_funds(request):
 
 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])  
+@permission_classes([AllowAny])   
 def debit_user_fund_account(request):
     # user = request.user
     # print('user:',user)
