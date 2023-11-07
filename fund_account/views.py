@@ -12,8 +12,15 @@ from rest_framework.views import APIView
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException 
 
-from .serializers import FundAccountSerializer, AccountFundBalanceSerializer, DebitAccountFundSerializer, OtpDataSerializer
-from .models import FundAccount, AccountFundBalance, DebitAccountFund
+from .serializers import (FundAccountSerializer, 
+                          AccountFundBalanceSerializer, 
+                          DebitAccountFundSerializer, 
+                          OtpDataSerializer
+                          )
+from .models import (FundAccount, AccountFundBalance,
+                    DebitAccountFund,
+                    FundAccountCreditCard
+                    )
 
 # from send_email_otp.serializers import EmailOTPSerializer
 from send_email_otp.models import EmailOtp
@@ -37,23 +44,31 @@ def generate_debit_account_id():
 @permission_classes([IsAuthenticated])  
 def fund_user_account_view(request):
     user = request.user
-    # data = request.data
-    # data['user'] = user.id 
+    data = request.data
+    print("data:", data, "user:", user)
+
+    amount = Decimal(request.data.get('amount'))
+    currency = request.data.get('currency')
+    # payment_method = request.data.get('payment_method')
+    # payment_provider = request.data.get('payment_provider')
+    created_at = request.data.get('created_at')
+
     fund_account_id = generate_fund_account_id()
     print('fund_account_id:', fund_account_id)
 
-    try:
-        amount = Decimal(request.data.get('amount'))
-        currency = request.data.get('currency')
-        payment_method = request.data.get('payment_method')
-        payment_provider = request.data.get('payment_provider')
+    card_number = request.data.get('card_number')
+    expiration_month_year = request.data.get('expiration_month_year')
+    cvv = request.data.get('cvv')
+    print('amount:', amount)
+    
 
+    try:      
         fund_account = FundAccount.objects.create(
             user=user,
             amount=amount,
             currency=currency,
-            payment_method=payment_method,
-            payment_provider=payment_provider,
+            payment_method="Debit Card",
+            payment_provider="Mastercard",
             fund_account_id=fund_account_id,
         ) 
         fund_account.save()
@@ -62,36 +77,82 @@ def fund_user_account_view(request):
         balance = fund_account_balance.balance
         fund_account_balance.balance += amount 
         fund_account_balance.save()
+        
+        try:
+            card_data = FundAccountCreditCard.objects.create(
+                fund_account=fund_account,
+                card_number=card_number,  
+                expiration_month_year=expiration_month_year,  
+                cvv=cvv,  
+            ) 
+            print('card_data', card_data)
+        except FundAccountCreditCard.DoesNotExist:
+            pass
+
+        # send email        
+        amount = '{:,.0f}'.format(float(request.data.get('amount')))
+        print("\amount:", amount)
+        sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
+        sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
+        user_email = user.email
+        first_name = user.first_name
+        
+        print("\nsender_email:", sender_email, "user_email:", user_email) 
+ 
+        try:
+            send_user_email(request, sender_name, sender_email, amount, fund_account_id, created_at, user_email, first_name)
+        except Exception as e:
+            print(e)
+            return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         return Response({'success': f'Fund account request submitted successfully. Old Bal: NGN {balance}'}, 
                         status=status.HTTP_201_CREATED)
     except FundAccount.DoesNotExist:
             return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_user_account_fund_balance(request):
+def send_user_email(request, sender_name, sender_email, amount, fund_account_id, created_at, user_email, first_name):
+    # Email Sending API Config
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+
+    # Sending email
+    print("\nSending email...")
+    subject =  f"[TEST MODE] Notice of Paysofter account fund of NGN {amount} with  Account Fund ID [{fund_account_id}]"
+    buyer_html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Paysofter Receipt</title>
+            </head>
+            <body>
+                <p>Dear {first_name},</p>
+                <p>You have funded your Paysofter account with <strong>NGN {amount}</strong> with  <b>Account Fund ID: "{fund_account_id}"</b> at <b>{created_at}</b>.</p>
+                <p>If you have any issue with the payment, kindly reply this email.</b></p>
+                <p>If you have received this email in error, please ignore it.</p>
+                <p>Best regards,</p>
+                <p>Paysofter Inc.</p>
+            </body>
+            </html>
+        """ 
+    sender = {"name": sender_name, "email": sender_email}
+    to = [{"email": user_email}]
+    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+        to=to,
+        html_content=buyer_html_content,
+        sender=sender,
+        subject=subject
+    )
     try:
-        account_fund_balance, created = AccountFundBalance.objects.get_or_create(user=request.user)
-        serializer = AccountFundBalanceSerializer(account_fund_balance)
-        return Response(serializer.data)
-    except AccountFundBalance.DoesNotExist:
-        return Response({'detail': 'Fund account balance not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated]) 
-def get_user_account_funds(request):
-    user = request.user
-    try:
-        account_funds = FundAccount.objects.filter(user=user).order_by('-timestamp')
-        serializer = FundAccountSerializer(account_funds, many=True)
-        return Response(serializer.data)
-    except FundAccount.DoesNotExist:
-        return Response({'detail': 'Fund account not found'}, status=status.HTTP_404_NOT_FOUND)
-
+        api_response = api_instance.send_transac_email(send_smtp_email)
+        print("Email sent!")
+    except ApiException as e:
+        print(e)
+        return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 
 def format_email(email):
     if '@' in email:
@@ -111,6 +172,11 @@ def format_email(email):
 @api_view(['POST'])
 @permission_classes([AllowAny])   
 def debit_user_fund_account(request):
+    data = request.data
+    print('data:', data)
+
+    # debit_account_data = request.data.get('debitAccountData', {}) 
+    # account_id = debit_account_data.get('account_id')
     
     account_id = request.data.get('account_id')
     print('account_id', account_id)
@@ -195,12 +261,6 @@ def verify_account_debit_email_otp(request):
     amount = otp_data.get('amount')
     account_id = otp_data.get('account_id')
     currency = otp_data.get('currency')
-
-
-    # otp = request.data.get('otp')
-    # amount = request.data.get('amount')
-    # account_id = request.data.get('account_id')
-    # currency = request.data.get('currency')
     debit_account_id = generate_debit_account_id()
     print('fund_account_id:', debit_account_id, 'otp:', otp, 'amount:', amount, 'account_id:', account_id) 
 
@@ -213,7 +273,7 @@ def verify_account_debit_email_otp(request):
     try:
         email_otp = EmailOtp.objects.get(email_otp=otp)
     except EmailOtp.DoesNotExist:
-        return Response({'detail': 'OTP does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Invalid OTP.'}, status=status.HTTP_404_NOT_FOUND)
     
     if email_otp.is_valid():
         email_otp.delete()
@@ -245,9 +305,6 @@ def verify_account_debit_email_otp(request):
     else:
         return Response({'detail': 'Invalid or expired OTP. Please try again.'}, status=status.HTTP_400_BAD_REQUEST)
     
-    # else:
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -259,3 +316,26 @@ def get_user_account_debits(request):
         return Response(serializer.data)
     except FundAccount.DoesNotExist:
         return Response({'detail': 'Debit account not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_account_fund_balance(request):
+    try:
+        account_fund_balance, created = AccountFundBalance.objects.get_or_create(user=request.user)
+        serializer = AccountFundBalanceSerializer(account_fund_balance)
+        return Response(serializer.data)
+    except AccountFundBalance.DoesNotExist:
+        return Response({'detail': 'Fund account balance not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated]) 
+def get_user_account_funds(request):
+    user = request.user
+    try:
+        account_funds = FundAccount.objects.filter(user=user).order_by('-timestamp')
+        serializer = FundAccountSerializer(account_funds, many=True)
+        return Response(serializer.data)
+    except FundAccount.DoesNotExist:
+        return Response({'detail': 'Fund account not found'}, status=status.HTTP_404_NOT_FOUND)

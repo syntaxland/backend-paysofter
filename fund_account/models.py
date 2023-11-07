@@ -42,7 +42,6 @@ PAYMENT_PROVIDER_CHOICES = (
 
 
 class FundAccount(models.Model):
-
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_user")
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, null=True, blank=True)
@@ -62,7 +61,7 @@ class AccountFundBalance(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user} -  {self.balance}"
+        return f"{self.user} -  {self.balance}" 
 
 
 class DebitAccountFund(models.Model):
@@ -77,3 +76,11 @@ class DebitAccountFund(models.Model):
 
     def __str__(self):
         return f"{self.user} -  {self.amount}" 
+
+
+class FundAccountCreditCard(models.Model):
+    fund_account = models.ForeignKey(FundAccount, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_credit_card")
+    card_number = models.CharField(max_length=100, null=True, blank=True)
+    expiration_month_year = models.CharField(max_length=100, null=True, blank=True)
+    cvv = models.CharField(max_length=100, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)

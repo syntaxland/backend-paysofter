@@ -12,7 +12,7 @@ class Transaction(models.Model):
     currency = models.CharField(max_length=3, null=True, blank=True)
     payment_method = models.CharField(max_length=50, null=True, blank=True)
     is_approved = models.BooleanField(default=False)
-    payout_status = models.BooleanField(default=False)
+    payout_status = models.BooleanField(default=False) 
     is_success = models.BooleanField(default=False)
     payment_id = models.CharField(max_length=10, unique=True, null=True)
     transaction_id = models.CharField(max_length=10, unique=True, null=True) 
