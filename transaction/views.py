@@ -28,7 +28,7 @@ def generate_transaction_id():
 @permission_classes([AllowAny])
 def initiate_transaction(request): 
     print('Initiateed test transaction...')
-
+ 
     amount = request.data.get('amount')
     buyer_email = request.data.get('email')
     payment_id = request.data.get('payment_id')
@@ -85,6 +85,8 @@ def initiate_transaction(request):
         except TransactionCreditCard.DoesNotExist:
             pass
 
+        amount = '{:,.0f}'.format(float(request.data.get('amount')))
+        print("\amount:", amount)
         # send buyer transaction email        
         # sender_name = "Paysofter Receipt"
         sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
@@ -132,8 +134,8 @@ def send_buyer_email(request, sender_name, sender_email, amount, seller_email, p
             </head>
             <body>
                 <p>Dear valued customer,</p>
-                <p>You have made a payment of <h2>NGN {amount}</h2> to {seller_name} with a payment ID "{payment_id}" at {created_at}.</p>
-                <p>If you have any issue with the payment, kindly reply this email or send email to: {seller_email}</p>
+                <p>You have made a payment of <strong>NGN {amount}</strong> to <b>{seller_name}</b> with a <b>Payment ID: "{payment_id}"</b> at <b>{created_at}</b>.</p>
+                <p>If you have any issue with the payment, kindly reply this email or send email to: <b>{seller_email}</b></p>
                 <p>If you have received this email in error, please ignore it.</p>
                 <p>Best regards,</p>
                 <p>Paysofter Inc.</p>
@@ -173,7 +175,7 @@ def send_seller_email(request, sender_name, sender_email, amount, seller_email, 
             </head>
             <body>
                 <p>Dear valued customer,</p>
-                <p>You have received a payment of <h2>NGN {amount}</h2> from {buyer_email} with a payment ID: "{payment_id}" at {created_at}.</p>
+                <p>You have received a payment of <strong>NGN {amount}</strong> from <b>{buyer_email}</b> with a <b>Payment ID: "{payment_id}"</b> at <b>{created_at}</b>.</p>
                 <p>This is a mock payment as no real payment is credited to you.</p>
                 <p>If you have received this email in error, please ignore it.</p>
                 <p>Best regards,</p>
@@ -194,7 +196,8 @@ def send_seller_email(request, sender_name, sender_email, amount, seller_email, 
         print("Email sent!\n")
     except ApiException as e:
         print(e)
-        return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+        # return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
 
 
 @api_view(['GET'])
@@ -220,3 +223,183 @@ def get_all_transactions(request):
         return Response(serializer.data)
     except Transaction.DoesNotExist:
             return Response({'detail': 'Transactions not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def initiate_transaction(request): 
+#     print('Initiateed test transaction...')
+ 
+#     amount = request.data.get('amount')
+#     buyer_email = request.data.get('email')
+#     payment_id = request.data.get('payment_id')
+#     created_at = request.data.get('created_at')
+#     public_api_key = request.data.get('public_api_key')
+
+#     card_number = request.data.get('card_number')
+#     # expiration_month = request.data.get('expiration_month')
+#     # expiration_year = request.data.get('expiration_year')
+#     expiration_month_year = request.data.get('expiration_month_year')
+#     cvv = request.data.get('cvv')
+#     print('amount:', amount)
+#     print('public_api_key:', public_api_key)
+    
+#     try:
+#         seller = User.objects.get(test_api_key=public_api_key)
+#     except User.DoesNotExist:
+#         return Response({'detail': 'Invalid API key'})
+#     print('seller:', seller)
+
+#     try:
+#         transaction_id = generate_transaction_id()
+
+#         transaction = Transaction.objects.create(
+#             seller=seller,
+#             buyer_email=buyer_email,
+#             amount=amount,  
+#             currency="NGN",  
+#             payment_method='Paysofter',  
+#             is_success=True,  
+#             # is_approved=True,  
+#             payment_id=payment_id,
+#             transaction_id=transaction_id,
+#             payment_provider='Paysofter',  
+#         ) 
+
+#         if transaction.amount > 0:
+#             transaction.is_approved=True
+#             transaction.save()
+#             # transaction.update(is_approved=True)
+            
+#         # print('transaction_data', transaction)
+
+#         try:
+#             card_data = TransactionCreditCard.objects.create(
+#                 transaction=transaction,
+#                 card_number=card_number,  
+#                 # expiration_month=expiration_month,  
+#                 # expiration_year=expiration_year,  
+#                 expiration_month_year=expiration_month_year,  
+#                 cvv=cvv,  
+#             ) 
+#             print('card_data', card_data)
+#         except TransactionCreditCard.DoesNotExist:
+#             pass
+
+#         # send buyer transaction email        
+#         # sender_name = "Paysofter Receipt"
+#         sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
+#         sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
+#         buyer_email = buyer_email
+#         seller_email = seller.email
+#         seller_name = "mcdofshop.com"
+#         print("\nbuyer_email:", buyer_email)
+#         print("seller_email:", seller_email)
+#         print("\nsender_email:", sender_email)
+ 
+#         try:
+#             send_buyer_email(request, sender_name, sender_email, amount, seller_email, payment_id, card_number, seller_name, created_at, buyer_email)
+#         except Exception as e:
+#             print(e)
+#             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+#         try:
+#             send_seller_email(request, sender_name, sender_email, amount, seller_email, payment_id, card_number, created_at, buyer_email)
+#         except Exception as e:
+#             print(e)
+#             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#         return Response({'detail': 'Transaction created successfully'}, status=status.HTTP_201_CREATED)
+#     except Transaction.DoesNotExist:
+#         return Response({'detail': 'Payment Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
+#     except Exception as e:
+#         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# def send_buyer_email(request, sender_name, sender_email, amount, seller_email, payment_id, card_number, seller_name, created_at, buyer_email):
+#     # Email Sending API Config
+#     configuration = sib_api_v3_sdk.Configuration()
+#     configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
+#     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+
+#     # Sending email
+#     print("\nSending email to buyer...")
+#     buyer_subject =  f"[TEST MODE] Receipt of payment of NGN {amount} to {seller_email} with payment ID [{payment_id}]"
+#     buyer_html_content = f"""
+#             <!DOCTYPE html>
+#             <html>
+#             <head>
+#                 <title>Paysofter Receipt</title>
+#             </head>
+#             <body>
+#                 <p>Dear valued customer,</p>
+#                 <p>You have made a payment of <strong>NGN {amount}</strong> to {seller_name} with a payment ID "{payment_id}" and card number 
+#                 {card_number[:2]}************{card_number[-2:]} 
+#                 at {created_at}.</p>
+#                 <p>If you have any issue with the payment, kindly reply this email or send email to: {seller_email}</p>
+#                 <p>If you have received this email in error, please ignore it.</p>
+#                 <p>Best regards,</p>
+#                 <p>Paysofter Inc.</p>
+#             </body>
+#             </html>
+#         """ 
+#     sender = {"name": sender_name, "email": sender_email}
+#     to = [{"email": buyer_email}]
+#     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+#         to=to,
+#         html_content=buyer_html_content,
+#         sender=sender,
+#         subject=buyer_subject
+#     )
+#     try:
+#         api_response = api_instance.send_transac_email(send_smtp_email)
+#         print("Email sent!")
+#     except ApiException as e:
+#         print(e)
+#         return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# def send_seller_email(request, sender_name, sender_email, amount, seller_email, payment_id, card_number, created_at, buyer_email):
+#     # Email Sending API Config
+#     configuration = sib_api_v3_sdk.Configuration()
+#     configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
+#     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+
+#     # send seller tranx email
+#     print("\nSending email to seller...")
+#     seller_subject =  f"[TEST MODE] Receipt of payment of NGN {amount} from {buyer_email} with payment ID [{payment_id}]"
+#     seller_html_content = f"""
+#             <!DOCTYPE html>
+#             <html>
+#             <head>
+#                 <title>Paysofter Receipt</title>
+#             </head>
+#             <body>
+#                 <p>Dear valued customer,</p>
+#                 <p>You have received a payment of <strong>NGN {amount}</strong> from {buyer_email} with a payment ID: <b>"{payment_id}"</b> and card number
+#                   "************{card_number[-4:]}" 
+#                   at {created_at}.</p>
+#                 <p>This is a mock payment as no real payment is credited to you.</p>
+#                 <p>If you have received this email in error, please ignore it.</p>
+#                 <p>Best regards,</p>
+#                 <p>Paysofter Inc.</p>
+#             </body>
+#             </html>
+#         """ 
+#     sender = {"name": sender_name, "email": sender_email}
+#     to = [{"email": seller_email}]
+#     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+#         to=to,
+#         html_content=seller_html_content,
+#         sender=sender,
+#         subject=seller_subject
+#     )
+#     try:
+#         api_response = api_instance.send_transac_email(send_smtp_email)
+#         print("Email sent!\n")
+#     except ApiException as e:
+#         print(e)
+#         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 

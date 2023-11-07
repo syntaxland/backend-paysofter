@@ -63,7 +63,7 @@ def generate_referral_code():
     return ''.join(random.choices(letters_and_digits, k=9))
 
 def generate_account_id():
-    return ''.join(random.choices(string.digits, k=11))
+    return ''.join(random.choices(string.digits, k=12))
 
 
 @api_view(['POST'])

@@ -8,4 +8,7 @@ urlpatterns = [
     path('user-account-funds/', views.get_user_account_funds, name='user-account-funds'),
     path('debit-user-account-balance/', views.debit_user_fund_account, name='debit-user-account-balance'),
     path('get-user-account-debits/', views.get_user_account_debits, name='get-user-account-debits'),
+
+    # path('send-otp/', views.get_user_account_debits, name='send-otp'),
+    path('verify-otp/', views.verify_account_debit_email_otp, name='verify-otp'),
 ]

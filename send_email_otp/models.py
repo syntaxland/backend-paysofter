@@ -8,9 +8,12 @@ User = get_user_model()
 
 class EmailOtp(models.Model):
     email_otp = models.CharField(max_length=6)
-    email = models.EmailField(max_length=100, unique=True, null=True, blank=True) 
+    email = models.EmailField(max_length=100, unique=True, null=True, blank=True)  
     created_at = models.DateTimeField(default=timezone.now)
     expired_at = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.email} | {self.email_otp}"
 
     def is_valid(self):
         # return self.created_at >= timezone.now() - timezone.timedelta(minutes=30)
@@ -19,7 +22,7 @@ class EmailOtp(models.Model):
     def generate_email_otp(self):
         self.email_otp = str(random.randint(100000, 999999))
         self.created_at = timezone.now()
-        self.expired_at = timezone.now() + timezone.timedelta(minutes=30)
+        self.expired_at = timezone.now() + timezone.timedelta(minutes=10)
         self.save()
 
     class Meta:
