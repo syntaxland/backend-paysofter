@@ -21,7 +21,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password', 'phone_number', 'account_id', 'avatar', 'is_verified', 'is_superuser',  
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password', 'phone_number', 'account_id', 'security_code', 'avatar', 'is_verified', 'is_superuser',  
                   'referral_code',
                     'referral_link',
                     'test_api_key',

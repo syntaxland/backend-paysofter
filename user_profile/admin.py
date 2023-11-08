@@ -7,6 +7,7 @@ from . import models
 class AuthorAdmin(admin.ModelAdmin):
     list_display = ('email', 'created_at', 'id', 
                     'account_id',
+                    'security_code',
                     'first_name',  
                     'phone_number',  
                     'is_verified',

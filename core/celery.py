@@ -47,4 +47,12 @@ app.conf.beat_schedule = {
     },
 }
 
+app.conf.beat_schedule = {
+    'update-security-codes-every-hour': {
+        'task': 'user_profile.tasks.update_security_codes_for_users',
+        'schedule': timedelta(hours=1),
+        # 'schedule': timedelta(minutes=1),
+    },
+}
+
 app.autodiscover_tasks()

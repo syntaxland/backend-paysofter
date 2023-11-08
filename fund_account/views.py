@@ -174,24 +174,23 @@ def format_email(email):
 def debit_user_fund_account(request):
     data = request.data
     print('data:', data)
-
-    # debit_account_data = request.data.get('debitAccountData', {}) 
-    # account_id = debit_account_data.get('account_id')
     
     account_id = request.data.get('account_id')
+    security_code = request.data.get('security_code')
     print('account_id', account_id)
 
     try:
-        user = User.objects.get(account_id=account_id)
+        user = User.objects.get(account_id=account_id, security_code=security_code)
     except User.DoesNotExist:
-        return Response({'detail': 'Invalid Account ID'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Invalid Account ID or Security Code is expired.'}, status=status.HTTP_404_NOT_FOUND)
     print('user:', user)
 
     payer_email = user.email
     first_name = user.first_name
     formatted_payer_email = format_email(payer_email)
     print('payer_email:', payer_email, 'first_name:', first_name, 'formatted_payer_email:', formatted_payer_email)
-
+    
+    # Send email
     try:
         send_payer_account_fund_otp(request, payer_email, first_name)
     except Exception as e:
