@@ -449,3 +449,41 @@ def set_maximum_fund_withdrawal(request):
         return Response({'detail': f'Maximum fund withrawal of {amount} set.'}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def otp_account_fund_deactivation(request):
+    user = request.user
+    data = request.data
+
+    otp = data.get('otp')
+    email = data.get('identifier')
+    account_id = data.get('identifier')
+
+    try:
+        email_otp = EmailOtp.objects.get(email_otp=otp)
+    except EmailOtp.DoesNotExist:
+        return Response({'detail': 'Invalid OTP.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if email_otp.is_valid():
+        email_otp.delete()
+
+    try:
+        user = User.objects.get(
+                Q(email=email) |
+                Q(account_id=account_id)
+        )
+    except User.DoesNotExist:
+        return Response({'detail': 'Invalid email or Account ID'}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        account_balance = AccountFundBalance.objects.get(user=user)
+    except AccountFundBalance.DoesNotExist:
+        return Response({'detail': 'Account fund not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    account_balance.is_active = False
+    account_balance.save()
+
+    print(f'Account fund deactivated.')
+    return Response({'detail': f'Account fund deactivated.'}, status=status.HTTP_200_OK)

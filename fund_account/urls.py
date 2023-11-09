@@ -12,4 +12,5 @@ urlpatterns = [
     path('toggle-activate-account/', views.toggle_is_account_active, name='toggle-activate-account'),
     path('set-maximum-withdrawal/', views.set_maximum_fund_withdrawal, name='set-maximum-withdrawal'),
     path('verify-otp/', views.verify_account_debit_email_otp, name='verify-otp'),
+    path('otp-account-fund-deactivation/', views.otp_account_fund_deactivation, name='otp-account-fund-deactivation'),
 ]
