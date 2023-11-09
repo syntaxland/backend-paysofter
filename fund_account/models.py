@@ -53,6 +53,7 @@ PAYMENT_PROVIDER_CHOICES = (
 MAX_WITHDRAWAL_CHOICES = (
     (10000, 'Less than 10,000'),
     (100000, 'Less than 100,000'),
+    (500000, 'Less than 500,000'),
     (1000000, 'Less than 1,000,000'),
     (2000000, 'Less than 2,000,000'),
     (5000000, 'Less than 5,000,000'),
