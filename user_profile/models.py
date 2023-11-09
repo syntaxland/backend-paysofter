@@ -47,7 +47,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar = models.ImageField(upload_to='images/avatars/', null=True, blank=True) 
     referral_code = models.CharField(max_length=10, unique=True, null=True) 
     referral_link = models.CharField(max_length=225, unique=True, null=True)
-    # referred_users = models.ManyToManyField('referral.Referral', related_name='referred_users')
     test_api_key = models.CharField(max_length=100, unique=True, null=True)
     test_api_secret_key = models.CharField(max_length=100, unique=True, null=True)
     live_api_key = models.CharField(max_length=100, unique=True, null=True)

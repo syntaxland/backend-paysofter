@@ -40,10 +40,30 @@ PAYMENT_PROVIDER_CHOICES = (
         ('fidelity', 'Fidelity'),
     )
 
+# MAX_WITHDRAWAL_CHOICES = (
+#         ('10000', 'Less than 10,000'),
+#         ('100000', 'Less than 100,000'),
+#         ('1000000', 'Less than 1,000,000'),
+#         ('2000000', 'Less than 2,000,000'),
+#         ('5000000', 'Less than 5,000,000'),
+#         ('10000000', 'Less than 10,000,000'),
+#         ('100000000', 'More than 10,000,000'),
+#     )
+
+MAX_WITHDRAWAL_CHOICES = (
+    (10000, 'Less than 10,000'),
+    (100000, 'Less than 100,000'),
+    (1000000, 'Less than 1,000,000'),
+    (2000000, 'Less than 2,000,000'),
+    (5000000, 'Less than 5,000,000'),
+    (10000000, 'Less than 10,000,000'),
+    (1000000000, 'More than 10,000,000'),
+)
+
 
 class FundAccount(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_user")
-    amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, null=True, blank=True)
     is_success = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
@@ -58,7 +78,7 @@ class FundAccount(models.Model):
 class AccountFundBalance(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_balance_user")
     balance = models.DecimalField(max_digits=16, decimal_places=2, default=0)
-    max_withdrawal = models.DecimalField(max_digits=16, decimal_places=2, default=2000000)
+    max_withdrawal = models.DecimalField(max_digits=16, decimal_places=2, default=2000000, choices=MAX_WITHDRAWAL_CHOICES, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 

@@ -24,6 +24,8 @@ class AuthorAdmin(admin.ModelAdmin):
 class AuthorAdmin(admin.ModelAdmin):
     list_display = ('user', 
                     'balance', 
+                    'max_withdrawal', 
+                    'is_active',
                     'timestamp',
                     )
     

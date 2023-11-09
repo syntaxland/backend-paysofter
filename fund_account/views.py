@@ -24,6 +24,8 @@ from .models import (FundAccount, AccountFundBalance,
 
 # from send_email_otp.serializers import EmailOTPSerializer
 from send_email_otp.models import EmailOtp
+
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
@@ -172,18 +174,44 @@ def format_email(email):
 @api_view(['POST'])
 @permission_classes([AllowAny])   
 def debit_user_fund_account(request):
+    user = None  
     data = request.data
     print('data:', data)
     
     account_id = request.data.get('account_id')
     security_code = request.data.get('security_code')
-    print('account_id', account_id)
+    # amount = request.data.get('amount')
+    # amount = int(request.data.get('amount'))
+    amount = Decimal(request.data.get('amount'))
+    print('account_id', account_id)     
+
+    if account_id:
+        try:
+            user = User.objects.get(account_id=account_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'Invalid Account ID'}, status=status.HTTP_404_NOT_FOUND)
+
+    if security_code:
+        try:
+            user = User.objects.get(security_code=security_code)
+        except User.DoesNotExist:
+            return Response({'detail': 'Invalid or expired Security Code.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if user is None:
+        return Response({'detail': 'Invalid Account ID or Security Code is expired.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    print('user:', user)
 
     try:
-        user = User.objects.get(account_id=account_id, security_code=security_code)
-    except User.DoesNotExist:
-        return Response({'detail': 'Invalid Account ID or Security Code is expired.'}, status=status.HTTP_404_NOT_FOUND)
-    print('user:', user)
+        account_balance = AccountFundBalance.objects.get(user=user)
+    except AccountFundBalance.DoesNotExist:
+        return Response({'detail': 'Account fund not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if account_balance.is_active == False: 
+        return Response({'detail': 'Account fund currently inactive.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if account_balance.max_withdrawal < amount: 
+        return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_404_NOT_FOUND)
 
     payer_email = user.email
     first_name = user.first_name
@@ -280,6 +308,12 @@ def verify_account_debit_email_otp(request):
         try:
             account_balance, created = AccountFundBalance.objects.get_or_create(user=user)
 
+            # if account_balance.is_active == False: 
+            #     return Response({'detail': 'Account fund currently inactive.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # if account_balance.max_withdrawal < amount: 
+            #     return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_404_NOT_FOUND)
+            
             balance = account_balance.balance
             print('old balance:', balance)
 
@@ -338,3 +372,80 @@ def get_user_account_funds(request):
         return Response(serializer.data)
     except FundAccount.DoesNotExist:
         return Response({'detail': 'Fund account not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def toggle_is_account_active(request):
+#     user = request.user
+#     data = request.data
+#     print('data:', data)
+
+#     password = request.data.get('password')
+
+#     try:
+#         account_balance = AccountFundBalance.objects.get(user=user)
+#     except AccountFundBalance.DoesNotExist:
+#         return Response({'detail': 'Account fund not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+#     try:
+#         if user.check_password(password):
+#             account_balance.is_active == True
+#             account_balance.save()
+#             return Response({'detail': 'Account fund activated.'}, status=status.HTTP_404_NOT_FOUND)
+#         else:
+#             return Response({'detail': 'Incorrect password.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+#     except Exception as e:
+#         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_is_account_active(request):
+    user = request.user
+    data = request.data
+    password = data.get('password')
+
+    # Check if the provided password is correct for the user
+    if not user.check_password(password):
+        return Response({'detail': 'Invalid password.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    try:
+        account_balance = AccountFundBalance.objects.get(user=user)
+    except AccountFundBalance.DoesNotExist:
+        return Response({'detail': 'Account fund not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Toggle the is_active field
+    account_balance.is_active = not account_balance.is_active
+    account_balance.save()
+
+    print(f'Account fund status toggled to {account_balance.is_active}.')
+    return Response({'detail': f'Account fund status toggled to {account_balance.is_active}.'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_maximum_fund_withdrawal(request):
+    user = request.user
+    data = request.data
+    print('data:', data, 'user:', user)
+
+    amount = Decimal(request.data.get('amount'))
+    print('amount:', amount) 
+
+    try:
+        account_balance = AccountFundBalance.objects.get(user=user)
+    except AccountFundBalance.DoesNotExist:
+        return Response({'detail': 'Account fund not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    print('account_balance:', account_balance.balance)
+    print('max_withdrawal(before):', account_balance.max_withdrawal)
+
+    try:
+        account_balance.max_withdrawal = amount
+        account_balance.save()
+        print('max_withdrawal(after):', account_balance.max_withdrawal)
+        return Response({'detail': f'Maximum fund withrawal of {amount} set.'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 

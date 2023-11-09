@@ -206,7 +206,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #         'PORT': int(os.getenv('DB_PORT')),
 #      }
 # }
-
+     
 # AWS RDS (prod) 
 DATABASES = {
     'default': {
