@@ -24,12 +24,13 @@ CURRENCY_CHOICES = (
     )
 
 PAYMENT_METHOD_CHOICES = (
-        ('credit_card', 'Credit Card'),
-        ('bank_transfer', 'Bank Transfer'),
-        # ('USSD', 'USSD'),
-        ('paypal', 'PayPal'),
-        ('google_pay', 'Google Pay'),
-        ('apple_pay', 'Apple Pay'),
+        ('debit_card', 'Debit Card'),
+        ('paysofter_account_fund', 'Paysofter Account Fund'),
+        ('paysofter_promise', 'Paysofter Promise'),
+        ('bank', 'Bank'),
+        ('transfer', 'Transfer'),
+        ('qrcode', 'QR COde'),
+        ('USSD', 'USSD'),
     )
 
 PAYMENT_PROVIDER_CHOICES = (
@@ -39,16 +40,6 @@ PAYMENT_PROVIDER_CHOICES = (
         ('gtb', 'GTB'),
         ('fidelity', 'Fidelity'),
     )
-
-# MAX_WITHDRAWAL_CHOICES = (
-#         ('10000', 'Less than 10,000'),
-#         ('100000', 'Less than 100,000'),
-#         ('1000000', 'Less than 1,000,000'),
-#         ('2000000', 'Less than 2,000,000'),
-#         ('5000000', 'Less than 5,000,000'),
-#         ('10000000', 'Less than 10,000,000'),
-#         ('100000000', 'More than 10,000,000'),
-#     )
 
 MAX_WITHDRAWAL_CHOICES = (
     (10000, 'Less than 10,000'),
@@ -81,6 +72,7 @@ class AccountFundBalance(models.Model):
     balance = models.DecimalField(max_digits=16, decimal_places=2, default=0)
     max_withdrawal = models.DecimalField(max_digits=16, decimal_places=2, default=2000000, choices=MAX_WITHDRAWAL_CHOICES, null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    is_diabled = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -171,10 +171,21 @@ def format_email(email):
         return email
 
 
+def format_number(number):
+    number_str = str(number)
+
+    if len(number_str) < 4:
+        # If the number is too short, don't modify it
+        return number_str
+    else:
+        masked_part = '*' * (len(number_str) - 4) + number_str[-4:]
+        return masked_part
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])   
 def debit_user_fund_account(request):
-    user = None  
+    # user = None  
     data = request.data
     print('data:', data)
     
@@ -205,13 +216,19 @@ def debit_user_fund_account(request):
     try:
         account_balance = AccountFundBalance.objects.get(user=user)
     except AccountFundBalance.DoesNotExist:
-        return Response({'detail': 'Account fund not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Account fund not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if account_balance.is_diabled == True: 
+        return Response({'detail': 'Account fund is currently diabled. Please contact support.'}, status=status.HTTP_400_BAD_REQUEST)
 
     if account_balance.is_active == False: 
-        return Response({'detail': 'Account fund currently inactive.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Account fund is currently inactive.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if account_balance.max_withdrawal is None: 
+        return Response({'detail': 'Maximum account fund value is set to None. Please set a minimum value for the Account Fund.'}, status=status.HTTP_400_BAD_REQUEST)
 
     if account_balance.max_withdrawal < amount: 
-        return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_400_BAD_REQUEST)
 
     payer_email = user.email
     first_name = user.first_name
@@ -307,12 +324,6 @@ def verify_account_debit_email_otp(request):
 
         try:
             account_balance, created = AccountFundBalance.objects.get_or_create(user=user)
-
-            # if account_balance.is_active == False: 
-            #     return Response({'detail': 'Account fund currently inactive.'}, status=status.HTTP_404_NOT_FOUND)
-
-            # if account_balance.max_withdrawal < amount: 
-            #     return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_404_NOT_FOUND)
             
             balance = account_balance.balance
             print('old balance:', balance)
@@ -373,32 +384,6 @@ def get_user_account_funds(request):
     except FundAccount.DoesNotExist:
         return Response({'detail': 'Fund account not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def toggle_is_account_active(request):
-#     user = request.user
-#     data = request.data
-#     print('data:', data)
-
-#     password = request.data.get('password')
-
-#     try:
-#         account_balance = AccountFundBalance.objects.get(user=user)
-#     except AccountFundBalance.DoesNotExist:
-#         return Response({'detail': 'Account fund not found'}, status=status.HTTP_404_NOT_FOUND)
-    
-#     try:
-#         if user.check_password(password):
-#             account_balance.is_active == True
-#             account_balance.save()
-#             return Response({'detail': 'Account fund activated.'}, status=status.HTTP_404_NOT_FOUND)
-#         else:
-#             return Response({'detail': 'Incorrect password.'}, status=status.HTTP_400_BAD_REQUEST)
-    
-#     except Exception as e:
-#         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -415,6 +400,9 @@ def toggle_is_account_active(request):
         account_balance = AccountFundBalance.objects.get(user=user)
     except AccountFundBalance.DoesNotExist:
         return Response({'detail': 'Account fund not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if account_balance.is_diabled == True: 
+        return Response({'detail': 'Account fund is currently disabled. Please contact support for reactivation.'}, status=status.HTTP_400_BAD_REQUEST)
 
     # Toggle the is_active field
     account_balance.is_active = not account_balance.is_active
@@ -453,8 +441,87 @@ def set_maximum_fund_withdrawal(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def otp_account_fund_deactivation(request):
-    user = request.user
+def send_otp_account_fund_disable(request):
+    data = request.data
+    print('data:', data)
+
+    email = data.get('identifier')
+    account_id = data.get('identifier')
+    print('email:', email, 'account_id:', account_id)
+
+    try:
+        user = User.objects.get(
+                Q(email=email) |
+                Q(account_id=account_id)
+        )
+    except User.DoesNotExist:
+        return Response({'detail': 'Invalid email or Account ID.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    email = user.email
+    formatted_email = format_email(email)
+    first_name = user.first_name
+    print('formatted_email:', formatted_email, 'first_name:', first_name)
+
+    try:
+        send_deactivate_account_fund_otp(request, email, first_name)
+    except Exception as e:
+        print(e)
+        return Response({'error': 'Error sending email. Please check your network connection.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response({'detail': f'Email {email} sent.', 'formattedEmail': formatted_email}, status=status.HTTP_200_OK)
+
+
+def send_deactivate_account_fund_otp(request, email, first_name):
+    print('first_name:', first_name, 'payer_email:',  email)
+
+    email_otp, created = EmailOtp.objects.get_or_create(email=email)
+    email_otp.generate_email_otp()
+    print('email_otp:', email_otp, "email_otp:", email_otp.email_otp)
+
+    # Email Sending API Config
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+    # Sending email
+    subject = "Disable Account Fund OTP"
+    print("\nSending email OTP...")
+    html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Disable Account Fund OTP</title>
+        </head>
+        <body>
+            <p>Dear {first_name.title()},</p>
+            <p>To disable your Paysofter Account Fund, please use the OTP provided below:</p>
+            <h2>OTP: {email_otp.email_otp}</h2>
+            <p>This OTP is valid for 10 minutes.</p>
+            <p>If you didn't request this OTP, please ignore it.</p>
+            <p>Best regards,</p>
+            <p>Paysofter Inc.</p>
+        </body>
+        </html>
+    """ 
+    sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
+    sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
+    sender = {"name": sender_name, "email": sender_email}
+    to = [{"email": email, "name": first_name}]
+    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+        to=to,
+        html_content=html_content, 
+        sender=sender,
+        subject=subject
+    )
+    try:
+        api_response = api_instance.send_transac_email(send_smtp_email)
+        print("Email sent!")
+    except ApiException as e:
+        print(e)
+        return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_otp_account_fund_disable(request):
     data = request.data
 
     otp = data.get('otp')
@@ -476,14 +543,23 @@ def otp_account_fund_deactivation(request):
         )
     except User.DoesNotExist:
         return Response({'detail': 'Invalid email or Account ID'}, status=status.HTTP_404_NOT_FOUND)
+    
+    email = user.email
+    formatted_email = format_email(email)
+
+    first_name = user.first_name
+    print('formatted_email:', formatted_email, 'first_name:', first_name)
 
     try:
         account_balance = AccountFundBalance.objects.get(user=user)
     except AccountFundBalance.DoesNotExist:
         return Response({'detail': 'Account fund not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-    account_balance.is_active = False
-    account_balance.save()
+    if account_balance.is_diabled == True: 
+        return Response({'detail': 'Account fund is already disabled. Please contact support.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    account_balance.is_diabled = True
+    account_balance.save() 
 
     print(f'Account fund deactivated.')
-    return Response({'detail': f'Account fund deactivated.'}, status=status.HTTP_200_OK)
+    return Response({'detail': f'Account fund deactivated.', 'formattedEmail': formatted_email}, status=status.HTTP_200_OK)

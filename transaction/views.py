@@ -38,7 +38,7 @@ def initiate_transaction(request):
     card_number = request.data.get('card_number')
     # expiration_month = request.data.get('expiration_month')
     # expiration_year = request.data.get('expiration_year')
-    expiration_month_year = request.data.get('expiration_month_year')
+    expiration_month_year = request.data.get('expiration_month_year') 
     cvv = request.data.get('cvv')
     print('amount:', amount)
     print('public_api_key:', public_api_key)

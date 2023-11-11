@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/', include('payment.urls')),
     path('api/', include('business_account.urls')),
     path('api/', include('fund_account.urls')),
+    path('api/', include('promise.urls')),
     path('api/', include('send_email_otp.urls')), 
     path('api/', include('send_reset_password_email.urls')), 
     path('api/', include('credit_point.urls')),

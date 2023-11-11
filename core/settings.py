@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'payout',
     'business_account', 
     'fund_account', 
+    'promise',
     'commission',
     # 'subscription', 
     # 'webhook_event',
@@ -73,6 +74,7 @@ INSTALLED_APPS = [
     # 'live_chat',
     # 'promo',
     'referral',
+
  
     # Third-party apps
     'rest_framework',

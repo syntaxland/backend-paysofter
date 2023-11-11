@@ -64,7 +64,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.email
+        return f"{self.email} | {self.account_id}" 
  
     objects = CustomUserManager()
 

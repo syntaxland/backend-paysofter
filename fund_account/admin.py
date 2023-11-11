@@ -26,6 +26,7 @@ class AuthorAdmin(admin.ModelAdmin):
                     'balance', 
                     'max_withdrawal', 
                     'is_active',
+                    'is_diabled',
                     'timestamp',
                     )
     
