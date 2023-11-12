@@ -12,7 +12,7 @@ class AuthorAdmin(admin.ModelAdmin):
                     'amount',
                     'currency',
                     'duration',
-                    'payer_promise_fulfilled',
+                    'buyer_promise_fulfilled',
                     'seller_fulfilled_promise',  
                     'status',  
                     'is_success',

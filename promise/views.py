@@ -51,7 +51,7 @@ def create_promise(request):
     print('promise_id:', promise_id)
     # payment_method = request.data.get('payment_method')
     # payment_provider = request.data.get('payment_provider')
-    # card_number = request.data.get('card_number')
+    # promise_id = request.data.get('promise_id')
     # expiration_month_year = request.data.get('expiration_month_year')
     # cvv = request.data.get('cvv')
     print('account_id:', account_id)
@@ -73,7 +73,7 @@ def create_promise(request):
             seller=seller,
             buyer=buyer,
             amount=amount,
-            currency=currency,
+            currency="NGN",
             duration=duration,
             # status=status,
             # is_success=is_success,
@@ -83,6 +83,7 @@ def create_promise(request):
             payment_provider="Paysofter",
             promise_id=promise_id,
         ) 
+        promise.is_success = True
         promise.save()
 
         # fund_account_balance, created = AccountFundBalance.objects.get_or_create(user=user)
@@ -141,7 +142,7 @@ def create_promise(request):
 
 def send_buyer_email(request, sender_name, sender_email, amount, promise_id, created_at, buyer_email, buyer_first_name, formatted_seller_account_id):
     url = settings.PAYSOFTER_URL
-    buyer_confirm_promise_link =  f"{url}/buyer-confirm-promise"
+    buyer_confirm_promise_link =  f"{url}/promise"
 
     # Email Sending API Config
     configuration = sib_api_v3_sdk.Configuration()
@@ -190,7 +191,7 @@ def send_buyer_email(request, sender_name, sender_email, amount, promise_id, cre
 
 def send_seller_email(request, sender_name, sender_email, amount, promise_id, created_at, seller_email, seller_first_name, formatted_buyer_account_id):
     url = settings.PAYSOFTER_URL
-    seller_confirm_promise_link =  f"{url}/seller-confirm-promise"
+    seller_confirm_promise_link =  f"{url}/seller-promise"
     
     # Email Sending API Config
     configuration = sib_api_v3_sdk.Configuration()
@@ -235,7 +236,82 @@ def send_seller_email(request, sender_name, sender_email, amount, promise_id, cr
     except ApiException as e:
         print(e)
         return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])   
+def buyer_confirm_promise(request):
+    user = request.user
+    data = request.data
+    print('data:', data)
+
+    promise_id = data.get('promise_id')
+    password = data.get('password')
+    # promise_id = request.data.get('promise_id')
+    # password = request.data.get('password')
+    print('promise_id:', promise_id)
+
+    if not user.check_password(password):
+        return Response({'detail': 'Invalid password.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    try:
+        promise = PaysofterPromise.objects.get(buyer=user, promise_id=promise_id)
+    except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Account fund not found'}, status=status.HTTP_400_BAD_REQUEST)
     
+    print('promise:', promise)
+    print('buyer_promise_fulfilled(before):', promise.buyer_promise_fulfilled)
+
+    promise.buyer_promise_fulfilled = True
+    promise.is_success = True
+    promise.status = "Fulfilled"
+    promise.save() 
+    print('buyer_promise_fulfilled(after):', promise.buyer_promise_fulfilled)
+    return Response({'detail': 'Promise fulfilled.'}, status=status.HTTP_200_OK)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])   
+def seller_confirm_promise(request):
+    user = request.user
+    data = request.data
+    print('data:', data)
+
+    promise_id = request.data.get('promise_id')
+
+    try:
+        promise = PaysofterPromise.objects.get(seller=user, promise_id=promise_id)
+    except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Account fund not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+    promise.seller_fulfilled_promise = True
+    promise.save()
+    return Response({'detail': 'Promise fulfilled.'}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_buyer_promises(request):
+    user = request.user
+    try:
+        promise = PaysofterPromise.objects.filter(buyer=user).order_by('-timestamp')
+        serializer = PaysofterPromiseSerializer(promise, many=True)
+        return Response(serializer.data)
+    except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Promise not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_seller_promises(request):
+    user = request.user
+    try:
+        promise = PaysofterPromise.objects.filter(seller=user).order_by('-timestamp')
+        serializer = PaysofterPromiseSerializer(promise, many=True)
+        return Response(serializer.data)
+    except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Promise not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 def format_email(email):
     if '@' in email:
@@ -261,168 +337,3 @@ def format_number(number):
     else:
         masked_part = '*' * (len(number_str) - 4) + number_str[-4:]
         return masked_part
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])   
-def debit_user_fund_account(request):
-    user = None  
-    data = request.data
-    print('data:', data)
-    
-    account_id = request.data.get('account_id')
-    security_code = request.data.get('security_code')
-    # amount = request.data.get('amount')
-    # amount = int(request.data.get('amount'))
-    amount = Decimal(request.data.get('amount'))
-    print('account_id', account_id)     
-
-    if account_id:
-        try:
-            user = User.objects.get(account_id=account_id)
-        except User.DoesNotExist:
-            return Response({'detail': 'Invalid Account ID'}, status=status.HTTP_404_NOT_FOUND)
-
-    if security_code:
-        try:
-            user = User.objects.get(security_code=security_code)
-        except User.DoesNotExist:
-            return Response({'detail': 'Invalid or expired Security Code.'}, status=status.HTTP_404_NOT_FOUND)
-    
-    if user is None:
-        return Response({'detail': 'Invalid Account ID or Security Code is expired.'}, status=status.HTTP_404_NOT_FOUND)
-    
-    print('user:', user)
-
-    try:
-        account_balance = AccountFundBalance.objects.get(user=user)
-    except AccountFundBalance.DoesNotExist:
-        return Response({'detail': 'Account fund not found'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if account_balance.is_diabled == True: 
-        return Response({'detail': 'Account fund is currently diabled. Please contact support.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if account_balance.is_active == False: 
-        return Response({'detail': 'Account fund is currently inactive.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if account_balance.max_withdrawal < amount: 
-        return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    payer_email = user.email
-    first_name = user.first_name
-    formatted_payer_email = format_email(payer_email)
-    print('payer_email:', payer_email, 'first_name:', first_name, 'formatted_payer_email:', formatted_payer_email)
-    
-    # Send email
-    try:
-        send_payer_account_fund_otp(request, payer_email, first_name)
-    except Exception as e:
-        print(e)
-        # return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response({'detail': 'Email sent.', 'formattedPayerEmail': formatted_payer_email, 'payerEmail': payer_email}, status=status.HTTP_200_OK)
-    
-
-def send_payer_account_fund_otp(request, payer_email, first_name):
-    print('first_name:', first_name, 'payer_email:',  payer_email)
-
-    email_otp, created = EmailOtp.objects.get_or_create(email=payer_email)
-    email_otp.generate_email_otp()
-    print('email_otp:', email_otp, "email_otp:", email_otp.email_otp)
-
-    # Email Sending API Config
-    configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
-    # Sending email
-    subject = "Account Fund Payment OTP"
-    print("\nSending email OTP...")
-    html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>OTP Account Fund Payment</title>
-        </head>
-        <body>
-            <p>Dear {first_name.title()},</p>
-            <p>To complete this payment using Paysofter Account Fund, please use the OTP provided below:</p>
-            <h2>OTP: {email_otp.email_otp}</h2>
-            <p>This OTP is valid for 10 minutes.</p>
-            <p>If you didn't request this OTP, please ignore it.</p>
-            <p>Best regards,</p>
-            <p>Paysofter Inc.</p>
-        </body>
-        </html>
-    """ 
-    sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
-    sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
-    sender = {"name": sender_name, "email": sender_email}
-    to = [{"email": payer_email, "name": first_name}]
-    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-        to=to,
-        html_content=html_content, 
-        sender=sender,
-        subject=subject
-    )
-    try:
-        api_response = api_instance.send_transac_email(send_smtp_email)
-        print("Email sent!")
-    except ApiException as e:
-        print(e)
-        return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def verify_account_debit_email_otp(request):
-    data = request.data
-    print('data:', data)
-
-    otp_data = request.data.get('otpData', {}) 
-    otp = otp_data.get('otp')
-    amount = otp_data.get('amount')
-    account_id = otp_data.get('account_id')
-    currency = otp_data.get('currency')
-    debit_account_id = generate_debit_account_id()
-    print('fund_account_id:', debit_account_id, 'otp:', otp, 'amount:', amount, 'account_id:', account_id) 
-
-    try:
-        user = User.objects.get(account_id=account_id)
-    except User.DoesNotExist:
-        return Response({'detail': 'Invalid Account ID'}, status=status.HTTP_404_NOT_FOUND)
-    print('user:', user)
-
-    try:
-        email_otp = EmailOtp.objects.get(email_otp=otp)
-    except EmailOtp.DoesNotExist:
-        return Response({'detail': 'Invalid OTP.'}, status=status.HTTP_404_NOT_FOUND)
-    
-    if email_otp.is_valid():
-        email_otp.delete()
-
-        try:
-            account_balance, created = AccountFundBalance.objects.get_or_create(user=user)
-            
-            balance = account_balance.balance
-            print('old balance:', balance)
-
-            if balance < amount: 
-                return Response({'detail': 'Insufficient account balance.'}, status=status.HTTP_404_NOT_FOUND)
-            account_balance.balance -= amount 
-            account_balance.save()
-            print('new balance:', account_balance.balance)
-
-            debit_fund_account = DebitAccountFund.objects.create(
-                user=user,
-                amount=amount,
-                currency=currency,
-                # payment_method=payment_method,
-                # payment_provider=payment_provider,
-                debit_account_id=debit_account_id,
-            ) 
-            debit_fund_account.save()
-            return Response({'success': f'Account debited successfully.'}, status=status.HTTP_201_CREATED)
-        except DebitAccountFund.DoesNotExist:
-            return Response({'detail': 'Debit Fund account not found'}, status=status.HTTP_404_NOT_FOUND)                                  
-    else:
-        return Response({'detail': 'Invalid or expired OTP. Please try again.'}, status=status.HTTP_400_BAD_REQUEST)

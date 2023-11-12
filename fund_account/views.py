@@ -242,7 +242,7 @@ def debit_user_fund_account(request):
         print(e)
         # return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response({'detail': 'Email sent.', 'formattedPayerEmail': formatted_payer_email, 'payerEmail': payer_email}, status=status.HTTP_200_OK)
+    return Response({'detail': 'Email sent.', '275887': formatted_payer_email, 'payerEmail': payer_email}, status=status.HTTP_200_OK)
     
 
 def send_payer_account_fund_otp(request, payer_email, first_name):

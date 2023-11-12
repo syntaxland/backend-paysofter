@@ -8,7 +8,7 @@ User = get_user_model()
 
  
 class FundAccountSerializer(serializers.ModelSerializer):
-    user_email = serializers.CharField(source='user.email', read_only=True)
+    user_email = serializers.CharField(source='user.email', read_only=True) 
     class Meta:
         model = FundAccount
         fields = '__all__'
