@@ -49,11 +49,8 @@ def create_promise(request):
 
     promise_id = generate_promise_id()
     print('promise_id:', promise_id)
-    # payment_method = request.data.get('payment_method')
-    # payment_provider = request.data.get('payment_provider')
-    # promise_id = request.data.get('promise_id')
-    # expiration_month_year = request.data.get('expiration_month_year')
-    # cvv = request.data.get('cvv')
+    payment_method = request.data.get('payment_method')
+    payment_provider = request.data.get('payment_provider')
     print('account_id:', account_id)
 
     try:
@@ -73,34 +70,14 @@ def create_promise(request):
             seller=seller,
             buyer=buyer,
             amount=amount,
-            currency="NGN",
+            currency=currency,
             duration=duration,
-            # status=status,
-            # is_success=is_success,
-            # payer_promise_fulfilled=payer_promise_fulfilled,
-            # seller_fulfilled_promise=seller_fulfilled_promise,
-            payment_method="Paysofter Promise",
-            payment_provider="Paysofter",
+            payment_method=payment_method,
+            payment_provider=payment_provider,
             promise_id=promise_id,
         ) 
         promise.is_success = True
         promise.save()
-
-        # fund_account_balance, created = AccountFundBalance.objects.get_or_create(user=user)
-        # balance = fund_account_balance.balance
-        # fund_account_balance.balance += amount 
-        # fund_account_balance.save()
-        
-        # try:
-        #     card_data = FundAccountCreditCard.objects.create(
-        #         fund_account=fund_account,
-        #         card_number=card_number,  
-        #         expiration_month_year=expiration_month_year,  
-        #         cvv=cvv,  
-        #     ) 
-        #     print('card_data', card_data)
-        # except FundAccountCreditCard.DoesNotExist:
-        #     pass
 
         # send email        
         amount = '{:,.0f}'.format(float(request.data.get('amount')))
@@ -142,7 +119,7 @@ def create_promise(request):
 
 def send_buyer_email(request, sender_name, sender_email, amount, promise_id, created_at, buyer_email, buyer_first_name, formatted_seller_account_id):
     url = settings.PAYSOFTER_URL
-    buyer_confirm_promise_link =  f"{url}/promise"
+    buyer_confirm_promise_link =  f"{url}/promise/buyer"
 
     # Email Sending API Config
     configuration = sib_api_v3_sdk.Configuration()
@@ -191,7 +168,7 @@ def send_buyer_email(request, sender_name, sender_email, amount, promise_id, cre
 
 def send_seller_email(request, sender_name, sender_email, amount, promise_id, created_at, seller_email, seller_first_name, formatted_buyer_account_id):
     url = settings.PAYSOFTER_URL
-    seller_confirm_promise_link =  f"{url}/seller-promise"
+    seller_confirm_promise_link =  f"{url}/promise/seller"
     
     # Email Sending API Config
     configuration = sib_api_v3_sdk.Configuration()
@@ -259,7 +236,6 @@ def buyer_confirm_promise(request):
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Account fund not found'}, status=status.HTTP_400_BAD_REQUEST)
     
-    print('promise:', promise)
     print('buyer_promise_fulfilled(before):', promise.buyer_promise_fulfilled)
 
     promise.buyer_promise_fulfilled = True
@@ -276,16 +252,21 @@ def seller_confirm_promise(request):
     user = request.user
     data = request.data
     print('data:', data)
+    print('seller:', user)
 
     promise_id = request.data.get('promise_id')
+    print('promise_id:', promise_id)
 
     try:
         promise = PaysofterPromise.objects.get(seller=user, promise_id=promise_id)
     except PaysofterPromise.DoesNotExist:
-        return Response({'detail': 'Account fund not found'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': 'Promise not found'}, status=status.HTTP_400_BAD_REQUEST)
 
+    print('seller_fulfilled_promise(before):', promise.seller_fulfilled_promise)
+    
     promise.seller_fulfilled_promise = True
     promise.save()
+    print('seller_fulfilled_promise(after):', promise.seller_fulfilled_promise)
     return Response({'detail': 'Promise fulfilled.'}, status=status.HTTP_200_OK)
 
 

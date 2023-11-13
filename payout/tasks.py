@@ -47,10 +47,18 @@ def process_payouts():
         # Implement the code to transfer funds to sellers here
         # You may use payment gateways or other methods to transfer funds
 
-    return f"{len(transactions_to_payout)} transactions processed successfully"
+    return f"{len(transactions_to_payout)} transactions processed successfully" 
 
 
  
+@shared_task
+def process_promise_tansactions():
+    print("\nPayout processing starteed!")
+
+
+
+
+
 """
 celery -A core.celery worker --pool=solo -l info 
 (Windows)

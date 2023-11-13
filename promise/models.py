@@ -35,10 +35,10 @@ PAYMENT_METHOD_CHOICES = (
 PAYMENT_PROVIDER_CHOICES = (
         ('Paysofter', 'Paysofter'),
         ('Mastercard', 'Mastercard'),
-        ('verve', 'Verve'),
-        ('visa', 'Visa'),
-        ('gtb', 'GTB'),
-        ('fidelity', 'Fidelity'),
+        ('Verve', 'Verve'),
+        ('Visa', 'Visa'),
+        ('GTB', 'GTB'),
+        ('Fidelity', 'Fidelity'),
     )
 
 PROMISE_DURATION_CHOICES = (
