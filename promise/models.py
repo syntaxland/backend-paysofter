@@ -72,4 +72,14 @@ class PaysofterPromise(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True) 
 
     def __str__(self):
-        return f"{self.seller} - {self.buyer} - {self.amount}" 
+        return f"{self.promise_id}" 
+    
+
+class PromiseMessage(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_message_user")
+    promise_message = models.ForeignKey(PaysofterPromise, on_delete=models.CASCADE, related_name='promise_message', blank=True, null=True)
+    message = models.TextField(max_length=225, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True, null=True)
+    
+    def __str__(self):
+        return f"{self.user} | {self.promise_message}"

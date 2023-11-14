@@ -20,3 +20,13 @@ class AuthorAdmin(admin.ModelAdmin):
                     'payment_provider',
                     'timestamp',
                     )
+
+
+@admin.register(models.PromiseMessage)
+class AuthorAdmin(admin.ModelAdmin):
+    list_display = (
+                    'user',
+                    'promise_message', 
+                    'message', 
+                    'timestamp',                    
+                    )

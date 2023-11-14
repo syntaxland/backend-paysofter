@@ -1,7 +1,7 @@
 # promise/serializers.py
 
 from rest_framework import serializers
-from .models import PaysofterPromise
+from .models import PaysofterPromise, PromiseMessage
 from django.contrib.auth import get_user_model
 
 User = get_user_model() 
@@ -16,4 +16,13 @@ class PaysofterPromiseSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaysofterPromise
         fields = '__all__'
+
+
+class PromiseMessageSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(source='user.first_name', read_only=True) 
+
+    class Meta:
+        model = PromiseMessage
+        fields = '__all__'
+
 

@@ -8,5 +8,8 @@ urlpatterns = [
     path('get-seller-promise/', views.get_seller_promises, name='get-seller-promise'),
     path('buyer-confirm-promise/', views.buyer_confirm_promise, name='buyer-confirm-promise'),
     path('seller-confirm-promise/', views.seller_confirm_promise, name='seller-confirm-promise'),
+
+    path('create-promise-messages/', views.create_promise_message, name='create-promise-messages'),
+    # path('list-promise-messages/', views.list_promise_messages, name='list-promise-messages'),
+    path('list-promise-messages/<str:promise_id>/', views.list_promise_messages, name='list-promise-messages'),
 ]
- 

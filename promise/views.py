@@ -12,12 +12,12 @@ from rest_framework.views import APIView
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException 
 
-from fund_account.models import (AccountFundBalance,
-                    DebitAccountFund,
-                    )
 
-from .serializers import PaysofterPromiseSerializer
-from .models import PaysofterPromise           
+from .models import PaysofterPromise, PromiseMessage 
+from .serializers import (PaysofterPromiseSerializer,
+                           PromiseMessageSerializer,
+                           )
+        
 
 from send_email_otp.serializers import EmailOTPSerializer
 from send_email_otp.models import EmailOtp
@@ -292,6 +292,95 @@ def get_seller_promises(request):
         return Response(serializer.data)
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_promise_message(request):
+    print('processing...')
+    user=request.user
+    data=request.data
+    print('data:', data, 'user:', user)
+
+    promise_id = data.get('promise_id')
+    message = data.get('message')
+    print('promise_id:', promise_id)
+    print('message:', message)
+    
+    try:
+        promise = PaysofterPromise.objects.get(promise_id=promise_id)
+    except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    PromiseMessage.objects.create(
+            user=user,
+            promise_message=promise,
+            message=message,
+        )
+    return Response({'message': 'Promise message created'}, status=status.HTTP_201_CREATED)
+
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def list_promise_messages(request):
+#     print('processing...')
+#     user = request.user
+#     data  = request.data
+#     print('data:', data, 'user:', user)
+
+#     promise_id = data.get('promise_id')
+#     print('promise_id:', promise_id)
+
+#     try:
+#         promise_message = PaysofterPromise.objects.get(
+#             # user=user,
+#             promise_id=promise_id
+#             )
+#     except PaysofterPromise.DoesNotExist:
+#         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+#     print('promise_message:', promise_message)
+    
+#     try:
+#         promise_message = PromiseMessage.objects.filter(
+#             promise_message=promise_message,
+#             ).order_by('timestamp')
+#         serializer = PromiseMessageSerializer(promise_message, many=True)
+#         return Response(serializer.data)
+#     except PromiseMessage.DoesNotExist:
+#         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_promise_messages(request, promise_id):
+    print('processing...')
+    user = request.user
+    # data  = request.data
+    # print('data:', data)
+    print('user:', user)
+
+    # promise_id = data.get('promise_id')
+    # print('promise_id:', promise_id)
+
+    try:
+        promise_message = PaysofterPromise.objects.get(
+            # user=user,
+            promise_id=promise_id
+            )
+    except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    print('promise_message:', promise_message)
+    
+    try:
+        promise_message = PromiseMessage.objects.filter(
+            promise_message=promise_message,
+            ).order_by('timestamp')
+        serializer = PromiseMessageSerializer(promise_message, many=True)
+        return Response(serializer.data)
+    except PromiseMessage.DoesNotExist:
+        return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 def format_email(email):
