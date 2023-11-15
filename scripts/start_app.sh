@@ -4,6 +4,7 @@ sed -i 's/\[]/\["2-3-91-70-252"]/' /home/ubuntu/backend-paysofter/backend-paysof
 
 python manage.py migrate 
 python manage.py makemigrations     
+python manage.py migrate
 python manage.py collectstatic
 sudo service gunicorn restart
 sudo service nginx restart
