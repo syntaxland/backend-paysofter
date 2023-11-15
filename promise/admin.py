@@ -15,6 +15,7 @@ class AuthorAdmin(admin.ModelAdmin):
                     'buyer_promise_fulfilled',
                     'seller_fulfilled_promise',  
                     'status',  
+                    'is_delivered',
                     'is_success',
                     'payment_method',
                     'payment_provider',

@@ -19,7 +19,7 @@ def process_promise_transactions():
     print("\nPromise transactions processing started!")
 
     # Query promises that are fulfilled by buyers
-    fulfilled_promises = PaysofterPromise.objects.filter(buyer_promise_fulfilled=True)
+    fulfilled_promises = PaysofterPromise.objects.filter(buyer_promise_fulfilled=True, is_delivered=False)
 
     print(f"\nFulfilled promises count: {len(fulfilled_promises)}")
 
@@ -41,6 +41,9 @@ def process_promise_transactions():
             )
             print(f"\nThe transaction created: {transaction}")
 
+        fulfilled_promises.update(is_delivered=True)
+
+
 
         # transfer funds to sellers
 
@@ -55,5 +58,5 @@ redis-server
 celery -A core.celery worker --pool=solo -l info 
 (Windows)
 celery -A core.celery worker --loglevel=info (Unix) 
-celery -A core.celery beat --loglevel=info
+celery -A core.celery beat --loglevel=info 
 """

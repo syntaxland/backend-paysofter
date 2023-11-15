@@ -64,6 +64,7 @@ class PaysofterPromise(models.Model):
     duration = models.CharField(max_length=100, choices=PROMISE_DURATION_CHOICES, default='Within 1 day', null=True, blank=True)
     status = models.CharField(max_length=100, choices=PROMISE_STATUS_CHOICES, default='Processing', null=True, blank=True)
     is_success = models.BooleanField(default=False)
+    is_delivered = models.BooleanField(default=False)
     buyer_promise_fulfilled = models.BooleanField(default=False)
     seller_fulfilled_promise = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=100, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
