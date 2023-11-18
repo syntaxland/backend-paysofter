@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.views import APIView
 
-import sib_api_v3_sdk
+import sib_api_v3_sdk 
 from sib_api_v3_sdk.rest import ApiException 
 
 from .serializers import (FundAccountSerializer, 
@@ -73,6 +73,7 @@ def fund_user_account_view(request):
             payment_provider="Mastercard",
             fund_account_id=fund_account_id,
         ) 
+        fund_account.is_success = True
         fund_account.save()
 
         fund_account_balance, created = AccountFundBalance.objects.get_or_create(user=user)
@@ -342,6 +343,7 @@ def verify_account_debit_email_otp(request):
                 # payment_provider=payment_provider,
                 debit_account_id=debit_account_id,
             ) 
+            debit_fund_account.is_success = True
             debit_fund_account.save()
             return Response({'success': f'Account debited successfully.'}, status=status.HTTP_201_CREATED)
         except DebitAccountFund.DoesNotExist:
@@ -383,6 +385,30 @@ def get_user_account_funds(request):
         return Response(serializer.data)
     except FundAccount.DoesNotExist:
         return Response({'detail': 'Fund account not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated]) 
+def get_user_account_funds_debits(request):
+    user = request.user
+    try:
+        account_funds = DebitAccountFund.objects.filter(user=user).order_by('-timestamp')
+        serializer = DebitAccountFundSerializer(account_funds, many=True)
+        return Response(serializer.data)
+    except DebitAccountFund.DoesNotExist:
+        return Response({'detail': 'Fund account debits not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated]) 
+def get_user_account_funds_credits(request):
+    user = request.user
+    try:
+        account_funds = FundAccount.objects.filter(user=user).order_by('-timestamp')
+        serializer = FundAccountSerializer(account_funds, many=True)
+        return Response(serializer.data)
+    except FundAccount.DoesNotExist:
+        return Response({'detail': 'Fund account credits not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
