@@ -1,4 +1,5 @@
 # promise/views.py
+from datetime import timedelta, datetime
 import random
 import string
 from decimal import Decimal
@@ -72,10 +73,33 @@ def create_promise(request):
             amount=amount,
             currency=currency,
             duration=duration,
+            # duration_hours=duration_hours,
             payment_method=payment_method,
             payment_provider=payment_provider,
             promise_id=promise_id,
+            is_active=True
         ) 
+
+        if promise.duration:
+            if promise.duration == '0 day':
+                promise.duration_hours = timedelta(hours=0)
+            elif promise.duration == 'Within 1 day':
+                promise.duration_hours = timedelta(hours=24)
+            elif promise.duration == '2 days':
+                promise.duration_hours = timedelta(days=2)
+            elif promise.duration == '3 days':
+                promise.duration_hours = timedelta(days=3)
+            elif promise.duration == '5 days':
+                promise.duration_hours = timedelta(days=5)
+            elif promise.duration == '1 week':
+                promise.duration_hours = timedelta(weeks=1)
+            elif promise.duration == '2 weeks':
+                promise.duration_hours = timedelta(weeks=2)
+            elif promise.duration == '1 month':
+                promise.duration_hours = timedelta(days=30)  
+
+            promise.expiration_date = datetime.now() + promise.duration_hours
+
         promise.is_success = True
         promise.save()
 
@@ -240,6 +264,8 @@ def buyer_confirm_promise(request):
 
     promise.buyer_promise_fulfilled = True
     promise.is_success = True
+    promise.is_active = False
+    promise.duration = '0 day'
     promise.status = "Fulfilled"
     promise.save() 
     print('buyer_promise_fulfilled(after):', promise.buyer_promise_fulfilled)

@@ -33,7 +33,7 @@ app.conf.beat_schedule = {
     'update-security-codes-every-hour': {
         'task': 'user_profile.tasks.update_security_codes_for_users',
         # 'schedule': timedelta(hours=1),
-        'schedule': timedelta(minutes=5),
+        'schedule': timedelta(minutes=15),
     },
     'process-promise-transactions-every-n-time': {
         'task': 'promise.tasks.process_promise_transactions',
