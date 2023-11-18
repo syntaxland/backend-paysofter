@@ -8,7 +8,7 @@ User = get_user_model()
 class Transaction(models.Model):
     seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="transaction_seller")
     buyer_email = models.CharField(max_length=225, null=True, blank=True) 
-    amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True)
+    amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True, editable=False)
     currency = models.CharField(max_length=3, null=True, blank=True)
     payment_method = models.CharField(max_length=50, null=True, blank=True)
     is_approved = models.BooleanField(default=False)
@@ -26,7 +26,7 @@ class Transaction(models.Model):
 class TestTransaction(models.Model):
     seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="test_transaction_seller")
     buyer_email = models.CharField(max_length=100, null=True, blank=True) 
-    amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True)
+    amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True, editable=False)
     currency = models.CharField(max_length=3, null=True, blank=True)
     payment_method = models.CharField(max_length=50, null=True, blank=True)
     is_success = models.BooleanField(default=False)

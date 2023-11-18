@@ -13,8 +13,8 @@ COMMISSION_STATUS = (
 
 class Commission(models.Model):
     payout_payment = models.ForeignKey(PayoutPayment, on_delete=models.SET_NULL, null=True, blank=True)    
-    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    commission_percentage = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True) 
+    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, editable=False)
+    commission_percentage = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, editable=False) 
     currency = models.CharField(max_length=3, null=True, blank=True)
     payment_method = models.CharField(max_length=50, null=True, blank=True)
     is_paid  = models.BooleanField(default=False)

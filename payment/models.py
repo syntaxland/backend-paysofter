@@ -13,7 +13,7 @@ class PayoutPayment(models.Model):
     bank_name = models.CharField(max_length=100)
     account_name = models.CharField(max_length=100)
     bank_account_number = models.CharField(max_length=10)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, editable=False)
     
     currency = models.CharField(max_length=3)  
     payment_method = models.CharField(max_length=50) 

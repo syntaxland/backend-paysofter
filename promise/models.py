@@ -62,7 +62,7 @@ PROMISE_STATUS_CHOICES = (
 class PaysofterPromise(models.Model):
     seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_seller")
     buyer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_payer")
-    amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True)
+    amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True, editable=False)
     currency = models.CharField(max_length=16, choices=CURRENCY_CHOICES, default='NGN', null=True, blank=True)
     duration = models.CharField(max_length=100, choices=PROMISE_DURATION_CHOICES, default='Within 1 day', null=True, blank=True)
     duration_hours = models.DurationField(null=True, blank=True)
@@ -75,7 +75,7 @@ class PaysofterPromise(models.Model):
     seller_fulfilled_promise = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=100, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
     payment_provider = models.CharField(max_length=100, choices=PAYMENT_PROVIDER_CHOICES)
-    promise_id = models.CharField(max_length=10, unique=True, null=True)
+    promise_id = models.CharField(max_length=10, unique=True, null=True, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True) 
 
     def save(self, *args, **kwargs):
