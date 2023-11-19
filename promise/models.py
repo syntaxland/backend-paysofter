@@ -74,6 +74,7 @@ class PaysofterPromise(models.Model):
     buyer_promise_fulfilled = models.BooleanField(default=False)
     seller_fulfilled_promise = models.BooleanField(default=False)
     is_settle_conflict_activated = models.BooleanField(default=False)
+    settle_conflict_charges = models.DecimalField(max_digits=16, decimal_places=2, default=0, null=True, blank=True, editable=False)
     payment_method = models.CharField(max_length=100, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
     payment_provider = models.CharField(max_length=100, choices=PAYMENT_PROVIDER_CHOICES)
     promise_id = models.CharField(max_length=10, unique=True, null=True, editable=False)

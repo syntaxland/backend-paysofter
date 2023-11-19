@@ -21,6 +21,7 @@ class AuthorAdmin(admin.ModelAdmin):
                     'is_delivered',
                     'is_success',
                     'is_settle_conflict_activated',
+                    'settle_conflict_charges',
                     'payment_method',
                     'payment_provider',
                     'timestamp',
