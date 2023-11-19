@@ -258,7 +258,7 @@ def buyer_confirm_promise(request):
     try:
         promise = PaysofterPromise.objects.get(buyer=user, promise_id=promise_id)
     except PaysofterPromise.DoesNotExist:
-        return Response({'detail': 'Account fund not found'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': 'Promise not found'}, status=status.HTTP_400_BAD_REQUEST)
     
     print('buyer_promise_fulfilled(before):', promise.buyer_promise_fulfilled)
 
@@ -294,6 +294,35 @@ def seller_confirm_promise(request):
     promise.save()
     print('seller_fulfilled_promise(after):', promise.seller_fulfilled_promise)
     return Response({'detail': 'Promise fulfilled.'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])   
+def settle_disputed_promise(request):
+    user = request.user
+    data = request.data
+    print('data:', data)
+
+    promise_id = data.get('promise_id')
+    keyword = data.get('keyword')
+    print('promise_id:', promise_id)
+
+    if keyword != "confirm":
+        return Response({'detail': 'Invalid keyword entered.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+    try:
+        promise = PaysofterPromise.objects.get(
+            Q(buyer=user) | Q(seller=user), 
+            promise_id=promise_id)
+    except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Promise not found'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    print('is_settle_conflict_activated(before):', promise.is_settle_conflict_activated)
+
+    promise.is_settle_conflict_activated = True
+    print('is_settle_conflict_activated(after):', promise.is_settle_conflict_activated)
+    promise.save() 
+    return Response({'detail': 'Settle disputed promise activated.'}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
