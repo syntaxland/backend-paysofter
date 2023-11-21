@@ -375,6 +375,18 @@ def get_user_account_fund_balance(request):
         return Response({'detail': 'Fund account balance not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(["GET"])
+@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
+def get_all_account_fund_balance(request):
+    try:
+        account_fund_balance = AccountFundBalance.objects.filter().order_by('-timestamp')
+        serializer = AccountFundBalanceSerializer(account_fund_balance, many=True)
+        return Response(serializer.data)
+    except AccountFundBalance.DoesNotExist:
+        return Response({'detail': 'Fund account balance not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 
 def get_user_account_funds(request):
@@ -589,3 +601,35 @@ def verify_otp_account_fund_disable(request):
 
     print(f'Account fund deactivated.')
     return Response({'detail': f'Account fund deactivated.', 'formattedEmail': formatted_email}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
+def activate_account_fund(request):
+    data = request.data
+    user = request.user
+    print('data:', data)
+
+    account_id = data.get('account_id')
+    password = data.get('password')
+
+    if not user.check_password(password):
+        return Response({'detail': 'Invalid password.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    try:
+        account_fund_user = User.objects.get(account_id=account_id)
+    except User.DoesNotExist:
+        return Response({'detail': 'Invalid email or Account ID'}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        account_balance = AccountFundBalance.objects.get(user=account_fund_user)
+    except AccountFundBalance.DoesNotExist:
+        return Response({'detail': 'Account fund not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    account_balance.is_diabled = False
+    account_balance.is_active = False
+    account_balance.save() 
+
+    print(f'Account fund deactivated.')
+    return Response({'detail': f'Account fund activated.',}, status=status.HTTP_200_OK)

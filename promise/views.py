@@ -349,6 +349,18 @@ def get_seller_promises(request):
         return Response({'detail': 'Promise not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
+def get_all_promises(request):
+    try:
+        promise = PaysofterPromise.objects.filter().order_by('-timestamp')
+        serializer = PaysofterPromiseSerializer(promise, many=True)
+        return Response(serializer.data)
+    except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Promise not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_promise_message(request):
@@ -404,6 +416,36 @@ def create_promise_message(request):
 #         return Response(serializer.data)
 #     except PromiseMessage.DoesNotExist:
 #         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
+def cancel_promise(request):
+    data = request.data
+    user = request.user
+    print('data:', data)
+
+    promise_id = data.get('promise_id')
+    password = data.get('password')
+
+    if not user.check_password(password):
+        return Response({'detail': 'Invalid password.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    try:
+        promise = PaysofterPromise.objects.get(promise_id=promise_id)
+    except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Promise fund not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    promise.is_cancelled = True
+    promise.is_delivered = False
+    promise.is_active = False
+    promise.is_success = False
+    promise.status = 'Cancelled'
+
+    promise.save() 
+
+    return Response({'detail': f'Promise cancelled.',}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

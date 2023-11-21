@@ -45,12 +45,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=18, unique=True)
     is_verified = models.BooleanField(default=False)
     avatar = models.ImageField(upload_to='images/avatars/', null=True, blank=True) 
-    referral_code = models.CharField(max_length=10, unique=True, null=True) 
-    referral_link = models.CharField(max_length=225, unique=True, null=True)
-    test_api_key = models.CharField(max_length=100, unique=True, null=True)
-    test_api_secret_key = models.CharField(max_length=100, unique=True, null=True)
-    live_api_key = models.CharField(max_length=100, unique=True, null=True)
-    live_api_secret_key = models.CharField(max_length=100, unique=True, null=True)
+    referral_code = models.CharField(max_length=10, unique=True, null=True, editable=False) 
+    referral_link = models.CharField(max_length=225, unique=True, null=True, editable=False)
+    test_api_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
+    test_api_secret_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
+    live_api_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
+    live_api_secret_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
     is_live_mode = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)  
@@ -58,10 +58,6 @@ class User(AbstractBaseUser, PermissionsMixin):
   
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'phone_number']
-
-    def save(self, *args, **kwargs):
-        self.username = self.email
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.email}" 

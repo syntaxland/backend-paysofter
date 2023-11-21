@@ -57,6 +57,7 @@ PROMISE_STATUS_CHOICES = (
         ('Processing', 'Processing'),
         ('Fulfilled', 'Fulfilled'),
         ('Failed', 'Failed'),
+        ('Cancelled', 'Cancelled'),
     )
 
 class PaysofterPromise(models.Model):
@@ -69,12 +70,14 @@ class PaysofterPromise(models.Model):
     expiration_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=100, choices=PROMISE_STATUS_CHOICES, default='Processing', null=True, blank=True)
     is_success = models.BooleanField(default=False)
+    is_cancelled = models.BooleanField(default=False)
     is_delivered = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     buyer_promise_fulfilled = models.BooleanField(default=False)
     seller_fulfilled_promise = models.BooleanField(default=False)
     is_settle_conflict_activated = models.BooleanField(default=False)
     settle_conflict_charges = models.DecimalField(max_digits=16, decimal_places=2, default=0, null=True, blank=True, editable=False)
+    service_charge = models.DecimalField(max_digits=16, decimal_places=2, default=0, null=True, blank=True, editable=False)
     payment_method = models.CharField(max_length=100, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
     payment_provider = models.CharField(max_length=100, choices=PAYMENT_PROVIDER_CHOICES)
     promise_id = models.CharField(max_length=10, unique=True, null=True, editable=False)

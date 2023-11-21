@@ -11,7 +11,7 @@ from rest_framework.request import Request
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter 
 from rest_auth.registration.views import SocialLoginView 
 
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -78,7 +78,15 @@ def user_register_view(request):
     serializer = UserSerializer(data=data)
 
     email = data.get('email')
-    phone_number = data.get('phone_number')
+    phone_number = data.get('phone_number') 
+    username = data.get('username') 
+
+    try:
+        user_with_username = User.objects.get(username=username)
+        if user_with_username.is_verified:
+            return Response({'detail': 'A user with this username already exists.'}, status=status.HTTP_400_BAD_REQUEST) 
+    except User.DoesNotExist:
+        pass
 
     try:
         user_with_email_not_verified = User.objects.get(email=email)
@@ -88,14 +96,14 @@ def user_register_view(request):
         pass
 
     try:
-        user_with_email = User.objects.get(email=email) 
+        user_with_email = User.objects.get(email=email)
         if user_with_email.is_verified:
             return Response({'detail': 'A user with this email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
         pass
-    
+
     try:
-        user_with_phone = User.objects.get(phone_number=phone_number) 
+        user_with_phone = User.objects.get(phone_number=phone_number)
         if user_with_phone.is_verified:
             return Response({'detail': 'A user with this phone number already exists.'}, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
@@ -112,7 +120,7 @@ def user_register_view(request):
         # User does not exist, create the user and send verification OTP
         print('\nCreating user...')
         user = User.objects.create_user(
-            username=email,
+            username=username,
             email=email,
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
