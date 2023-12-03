@@ -72,7 +72,7 @@ INSTALLED_APPS = [
     'payment',
     'transaction',
     'payout',
-    'business_account', 
+    # 'business_account', 
     'fund_account', 
     'promise',
     'commission',
@@ -85,7 +85,7 @@ INSTALLED_APPS = [
     # 'send_message_inbox', 
     # 'recommender',
     # 'live_chat',
-    # 'promo',
+    'sellers',
     'referral',
 
  

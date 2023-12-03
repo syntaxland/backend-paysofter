@@ -124,8 +124,9 @@ def user_register_view(request):
             email=email,
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
-            phone_number=data.get('phone_number'),
+            phone_number=data.get('phone_number'), 
             password=data.get('password'),
+            is_terms_conditions_read=data.get('is_terms_conditions_read'),
 
             test_api_key=test_api_key,
             test_api_secret_key=test_api_secret_key,

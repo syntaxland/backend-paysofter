@@ -1,4 +1,4 @@
-# transaction/views.py
+# transaction/views.py 
 import random
 import string
 

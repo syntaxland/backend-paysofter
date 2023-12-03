@@ -7,11 +7,15 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer): 
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password', 'phone_number', 'is_verified', 'is_superuser', 'is_staff', 'created_at']
+        fields = ['id', 'username', 'email', 
+                  'first_name', 'last_name', 'password', 
+                  'phone_number', 'is_verified', 
+                  'is_superuser', 'is_staff', 
+                  'is_seller', 'created_at']
         extra_kwargs = {
             'password': {'write_only': True},
         }
@@ -21,7 +25,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password', 'phone_number', 'account_id', 'security_code', 'avatar', 'is_verified', 'is_superuser',  
+        fields = ['id', 'username', 'email', 
+                  'first_name', 'last_name', 
+                  'password', 'phone_number', 
+                  'account_id', 
+                  'security_code', 'avatar',
+                    'is_verified', 
+                    'is_superuser',
+                    'is_staff', 
+                        'is_seller', 
                   'referral_code',
                     'referral_link',
                     'test_api_key',

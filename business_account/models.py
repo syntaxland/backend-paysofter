@@ -5,34 +5,18 @@ from django.contrib.auth import get_user_model
 User = get_user_model() 
 
 
-class BusinessAccount(models.Model):
-    seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="business_account_seller")
-    business_name = models.CharField(max_length=100, null=True, blank=True)
-    trading_name = models.CharField(max_length=100, null=True, blank=True)
-    business_reg_num = models.CharField(max_length=50, null=True, blank=True)
-    business_address = models.CharField(max_length=225, null=True, blank=True)
-    BUSINESS_TYPE_CHOICES = [
+BUSINESS_TYPE_CHOICES = [
         ('registered', 'Registered'),
         ('unregistered', 'Unregistered'), 
     ]
-    business_type = models.CharField(
-        max_length=225,
-        null=True,
-        blank=True,
-        choices=BUSINESS_TYPE_CHOICES,  
-    )
-    STAFF_SIZE_CHOICES = [
+
+STAFF_SIZE_CHOICES = [
         ('small', 'Small (1-50 employees)'),
         ('medium', 'Medium (51-250 employees)'),
         ('large', 'Large (251+ employees)'),
     ]
-    staff_size = models.CharField(
-        max_length=50,
-        null=True,
-        blank=True,
-        choices=STAFF_SIZE_CHOICES,
-    )
-    BUSINESS_INDUSTRY_CHOICES = [
+
+BUSINESS_INDUSTRY_CHOICES = [
         ('it', 'Information Technology'),
         ('healthcare', 'Healthcare'),
         ('finance', 'Finance'),
@@ -53,13 +37,9 @@ class BusinessAccount(models.Model):
         ('nonprofit', 'Nonprofit'),
         ('other', 'Other'),
     ]
-    business_industry = models.CharField(
-        max_length=50,
-        null=True,
-        blank=True,
-        choices=BUSINESS_INDUSTRY_CHOICES,
-    )
-    BUSINESS_CATEGORY_CHOICES = [
+
+
+BUSINESS_CATEGORY_CHOICES = [
         ('startup', 'Startup'),
         ('small_business', 'Small Business'),
         ('medium_business', 'Medium Business'),
@@ -92,6 +72,36 @@ class BusinessAccount(models.Model):
         ('nonprofit', 'Nonprofit'),
         ('other', 'Other'),
     ]
+
+    
+class BusinessAccount(models.Model):
+    seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="business_account_seller")
+    business_name = models.CharField(max_length=100, null=True, blank=True)
+    trading_name = models.CharField(max_length=100, null=True, blank=True)
+    business_reg_num = models.CharField(max_length=50, null=True, blank=True)
+    business_address = models.CharField(max_length=225, null=True, blank=True)
+    
+    business_type = models.CharField(
+        max_length=225,
+        null=True,
+        blank=True,
+        choices=BUSINESS_TYPE_CHOICES,  
+    )
+    
+    staff_size = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        choices=STAFF_SIZE_CHOICES,
+    )
+    
+    business_industry = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        choices=BUSINESS_INDUSTRY_CHOICES,
+    )
+    
     business_category = models.CharField(
         max_length=50,
         null=True,

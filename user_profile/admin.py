@@ -17,6 +17,7 @@ class AuthorAdmin(admin.ModelAdmin):
                     'is_live_mode',
                     'is_staff', 
                     'is_superuser', 
+                    'is_seller', 
                     )
     
     # def get_readonly_fields(self, request, obj=None):

@@ -54,7 +54,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_live_mode = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)  
-    created_at = models.DateTimeField(default=timezone.now, blank=True)
+    is_seller = models.BooleanField(default=False)
+    is_terms_conditions_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now, blank=True) 
   
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'phone_number']
