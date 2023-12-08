@@ -38,7 +38,7 @@ def generate_promise_id():
 @api_view(['POST'])
 @permission_classes([AllowAny])  
 def create_promise(request):
-    data = request.data
+    data = request.data 
     print("data:", data)
 
     amount = Decimal(request.data.get('amount'))

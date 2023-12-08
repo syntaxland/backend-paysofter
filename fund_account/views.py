@@ -303,7 +303,7 @@ def verify_account_debit_email_otp(request):
 
     otp_data = request.data.get('otpData', {}) 
     otp = otp_data.get('otp')
-    amount = otp_data.get('amount')
+    amount = Decimal(otp_data.get('amount'))
     account_id = otp_data.get('account_id')
     currency = otp_data.get('currency')
     debit_account_id = generate_debit_account_id()
@@ -505,7 +505,7 @@ def send_otp_account_fund_disable(request):
     except Exception as e:
         print(e)
         return Response({'error': 'Error sending email. Please check your network connection.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response({'detail': f'Email {email} sent.', 'formattedEmail': formatted_email}, status=status.HTTP_200_OK)
+    return Response({'detail': f'Email {email} sent.', 'formattedEmail': formatted_email}, status=status.HTTP_200_OK) 
 
 
 def send_deactivate_account_fund_otp(request, email, first_name):

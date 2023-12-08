@@ -14,7 +14,7 @@ class AuthorAdmin(admin.ModelAdmin):
                     'referral_code', 
                     'test_api_key',
                     'live_api_key',
-                    'is_live_mode',
+                    'is_api_key_live',
                     'is_staff', 
                     'is_superuser', 
                     'is_seller', 

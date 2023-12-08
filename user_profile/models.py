@@ -51,7 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     test_api_secret_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
     live_api_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
     live_api_secret_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
-    is_live_mode = models.BooleanField(default=False)
+    is_api_key_live = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)  
     is_seller = models.BooleanField(default=False)
