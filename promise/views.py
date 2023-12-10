@@ -362,63 +362,6 @@ def get_all_promises(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_promise_message(request):
-    print('processing...')
-    user=request.user
-    data=request.data
-    print('data:', data, 'user:', user)
-
-    promise_id = data.get('promise_id')
-    message = data.get('message')
-    print('promise_id:', promise_id)
-    print('message:', message)
-    
-    try:
-        promise = PaysofterPromise.objects.get(promise_id=promise_id)
-    except PaysofterPromise.DoesNotExist:
-        return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
-    
-    PromiseMessage.objects.create(
-            user=user,
-            promise_message=promise,
-            message=message,
-        )
-    return Response({'message': 'Promise message created'}, status=status.HTTP_201_CREATED)
-
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def list_promise_messages(request):
-#     print('processing...')
-#     user = request.user
-#     data  = request.data
-#     print('data:', data, 'user:', user)
-
-#     promise_id = data.get('promise_id')
-#     print('promise_id:', promise_id)
-
-#     try:
-#         promise_message = PaysofterPromise.objects.get(
-#             # user=user,
-#             promise_id=promise_id
-#             )
-#     except PaysofterPromise.DoesNotExist:
-#         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
-    
-#     print('promise_message:', promise_message)
-    
-#     try:
-#         promise_message = PromiseMessage.objects.filter(
-#             promise_message=promise_message,
-#             ).order_by('timestamp')
-#         serializer = PromiseMessageSerializer(promise_message, many=True)
-#         return Response(serializer.data)
-#     except PromiseMessage.DoesNotExist:
-#         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
-@api_view(['POST'])
 @permission_classes([IsAdminUser])
 @permission_classes([IsAuthenticated])
 def cancel_promise(request):
@@ -446,6 +389,32 @@ def cancel_promise(request):
     promise.save() 
 
     return Response({'detail': f'Promise cancelled.',}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_promise_message(request):
+    print('processing...')
+    user=request.user
+    data=request.data
+    print('data:', data, 'user:', user)
+
+    promise_id = data.get('promise_id')
+    message = data.get('message')
+    print('promise_id:', promise_id)
+    print('message:', message)
+    
+    try:
+        promise = PaysofterPromise.objects.get(promise_id=promise_id)
+    except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    PromiseMessage.objects.create(
+            user=user,
+            promise_message=promise,
+            message=message,
+        )
+    return Response({'message': 'Promise message created'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])

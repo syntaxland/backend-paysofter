@@ -117,4 +117,4 @@ class PromiseMessage(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, null=True)
     
     def __str__(self):
-        return f"{self.user} | {self.promise_message}"
+        return f"{self.user} | {self.promise_message}" 
