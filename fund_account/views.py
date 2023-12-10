@@ -196,6 +196,7 @@ def debit_user_fund_account(request):
     # amount = int(request.data.get('amount'))
     amount = Decimal(request.data.get('amount'))
     print('account_id', account_id)     
+    public_api_key = request.data.get('public_api_key')
 
     if account_id:
         try:
@@ -230,6 +231,14 @@ def debit_user_fund_account(request):
 
     if account_balance.max_withdrawal < amount: 
         return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        seller_api_key = User.objects.get(test_api_key=public_api_key)
+        if seller_api_key:
+            return Response({'detail': 'Seller API Key found'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'detail': 'Invalid or Seller API Key not found'}, status=status.HTTP_401_UNAUTHORIZED)
+    print('seller_api_key:', seller_api_key)
 
     payer_email = user.email
     first_name = user.first_name
@@ -308,6 +317,15 @@ def verify_account_debit_email_otp(request):
     currency = otp_data.get('currency')
     debit_account_id = generate_debit_account_id()
     print('fund_account_id:', debit_account_id, 'otp:', otp, 'amount:', amount, 'account_id:', account_id) 
+
+    # public_api_key = request.data.get('public_api_key')
+    # try:
+    #     seller_api_key = User.objects.get(test_api_key=public_api_key)
+    #     if seller_api_key:
+    #         return Response({'detail': 'Seller API Key found'}, status=status.HTTP_200_OK)
+    # except User.DoesNotExist:
+    #     return Response({'detail': 'Invalid or Seller API Key not found'}, status=status.HTTP_401_UNAUTHORIZED)
+    # print('seller_api_key:', seller_api_key)
 
     try:
         user = User.objects.get(account_id=account_id)

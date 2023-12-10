@@ -57,7 +57,7 @@ def create_promise(request):
     try:
         seller = User.objects.get(test_api_key=public_api_key)
     except User.DoesNotExist:
-        return Response({'detail': 'Seller not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Invalid or Seller API Key not found'}, status=status.HTTP_401_UNAUTHORIZED)
     print('seller:', seller)
 
     try:
