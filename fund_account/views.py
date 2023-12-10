@@ -198,17 +198,17 @@ def debit_user_fund_account(request):
     print('account_id', account_id)     
     public_api_key = request.data.get('public_api_key')
 
-    if account_id:
-        try:
-            user = User.objects.get(account_id=account_id)
-        except User.DoesNotExist:
-            return Response({'detail': 'Invalid Account ID'}, status=status.HTTP_404_NOT_FOUND)
+    # if account_id:
+    try:
+        user = User.objects.get(account_id=account_id)
+    except User.DoesNotExist:
+        return Response({'detail': 'Invalid Account ID'}, status=status.HTTP_404_NOT_FOUND)
 
-    if security_code:
-        try:
-            user = User.objects.get(security_code=security_code)
-        except User.DoesNotExist:
-            return Response({'detail': 'Invalid or expired Security Code.'}, status=status.HTTP_404_NOT_FOUND)
+    # if security_code:
+    try:
+        user = User.objects.get(security_code=security_code)
+    except User.DoesNotExist:
+        return Response({'detail': 'Invalid or expired Security Code.'}, status=status.HTTP_404_NOT_FOUND)
     
     if user is None:
         return Response({'detail': 'Invalid Account ID or Security Code is expired.'}, status=status.HTTP_404_NOT_FOUND)
