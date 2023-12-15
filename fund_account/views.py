@@ -197,6 +197,7 @@ def debit_user_fund_account(request):
     amount = Decimal(request.data.get('amount'))
     print('account_id', account_id)     
     public_api_key = request.data.get('public_api_key')
+    print('public_api_key:', public_api_key)
 
     # if account_id:
     try:
@@ -234,8 +235,8 @@ def debit_user_fund_account(request):
     
     try:
         seller_api_key = User.objects.get(test_api_key=public_api_key)
-        if seller_api_key:
-            return Response({'detail': 'Seller API Key found'}, status=status.HTTP_200_OK)
+        # if not seller_api_key:
+        #     return Response({'detail': 'Seller API Key found'}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'detail': 'Invalid or Seller API Key not found'}, status=status.HTTP_401_UNAUTHORIZED)
     print('seller_api_key:', seller_api_key)

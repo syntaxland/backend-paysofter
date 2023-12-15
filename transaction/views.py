@@ -1,4 +1,5 @@
 # transaction/views.py 
+from decimal import Decimal
 import random
 import string
 
@@ -29,7 +30,7 @@ def generate_transaction_id():
 def initiate_transaction(request): 
     print('Initiateed test transaction...')
  
-    amount = request.data.get('amount')
+    amount = Decimal(request.data.get('amount'))
     buyer_email = request.data.get('email')
     payment_id = request.data.get('payment_id')
     created_at = request.data.get('created_at')
