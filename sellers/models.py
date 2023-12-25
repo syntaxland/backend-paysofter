@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 BUSINESS_TYPE_CHOICES = [
-        ('Registered', 'Registered'),
+        ('Registered', 'Registered'), 
         ('Unregistered', 'Unregistered'), 
     ]
 
@@ -112,6 +112,7 @@ class BusinessStatus(models.Model):
     business_name = models.CharField(max_length=100, null=True, blank=True)
     business_reg_num = models.CharField(max_length=50, null=True, blank=True)
     business_reg_cert = models.ImageField(upload_to='media/sellers/', null=True, blank=True)
+    is_business_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
 
@@ -135,6 +136,19 @@ class BankAccount(models.Model):
     account_name = models.CharField(max_length=100,  null=True)
     bank_account_number = models.CharField(max_length=10,  null=True)
     bank_name = models.CharField(max_length=100,  null=True)
+    is_bank_account_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True,  null=True) 
+
+    def __str__(self):
+        return f"{self.seller}"
+
+
+class UsdBankAccount(models.Model):
+    seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="seller_usd_bank_account") 
+    account_name = models.CharField(max_length=100,  null=True)
+    bank_account_number = models.CharField(max_length=10,  null=True)
+    bank_name = models.CharField(max_length=100,  null=True)
+    is_usd_bank_account_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True,  null=True) 
 
     def __str__(self):
@@ -144,6 +158,7 @@ class BankAccount(models.Model):
 class BankVerificationNumber(models.Model):
     seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="bvn_seller") 
     bvn = models.CharField(max_length=10, null=True)
+    is_bvn_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True,  null=True) 
 
     def __str__(self):
@@ -157,3 +172,4 @@ class SellerPhoto(models.Model):
 
     def __str__(self):
         return f'Photo {self.pk}'
+ 
