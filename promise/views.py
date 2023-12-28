@@ -50,8 +50,8 @@ def create_promise(request):
 
     promise_id = generate_promise_id()
     print('promise_id:', promise_id)
-    payment_method = request.data.get('payment_method')
-    payment_provider = request.data.get('payment_provider')
+    # payment_method = request.data.get('payment_method')
+    # payment_provider = request.data.get('payment_provider')
     print('account_id:', account_id)
 
     try:
@@ -74,8 +74,8 @@ def create_promise(request):
             currency=currency,
             duration=duration,
             # duration_hours=duration_hours,
-            payment_method=payment_method,
-            payment_provider=payment_provider,
+            # payment_method=payment_method,
+            # payment_provider=payment_provider,
             promise_id=promise_id,
             is_active=True
         ) 
