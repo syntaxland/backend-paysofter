@@ -112,7 +112,7 @@ def fund_user_account_view(request):
         print("\nsender_email:", sender_email, "user_email:", user_email) 
  
         try:
-            send_user_email(request, sender_name, sender_email, amount, fund_account_id, created_at, user_email, first_name)
+            send_user_email(request, sender_name, sender_email, amount, currency, fund_account_id, created_at, user_email, first_name)
         except Exception as e:
             print(e)
             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -125,7 +125,7 @@ def fund_user_account_view(request):
         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def send_user_email(request, sender_name, sender_email, amount, fund_account_id, created_at, user_email, first_name):
+def send_user_email(request, sender_name, sender_email, amount, currency, fund_account_id, created_at, user_email, first_name):
     # Email Sending API Config
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
@@ -133,7 +133,7 @@ def send_user_email(request, sender_name, sender_email, amount, fund_account_id,
 
     # Sending email
     print("\nSending email...")
-    subject =  f"[TEST MODE] Notice of Paysofter account fund of NGN {amount} with  Account Fund ID [{fund_account_id}]"
+    subject =  f"[TEST MODE] Notice of Paysofter account fund of {amount} {currency} with  Account Fund ID [{fund_account_id}]"
     buyer_html_content = f"""
             <!DOCTYPE html>
             <html>
@@ -142,7 +142,7 @@ def send_user_email(request, sender_name, sender_email, amount, fund_account_id,
             </head>
             <body>
                 <p>Dear {first_name},</p>
-                <p>You have funded your Paysofter account with <strong>NGN {amount}</strong> with  <b>Account Fund ID: "{fund_account_id}"</b> at <b>{created_at}</b>.</p>
+                <p>You have funded your Paysofter account with <strong>{amount} {currency}</strong> with  <b>Account Fund ID: "{fund_account_id}"</b> at <b>{created_at}</b>.</p>
                 <p>If you have any issue with the payment, kindly reply this email.</b></p>
                 <p>If you have received this email in error, please ignore it.</p>
                 <p>Best regards,</p>
@@ -730,7 +730,7 @@ def fund_user_usd_account(request):
         print("\nsender_email:", sender_email, "user_email:", user_email) 
  
         try:
-            send_usd_user_email(request, sender_name, sender_email, amount, fund_account_id, created_at, user_email, first_name)
+            send_usd_user_email(request, sender_name, sender_email, amount, currency, fund_account_id, created_at, user_email, first_name)
         except Exception as e:
             print(e)
             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -743,7 +743,7 @@ def fund_user_usd_account(request):
         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def send_usd_user_email(request, sender_name, sender_email, amount, fund_account_id, created_at, user_email, first_name):
+def send_usd_user_email(request, sender_name, sender_email, amount, currency, fund_account_id, created_at, user_email, first_name):
     # Email Sending API Config
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
@@ -751,7 +751,7 @@ def send_usd_user_email(request, sender_name, sender_email, amount, fund_account
 
     # Sending email
     print("\nSending email...")
-    subject =  f"[TEST MODE] Notice of Paysofter account fund of USD {amount} with  Account Fund ID [{fund_account_id}]"
+    subject =  f"[TEST MODE] Notice of Paysofter account fund of {amount} {currency} with  Account Fund ID [{fund_account_id}]"
     buyer_html_content = f"""
             <!DOCTYPE html>
             <html>
@@ -760,7 +760,7 @@ def send_usd_user_email(request, sender_name, sender_email, amount, fund_account
             </head>
             <body>
                 <p>Dear {first_name},</p>
-                <p>You have funded your Paysofter account with <strong>USD {amount}</strong> with  <b>Account Fund ID: "{fund_account_id}"</b> at <b>{created_at}</b>.</p>
+                <p>You have funded your Paysofter account with <strong>{amount} {currency}</strong> with  <b>Account Fund ID: "{fund_account_id}"</b> at <b>{created_at}</b>.</p>
                 <p>If you have any issue with the payment, kindly reply this email.</b></p>
                 <p>If you have received this email in error, please ignore it.</p>
                 <p>Best regards,</p>
@@ -787,26 +787,21 @@ def send_usd_user_email(request, sender_name, sender_email, amount, fund_account
 @api_view(['POST'])
 @permission_classes([AllowAny])   
 def debit_user_usd_account_fund(request):
-    # user = None  
     data = request.data
     print('data:', data)
     
     account_id = request.data.get('account_id')
     security_code = request.data.get('security_code')
-    # amount = request.data.get('amount')
-    # amount = int(request.data.get('amount'))
     amount = Decimal(request.data.get('amount'))
     print('account_id', account_id)     
     public_api_key = request.data.get('public_api_key')
     print('public_api_key:', public_api_key)
 
-    # if account_id:
     try:
         user = User.objects.get(account_id=account_id)
     except User.DoesNotExist:
         return Response({'detail': 'Invalid Account ID'}, status=status.HTTP_404_NOT_FOUND)
 
-    # if security_code:
     try:
         user = User.objects.get(security_code=security_code)
     except User.DoesNotExist:
@@ -818,20 +813,20 @@ def debit_user_usd_account_fund(request):
     print('user:', user)
 
     try:
-        account_balance = UsdAccountFundBalance.objects.get(user=user)
+        usd_account_balance = UsdAccountFundBalance.objects.get(user=user)
     except UsdAccountFundBalance.DoesNotExist:
         return Response({'detail': 'Account fund not found'}, status=status.HTTP_400_BAD_REQUEST)
 
-    if account_balance.is_diabled == True: 
+    if usd_account_balance.is_diabled == True: 
         return Response({'detail': 'Account fund is currently diabled. Please contact support.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    if account_balance.is_active == False: 
+    if usd_account_balance.is_active == False: 
         return Response({'detail': 'Account fund is currently inactive.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    if account_balance.max_withdrawal is None: 
+    if usd_account_balance.max_withdrawal is None: 
         return Response({'detail': 'Maximum account fund value is set to None. Please set a minimum value for the Account Fund.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    if account_balance.max_withdrawal < amount: 
+    if usd_account_balance.max_withdrawal < amount: 
         return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
@@ -911,7 +906,7 @@ def send_usd_payer_account_fund_otp(request, payer_email, first_name):
 def verify_usd_account_debit_email_otp(request):
     data = request.data
     print('data:', data)
-
+ 
     otp_data = request.data.get('otpData', {}) 
     otp = otp_data.get('otp')
     amount = Decimal(otp_data.get('amount'))

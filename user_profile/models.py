@@ -55,6 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)  
     is_seller = models.BooleanField(default=False)
+    is_usd_selected = models.BooleanField(default=False)
     is_terms_conditions_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now, blank=True) 
   

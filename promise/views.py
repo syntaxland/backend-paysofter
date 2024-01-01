@@ -122,13 +122,13 @@ def create_promise(request):
         print("\nsender_email:", sender_email, "formatted_seller_account_id:", formatted_seller_account_id, "formatted_buyer_account_id:", formatted_buyer_account_id) 
  
         try:
-            send_buyer_email(request, sender_name, sender_email, amount, promise_id, created_at, buyer_email, buyer_first_name, formatted_seller_account_id)
+            send_buyer_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, buyer_email, buyer_first_name, formatted_seller_account_id)
         except Exception as e:
             print(e)
             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
-            send_seller_email(request, sender_name, sender_email, amount, promise_id, created_at, seller_email, seller_first_name, formatted_buyer_account_id)
+            send_seller_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, seller_email, seller_first_name, formatted_buyer_account_id)
         except Exception as e:
             print(e)
             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -141,7 +141,7 @@ def create_promise(request):
         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def send_buyer_email(request, sender_name, sender_email, amount, promise_id, created_at, buyer_email, buyer_first_name, formatted_seller_account_id):
+def send_buyer_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, buyer_email, buyer_first_name, formatted_seller_account_id):
     url = settings.PAYSOFTER_URL
     buyer_confirm_promise_link =  f"{url}/promise/buyer"
 
@@ -162,7 +162,7 @@ def send_buyer_email(request, sender_name, sender_email, amount, promise_id, cre
             </head>
             <body>
                 <p>Hello {buyer_first_name.title()},</p>
-                <p>This is to inform you that you have made a promise of <strong>NGN {amount}</strong> with <b>Promise ID: "{promise_id}"</b> to a seller with Account ID: "<strong>{formatted_seller_account_id}</strong>" at <b>{created_at}</b>.</p>
+                <p>This is to inform you that you have made a promise of <strong>{amount} {currency}</strong> with <b>Promise ID: "{promise_id}"</b> to a seller with Account ID: "<strong>{formatted_seller_account_id}</strong>" at <b>{created_at}</b>.</p>
                 <p>Click the link below to confirm promise:</p>
                 <p><a href="{ buyer_confirm_promise_link }" style="display: inline-block; 
                 background-color: #2196f3; color: #fff; padding: 10px 20px; 
@@ -190,7 +190,7 @@ def send_buyer_email(request, sender_name, sender_email, amount, promise_id, cre
         return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def send_seller_email(request, sender_name, sender_email, amount, promise_id, created_at, seller_email, seller_first_name, formatted_buyer_account_id):
+def send_seller_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, seller_email, seller_first_name, formatted_buyer_account_id):
     url = settings.PAYSOFTER_URL
     seller_confirm_promise_link =  f"{url}/promise/seller"
     
@@ -211,7 +211,7 @@ def send_seller_email(request, sender_name, sender_email, amount, promise_id, cr
             </head>
             <body>
                 <p>Hello {seller_first_name.title()},</p>
-                <p>This is to inform you that you have received a promise of <strong>NGN {amount}</strong> with <b>Promise ID: "{promise_id}"</b> from a buyer with Account ID: "<strong>{formatted_buyer_account_id}</strong>" at <b>{created_at}</b>.</p>
+                <p>This is to inform you that you have received a promise of <strong>{amount} {currency}</strong> with <b>Promise ID: "{promise_id}"</b> from a buyer with Account ID: "<strong>{formatted_buyer_account_id}</strong>" at <b>{created_at}</b>.</p>
                 <p>Click the link below to confirm promise:</p>
                 <p><a href="{ seller_confirm_promise_link }" style="display: inline-block; 
                 background-color: #2196f3; color: #fff; padding: 10px 20px; 
