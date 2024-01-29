@@ -974,7 +974,7 @@ def get_user_usd_account_fund_balance(request):
 def get_user_usd_account_fund_credits(request):
     user = request.user
     try:
-        account_funds = FundUsdAccount.objects.filter(user=user).order_by('-timestamp')
+        account_funds = FundUsdAccount.objects.filter(user=user).order_by('-timestamp') 
         serializer = FundUsdAccountSerializer(account_funds, many=True)
         return Response(serializer.data)
     except FundUsdAccount.DoesNotExist:

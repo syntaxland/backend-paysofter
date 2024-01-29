@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path('fund-user-account/', views.fund_user_account_view, name='fund-user-account'),
     path('get-user-acount-balance/', views.get_user_account_fund_balance, name='get-user-acount-balance'),
-    path('get-all-account-fund-balance/', views.get_all_account_fund_balance, name='get-all-account-fund-balance'),
+    path('get-all-account-fund-balance/', views.get_all_account_fund_balance, name='get-all-account-fund-balance'), 
     
     path('user-account-funds/', views.get_user_account_funds, name='user-account-funds'),
 
@@ -30,7 +30,7 @@ urlpatterns = [
     path('debit-user-usd-account-fund/', views.debit_user_usd_account_fund, name='debit_user_usd_account_fund'),
     path('verify-usd-account-debit-email-otp/', views.verify_usd_account_debit_email_otp, name='verify_usd_account_debit_email_otp'),
     path('get-user-usd-account-fund-credits/', views.get_user_usd_account_fund_credits, name='get_user_usd_account_fund_credits'),
-    path('get-user-usd_account-debits/', views.get_user_usd_account_debits, name='get_user_usd_account_debits'),
+    path('get-user-usd-account-fund-debits/', views.get_user_usd_account_debits, name='get_user_usd_account_debits'),
     path('set-usd-maximum-fund-withdrawal/', views.set_usd_maximum_fund_withdrawal, name='set-usd-maximum-fund-withdrawal'),
 ]
   

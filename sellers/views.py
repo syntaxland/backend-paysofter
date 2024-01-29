@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .models import (SellerAccount, BusinessOwnerDetail, 
+from .models import (SellerAccount, BusinessOwnerDetail,  
                      BankAccount, BankVerificationNumber, 
                      SellerPhoto, BusinessStatus)
 from .serializers import (SellerAccountSerializer, 

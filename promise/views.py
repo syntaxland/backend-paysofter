@@ -456,7 +456,7 @@ def format_email(email):
             # If the username or domain is too short, don't modify the email
             return email
         else:
-            username = parts[0][0] + '*' * (len(parts[0]) - 2) + parts[0][-1]
+            username = parts[0][0] + '*' * (len(parts[0]) - 2) + parts[0][-1] 
             domain = parts[1][0] + '*' * (len(parts[1]) - 2) + parts[1][-1]
             return f"{username}@{domain}"
     else:
