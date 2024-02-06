@@ -21,8 +21,12 @@ from payment.models import PayoutPayment
 User = get_user_model()
 
 
+# def generate_transaction_id():
+#     return ''.join(random.choices(string.digits, k=10))
+
 def generate_transaction_id():
-    return ''.join(random.choices(string.digits, k=10))
+    letters_and_digits = string.ascii_uppercase + string.digits
+    return 'TID'+''.join(random.choices(letters_and_digits, k=14))
 
 
 @api_view(['POST'])
@@ -99,7 +103,7 @@ def initiate_transaction(request):
         sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
         buyer_email = buyer_email
         seller_email = seller.email
-        seller_name = "mcdofshop.com"
+        seller_name = "sellangle.com"
         print("\nbuyer_email:", buyer_email)
         print("seller_email:", seller_email)
         print("\nsender_email:", sender_email)

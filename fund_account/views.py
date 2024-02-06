@@ -71,24 +71,27 @@ def fund_user_account_view(request):
     expiration_month_year = request.data.get('expiration_month_year')
     cvv = request.data.get('cvv')
     print('amount:', amount)
-    
 
-    try:      
+    try:  
+        fund_account_balance, created = AccountFundBalance.objects.get_or_create(user=user)
+        old_bal = fund_account_balance.balance    
+
         fund_account = FundAccount.objects.create(
             user=user,
             amount=amount,
             currency=currency,
+            old_bal=old_bal,
             payment_method="Debit Card",
             payment_provider="Mastercard",
             fund_account_id=fund_account_id,
         ) 
-        fund_account.is_success = True
-        fund_account.save()
-
-        fund_account_balance, created = AccountFundBalance.objects.get_or_create(user=user)
-        balance = fund_account_balance.balance
+        
         fund_account_balance.balance += amount 
         fund_account_balance.save()
+
+        fund_account.is_success = True
+        fund_account.new_bal = fund_account_balance.balance    
+        fund_account.save()
         
         try:
             card_data = FundAccountCreditCard.objects.create(
@@ -117,7 +120,7 @@ def fund_user_account_view(request):
             print(e)
             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        return Response({'success': f'Fund account request submitted successfully. Old Bal: NGN {balance}'}, 
+        return Response({'success': f'Fund account request submitted successfully. Old Bal: NGN {old_bal}'}, 
                         status=status.HTTP_201_CREATED)
     except FundAccount.DoesNotExist:
             return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -354,10 +357,11 @@ def verify_account_debit_email_otp(request):
         try:
             account_balance, created = AccountFundBalance.objects.get_or_create(user=user)
             
-            balance = account_balance.balance
-            print('old balance:', balance)
+            # balance = account_balance.balance
+            old_bal = account_balance.balance    
+            print('old balance:', old_bal)
 
-            if balance < amount: 
+            if old_bal < amount: 
                 return Response({'detail': 'Insufficient account balance.'}, status=status.HTTP_404_NOT_FOUND)
             account_balance.balance -= amount 
             account_balance.save()
@@ -367,11 +371,13 @@ def verify_account_debit_email_otp(request):
                 user=user,
                 amount=amount,
                 currency=currency,
+                old_bal=old_bal,
                 # payment_method=payment_method,
                 # payment_provider=payment_provider,
                 debit_account_id=debit_account_id,
             ) 
             debit_fund_account.is_success = True
+            debit_fund_account.new_bal = account_balance.balance    
             debit_fund_account.save()
             return Response({'success': f'Account debited successfully.'}, status=status.HTTP_201_CREATED)
         except DebitAccountFund.DoesNotExist:
@@ -692,21 +698,23 @@ def fund_user_usd_account(request):
     print('amount:', amount)
     
     try:      
+        fund_account_balance, created = UsdAccountFundBalance.objects.get_or_create(user=user)
+        old_bal = fund_account_balance.balance    
+        fund_account_balance.balance += amount 
+        fund_account_balance.save()
+
         fund_account = FundUsdAccount.objects.create(
             user=user,
             amount=amount,
             currency=currency,
+            old_bal=old_bal,
             payment_method="Debit Card",
             payment_provider="Mastercard",
             fund_account_id=fund_account_id,
         ) 
         fund_account.is_success = True
-        fund_account.save()
-
-        fund_account_balance, created = UsdAccountFundBalance.objects.get_or_create(user=user)
-        balance = fund_account_balance.balance
-        fund_account_balance.balance += amount 
-        fund_account_balance.save()
+        fund_account.new_bal = fund_account_balance.balance    
+        fund_account.save()       
         
         try:
             card_data = UsdFundAccountCreditCard.objects.create(
@@ -735,7 +743,7 @@ def fund_user_usd_account(request):
             print(e)
             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        return Response({'success': f'Fund account request submitted successfully. Old Bal: NGN {balance}'}, 
+        return Response({'success': f'Fund account request submitted successfully. Old Bal: NGN {old_bal}'}, 
                         status=status.HTTP_201_CREATED)
     except FundUsdAccount.DoesNotExist:
             return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -932,10 +940,11 @@ def verify_usd_account_debit_email_otp(request):
         try:
             account_balance, created = UsdAccountFundBalance.objects.get_or_create(user=user)
             
-            balance = account_balance.balance
-            print('old balance:', balance)
+            old_bal = account_balance.balance
+            # old_bal = account_balance.balance    
+            print('old balance:', old_bal)
 
-            if balance < amount: 
+            if old_bal < amount: 
                 return Response({'detail': 'Insufficient account balance.'}, status=status.HTTP_404_NOT_FOUND)
             account_balance.balance -= amount 
             account_balance.save()
@@ -945,11 +954,13 @@ def verify_usd_account_debit_email_otp(request):
                 user=user,
                 amount=amount,
                 currency=currency,
+                                old_bal=old_bal,
                 # payment_method=payment_method,
                 # payment_provider=payment_provider,
                 debit_account_id=debit_account_id,
             ) 
             debit_fund_account.is_success = True
+            debit_fund_account.new_bal = account_balance.balance    
             debit_fund_account.save()
             return Response({'success': f'Account debited successfully.'}, status=status.HTTP_201_CREATED)
         except DebitUsdAccountFund.DoesNotExist:

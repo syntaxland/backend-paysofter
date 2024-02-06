@@ -8,7 +8,7 @@ CURRENCY_CHOICES = (
         ('NGN', 'Nigerian Naira'),
         ('USD', 'United States Dollar'),
         ('GBP', 'British Pound Sterling'),
-        ('EUR', 'Euro'), 
+        ('EUR', 'Euro'),  
         ('JPY', 'Japanese Yen'),
         ('CAD', 'Canadian Dollar'),
         ('AUD', 'Australian Dollar'),
@@ -69,6 +69,8 @@ class FundAccount(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_user")
     amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True, editable=False)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES,  default='NGN', null=True, blank=True)
+    old_bal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    new_bal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     is_success = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default="Debit Card", null=True, blank=True)
     payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES, null=True, blank=True)
@@ -95,6 +97,8 @@ class DebitAccountFund(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_debit_user")
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, editable=False)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, null=True, blank=True)
+    old_bal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    new_bal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     is_success = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
     payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES)
@@ -129,6 +133,8 @@ class FundUsdAccount(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="usd_fund_account_user")
     amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True, editable=False)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES,  default='USD', null=True, blank=True)
+    old_bal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    new_bal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     is_success = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default="Debit Card", null=True, blank=True)
     payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES, null=True, blank=True)
@@ -142,6 +148,8 @@ class DebitUsdAccountFund(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="usd_fund_account_debit_user")
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, editable=False)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, null=True, blank=True)
+    old_bal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    new_bal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     is_success = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
     payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES)
