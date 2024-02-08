@@ -24,9 +24,12 @@ User = get_user_model()
 # def generate_transaction_id():
 #     return ''.join(random.choices(string.digits, k=10))
 
+# def generate_transaction_id():
+#     letters_and_digits = string.ascii_uppercase + string.digits
+#     return 'TID'+''.join(random.choices(letters_and_digits, k=14))
+
 def generate_transaction_id():
-    letters_and_digits = string.ascii_uppercase + string.digits
-    return 'TID'+''.join(random.choices(letters_and_digits, k=14))
+    return 'TID'+''.join(random.choices(string.digits, k=14))
 
 
 @api_view(['POST'])

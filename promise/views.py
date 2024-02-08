@@ -418,7 +418,7 @@ def create_promise_message(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated]) 
 def list_promise_messages(request, promise_id):
     print('processing...')
     user = request.user
@@ -441,7 +441,7 @@ def list_promise_messages(request, promise_id):
     
     try:
         promise_message = PromiseMessage.objects.filter(
-            promise_message=promise_message,
+            promise_message=promise_message, 
             ).order_by('timestamp')
         serializer = PromiseMessageSerializer(promise_message, many=True)
         return Response(serializer.data)
