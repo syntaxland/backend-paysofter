@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     # 'live_chat',
     'sellers',
     'referral',
+    'settings',
 
  
     # Third-party apps

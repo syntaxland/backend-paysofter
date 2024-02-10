@@ -166,3 +166,9 @@ class UsdFundAccountCreditCard(models.Model):
     expiration_month_year = models.CharField(max_length=100, null=True, blank=True)
     cvv = models.CharField(max_length=100, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+# class CurrencyChoice(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="currency_choice_user")
+#     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, null=True, blank=True)
+#     timestamp = models.DateTimeField(auto_now_add=True)

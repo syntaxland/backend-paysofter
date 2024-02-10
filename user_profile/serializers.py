@@ -41,6 +41,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
                     'test_api_secret_key',
                     'live_api_key',
                     'live_api_secret_key',
+                    'selected_currency',
                     'created_at']
         extra_kwargs = {
             'password': {'write_only': True},

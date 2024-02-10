@@ -510,6 +510,33 @@ def set_maximum_fund_withdrawal(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_maximum_usd_fund_withdrawal(request):
+    user = request.user
+    data = request.data
+    print('data:', data, 'user:', user)
+
+    amount = Decimal(request.data.get('amount'))
+    print('amount:', amount) 
+
+    try:
+        account_balance = UsdAccountFundBalance.objects.get(user=user)
+    except UsdAccountFundBalance.DoesNotExist:
+        return Response({'detail': 'Account fund not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    print('account_balance:', account_balance.balance)
+    print('max_withdrawal(before):', account_balance.max_withdrawal)
+
+    try:
+        account_balance.max_withdrawal = amount
+        account_balance.save()
+        print('max_withdrawal(after):', account_balance.max_withdrawal)
+        return Response({'detail': f'Maximum fund withrawal of {amount} set.'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+
+
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def send_otp_account_fund_disable(request):
     data = request.data

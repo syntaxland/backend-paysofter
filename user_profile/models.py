@@ -35,6 +35,27 @@ class CustomUserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
+
+
+CURRENCY_CHOICES = (
+        ('NGN', 'Nigerian Naira'),
+        ('USD', 'United States Dollar'),
+        ('GBP', 'British Pound Sterling'),
+        ('EUR', 'Euro'),  
+        ('JPY', 'Japanese Yen'),
+        ('CAD', 'Canadian Dollar'),
+        ('AUD', 'Australian Dollar'),
+        ('INR', 'Indian Rupee'),
+        ('CNY', 'Chinese Yuan'),
+        ('ZAR', 'South African Rand'),
+        ('BRL', 'Brazilian Real'),
+        ('KES', 'Kenyan Shilling'),
+        ('GHS', 'Ghanaian Cedi'),
+        ('AED', 'United Arab Emirates Dirham'),
+        ('SAR', 'Saudi Riyal'),
+        ('GBP', 'British Pound Sterling'),
+    )
+
 class User(AbstractBaseUser, PermissionsMixin):
     account_id = models.CharField(max_length=12, unique=True, null=True, editable=False)  
     security_code = models.CharField(max_length=4, unique=True, null=True, editable=False)  
@@ -56,6 +77,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)  
     is_seller = models.BooleanField(default=False)
     is_usd_selected = models.BooleanField(default=False)
+    selected_currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='USD', null=True, blank=True)
     is_terms_conditions_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now, blank=True) 
   

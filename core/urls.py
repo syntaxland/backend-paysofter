@@ -39,5 +39,6 @@ urlpatterns = [
     # path('api/', include('live_chat.urls')),
     path('api/', include('sellers.urls')),
     path('api/', include('referral.urls')),
+    path('api/', include('settings.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

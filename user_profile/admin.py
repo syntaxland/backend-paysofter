@@ -11,6 +11,7 @@ class AuthorAdmin(admin.ModelAdmin):
                     'first_name',  
                     'phone_number',  
                     'is_verified',
+                    'selected_currency', 
                     'referral_code', 
                     'test_api_key',
                     'live_api_key',
