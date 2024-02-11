@@ -88,7 +88,7 @@ INSTALLED_APPS = [
     'sellers',
     'referral',
     'settings',
-
+    'support',
  
     # Third-party apps
     'rest_framework',

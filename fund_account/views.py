@@ -699,6 +699,15 @@ def activate_account_fund(request):
     account_balance.is_active = False
     account_balance.save() 
 
+    try:
+        usd_account_balance = UsdAccountFundBalance.objects.get(user=account_fund_user)
+    except UsdAccountFundBalance.DoesNotExist:
+        return Response({'detail': 'Account fund not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    usd_account_balance.is_diabled = False
+    usd_account_balance.is_active = False
+    usd_account_balance.save() 
+
     print(f'Account fund deactivated.')
     return Response({'detail': f'Account fund activated.',}, status=status.HTTP_200_OK)
 

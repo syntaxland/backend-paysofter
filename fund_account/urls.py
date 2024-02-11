@@ -23,6 +23,7 @@ urlpatterns = [
     path('send-otp-account-disable/', views.send_otp_account_fund_disable, name='send-otp-account-fund-disable'),
     path('verify-account-fund-disable/', views.verify_otp_account_fund_disable, name='verify-account-fund-disable'),
     path('activate-account-fund/', views.activate_account_fund, name='activate-account-fund'),
+    # path('enable-account-fund/', views.enable_account_fund, name='enable-account-fund'),
 
     path('toggle-usd-account/', views.toggle_is_usd_account_active, name='toggle-usd-account'),
     path('get-user-usd-account_fund-balance/', views.get_user_usd_account_fund_balance, name='get_user_usd_account_fund_balance'),
