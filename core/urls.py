@@ -41,5 +41,6 @@ urlpatterns = [
     path('api/', include('referral.urls')),
     path('api/', include('settings.urls')),
     path('api/', include('support.urls')),
+    path('api/', include('feedback.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
