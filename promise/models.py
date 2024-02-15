@@ -256,9 +256,13 @@ class PaysofterPromise(models.Model):
 
 class PromiseMessage(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_message_user")
+    # seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_message_seller")
+    # buyer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_message_buyer")
     promise_message = models.ForeignKey(PaysofterPromise, on_delete=models.CASCADE, related_name='promise_message', blank=True, null=True)
     message = models.TextField(max_length=225, null=True, blank=True)
+    buyer_msg_count = models.PositiveIntegerField(default=0, editable=False)
+    seller_msg_count = models.PositiveIntegerField(default=0, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True, null=True)
     
     def __str__(self): 
-        return f"{self.user} | {self.promise_message}" 
+        return f"{self.user} | {self.promise_message}"  

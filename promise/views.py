@@ -1,7 +1,7 @@
 # promise/views.py
 from datetime import timedelta, datetime
 import random
-import string
+import string 
 from decimal import Decimal
 
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
@@ -322,7 +322,7 @@ def settle_disputed_promise(request):
     promise.is_settle_conflict_activated = True
     print('is_settle_conflict_activated(after):', promise.is_settle_conflict_activated)
     promise.save() 
-    return Response({'detail': 'Settle disputed promise activated.'}, status=status.HTTP_200_OK)
+    return Response({'detail': 'Settle disputed promise activated.'}, status=status.HTTP_200_OK) 
 
 
 @api_view(['GET'])
@@ -391,29 +391,60 @@ def cancel_promise(request):
     return Response({'detail': f'Promise cancelled.',}, status=status.HTTP_200_OK)
 
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def create_promise_message(request):
+#     print('processing...')
+#     user=request.user
+#     data=request.data
+#     print('data:', data, 'user:', user)
+
+#     promise_id = data.get('promise_id')
+#     message = data.get('message')
+#     print('promise_id:', promise_id)
+#     print('message:', message)
+    
+#     try:
+#         promise = PaysofterPromise.objects.get(promise_id=promise_id)
+#     except PaysofterPromise.DoesNotExist:
+#         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+#     PromiseMessage.objects.create(
+#             user=user,
+#             promise_message=promise,
+#             message=message,
+#         )
+#     return Response({'message': 'Promise message created'}, status=status.HTTP_201_CREATED)
+ 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_promise_message(request):
-    print('processing...')
-    user=request.user
-    data=request.data
+    user = request.user
+    data = request.data
     print('data:', data, 'user:', user)
 
     promise_id = data.get('promise_id')
     message = data.get('message')
     print('promise_id:', promise_id)
     print('message:', message)
-    
+
     try:
         promise = PaysofterPromise.objects.get(promise_id=promise_id)
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
-    
-    PromiseMessage.objects.create(
-            user=user,
-            promise_message=promise,
-            message=message,
-        )
+
+    promise_message = PromiseMessage.objects.create(
+        user=user,
+        promise_message=promise,
+        message=message,
+    )
+    if user == promise.seller:
+        promise_message.buyer_msg_count += 1
+    elif user == promise.buyer:
+        promise_message.seller_msg_count += 1
+    promise_message.save()
+
     return Response({'message': 'Promise message created'}, status=status.HTTP_201_CREATED)
 
 

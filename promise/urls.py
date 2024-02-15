@@ -6,7 +6,7 @@ urlpatterns = [
     path('create-promise/', views.create_promise, name='create-promise'),
     path('cancel-promise/', views.cancel_promise, name='cancel-promise'),
     path('get-buyer-promise/', views.get_buyer_promises, name='get-user-promise'),
-    path('get-seller-promise/', views.get_seller_promises, name='get-seller-promise'),
+    path('get-seller-promise/', views.get_seller_promises, name='get-seller-promise'), 
     path('get-all-promises/', views.get_all_promises, name='get-all-promises'), 
     
     path('buyer-confirm-promise/', views.buyer_confirm_promise, name='buyer-confirm-promise'),

@@ -30,5 +30,6 @@ def update_security_codes_for_users():
 celery -A core.celery worker --pool=solo -l info 
 (Windows)
 celery -A core.celery worker --loglevel=info (Unix) 
-celery -A core.celery beat --loglevel=info
+celery -A core.celery beat --loglevel=info 
 """
+ 
