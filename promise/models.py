@@ -224,6 +224,8 @@ class PaysofterPromise(models.Model):
     service_charge = models.DecimalField(max_digits=16, decimal_places=2, default=0, null=True, blank=True, editable=False)
     payment_method = models.CharField(max_length=100, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True, default='Paysofter Promise')
     payment_provider = models.CharField(max_length=100, choices=PAYMENT_PROVIDER_CHOICES, default='Paysofter')
+    buyer_msg_count = models.PositiveIntegerField(default=0)
+    seller_msg_count = models.PositiveIntegerField(default=0)
     promise_id = models.CharField(max_length=10, unique=True, null=True, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True) 
 
@@ -256,13 +258,13 @@ class PaysofterPromise(models.Model):
 
 class PromiseMessage(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_message_user")
-    # seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_message_seller")
-    # buyer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_message_buyer")
+    seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_message_seller")
+    buyer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_message_buyer")
     promise_message = models.ForeignKey(PaysofterPromise, on_delete=models.CASCADE, related_name='promise_message', blank=True, null=True)
     message = models.TextField(max_length=225, null=True, blank=True)
-    buyer_msg_count = models.PositiveIntegerField(default=0, editable=False)
-    seller_msg_count = models.PositiveIntegerField(default=0, editable=False)
+    # buyer_msg_count = models.PositiveIntegerField(default=0, editable=False)
+    # seller_msg_count = models.PositiveIntegerField(default=0, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True, null=True)
     
     def __str__(self): 
-        return f"{self.user} | {self.promise_message}"  
+        return f"{self.promise_message} | {self.promise_message}"  

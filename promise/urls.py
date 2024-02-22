@@ -12,7 +12,16 @@ urlpatterns = [
     path('buyer-confirm-promise/', views.buyer_confirm_promise, name='buyer-confirm-promise'),
     path('seller-confirm-promise/', views.seller_confirm_promise, name='seller-confirm-promise'),
 
-    path('create-promise-messages/', views.create_promise_message, name='create-promise-messages'),
+    path('buyer-create-promise-message/', views.buyer_create_promise_message, name='buyer_create_promise_message'),
+    path('seller-create-promise-message/', views.seller_create_promise_message, name='seller_create_promise_message'),
+
+    # path('list-promise-messages/<str:promise_id>/', views.list_promise_messages, name='list-promise-messages'),
+
+    path('list-buyer-promise-messages/<str:promise_id>/', views.list_buyer_promise_messages, name='list_buyer_promise_messages'),
+    path('list-seller-promise-messages/<str:promise_id>/', views.list_seller_promise_messages, name='list_seller_promise_messages'),
+
+    path('clear-seller-promise-message-counter/', views.clear_seller_promise_message_counter, name='clear_seller_promise_message_counter'),
+    path('clear-buyer-promise-message-counter/', views.clear_buyer_promise_message_counter, name='clear_buyer_promise_message_counter'),
+
     path('settle-disputed-promise/', views.settle_disputed_promise, name='settle-disputed-promise'),
-    path('list-promise-messages/<str:promise_id>/', views.list_promise_messages, name='list-promise-messages'),
 ]

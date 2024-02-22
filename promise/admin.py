@@ -14,6 +14,8 @@ class AuthorAdmin(admin.ModelAdmin):
                     'duration',
                     'duration_hours',
                     'expiration_date',
+                    'buyer_msg_count', 
+                    'seller_msg_count', 
                     'is_active',
                     'buyer_promise_fulfilled',
                     'seller_fulfilled_promise',  
@@ -35,5 +37,6 @@ class AuthorAdmin(admin.ModelAdmin):
                     'user',
                     'promise_message', 
                     'message', 
+                                       
                     'timestamp',                    
                     )
