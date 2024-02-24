@@ -33,7 +33,8 @@ def send_email_to_all_users(request):
         
         sender_name = settings.EMAIL_SENDER_NAME
         sender_email = settings.EMAIL_HOST_USER
-        receivers = [user.email for user in User.objects.all()]
+        # receivers = [user.email for user in User.objects.all()]
+        receivers = [user.email for user in User.objects.filter(user_is_not_active=False)]
         print("Receivers:", receivers)
 
         # user_first_names = [user.first_name for user in User.objects.all()]
@@ -76,4 +77,3 @@ def send_email_to_all_users(request):
         return Response({'detail': 'Email sent successfully.'}, status=status.HTTP_201_CREATED)
 
     return Response({'detail': 'Invalid request.'}, status=status.HTTP_400_BAD_REQUEST) 
-

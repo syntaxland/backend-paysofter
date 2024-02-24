@@ -19,6 +19,8 @@ class AuthorAdmin(admin.ModelAdmin):
                     'is_staff', 
                     'is_superuser', 
                     'is_seller', 
+                    'user_is_not_active', 
+                    'is_user_live_banned', 
                     )
     
     # def get_readonly_fields(self, request, obj=None):

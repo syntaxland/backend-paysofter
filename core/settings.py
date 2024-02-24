@@ -406,6 +406,9 @@ PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
 PAYSTACK_PAYMENT_URL = os.getenv('PAYSTACK_PAYMENT_URL')
 CALLBACK_URL = os.getenv('CALLBACK_URL')
 
+COMPANY_NAME = os.getenv('COMPANY_NAME')
+PARENT_COMPANY_NAME = os.getenv('PARENT_COMPANY_NAME')
+
 # for google login option
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend', 

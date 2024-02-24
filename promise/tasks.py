@@ -8,7 +8,7 @@ from decimal import Decimal
 from django.db.models import Sum
 
 from promise.models import PaysofterPromise
-from transaction.models import Transaction
+from transaction.models import Transaction 
 
 
 def generate_transaction_id():

@@ -42,6 +42,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
                     'live_api_key',
                     'live_api_secret_key',
                     'selected_currency',
+                    'user_is_not_active',
+                    'is_user_live_banned',
+                    'is_user_1day_banned',
+                    'is_user_2day_banned',
+                    'is_user_3day_banned',
+                    'is_user_1week_banned',
+                    'is_user_3week_banned',
+                    'is_user_1month_banned',
+                    'is_user_2month_banned',
+                    'is_user_3month_banned',
+                    'is_user_6month_banned',
+                    'is_user_1year_banned',
                     'created_at']
         extra_kwargs = {
             'password': {'write_only': True},

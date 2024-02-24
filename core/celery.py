@@ -31,6 +31,10 @@ app.conf.beat_schedule = {
         'task': 'promise.tasks.process_promise_transactions',
         'schedule': timedelta(minutes=5),
     },
+    'close-resolved-tickets': {
+        'task': 'support.tasks.close_resolved_tickets',
+        'schedule': timedelta(minutes=1),
+    },
 }
 
 app.autodiscover_tasks()

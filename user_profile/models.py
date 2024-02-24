@@ -79,6 +79,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_usd_selected = models.BooleanField(default=False)
     selected_currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='USD', null=True, blank=True)
     is_terms_conditions_read = models.BooleanField(default=False)
+
+    user_is_not_active = models.BooleanField(default=False)  
+    is_user_live_banned = models.BooleanField(default=False)  
+    is_user_1day_banned = models.BooleanField(default=False)  
+    is_user_2day_banned = models.BooleanField(default=False)  
+    is_user_3day_banned = models.BooleanField(default=False)  
+    is_user_1week_banned = models.BooleanField(default=False)  
+    is_user_3week_banned = models.BooleanField(default=False)  
+    is_user_1month_banned = models.BooleanField(default=False)  
+    is_user_2month_banned = models.BooleanField(default=False)  
+    is_user_3month_banned = models.BooleanField(default=False)  
+    is_user_6month_banned = models.BooleanField(default=False)  
+    is_user_1year_banned = models.BooleanField(default=False) 
+    
     created_at = models.DateTimeField(default=timezone.now, blank=True) 
   
     USERNAME_FIELD = 'email'
