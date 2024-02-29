@@ -12,8 +12,8 @@ User = get_user_model()
 
 @shared_task
 def close_resolved_tickets():
-    # threshold_date = timezone.now() - timedelta(days=7)
-    threshold_date = timezone.now() - timedelta(minutes=1)
+    threshold_date = timezone.now() - timedelta(days=7)
+    # threshold_date = timezone.now() - timedelta(minutes=1)
     
     resolved_tickets_users = User.objects.filter(
         support_response_user__created_at__lte=threshold_date
