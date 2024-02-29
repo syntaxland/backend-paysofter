@@ -45,15 +45,16 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 # DEBUG = False
 
-# ALLOWED_HOSTS = ['localhost', 
-#                  'localhost:8000', 
-#                  '127.0.0.1', 
-#                  '127.0.0.1:8000', 
-#                  '54.34.229.79.247', 
-#                  'ec2-18-212-11-87.compute-1.amazonaws.com', 
-#                  'mcdofglobal.s3-website-us-east-1.amazonaws.com'
-#                  ]
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['localhost', 
+                 'localhost:8001', 
+                 '127.0.0.1', 
+                 '127.0.0.1:8001', 
+                #  '3.91.70.252', 
+                 "api.paysofter.com",
+                #  'ec2-3.91.70.252.compute-1.amazonaws.com', 
+                 ]
+
+# ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -348,15 +349,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ALLOWED_ORIGINS = [
-    "https://paysofter.com",
     "https://api.paysofter.com",
+    "https://paysofter.com",
     "http://localhost:8001",
     "http://127.0.0.1:3001",
     "http://localhost:3001",
     "http://127.0.0.1:8001",
 ]
 
-# Additional CORS Configuration
 CORS_ALLOWED_HEADERS = [
     'access-control-allow-headers',
     'access-control-allow-origin',
