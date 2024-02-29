@@ -54,7 +54,7 @@ ALLOWED_HOSTS = ['localhost',
                 #  'ec2-3.91.70.252.compute-1.amazonaws.com', 
                  ]
 
-# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
