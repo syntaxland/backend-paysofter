@@ -49,9 +49,7 @@ ALLOWED_HOSTS = ['localhost',
                  'localhost:8001', 
                  '127.0.0.1', 
                  '127.0.0.1:8001', 
-                #  '3.91.70.252', 
                  "api.paysofter.com",
-                #  'ec2-3.91.70.252.compute-1.amazonaws.com', 
                  ]
 
 ALLOWED_HOSTS = ["*"]
