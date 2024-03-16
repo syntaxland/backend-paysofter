@@ -19,7 +19,7 @@ class PaysofterPromiseSerializer(serializers.ModelSerializer):
 
 
 class PromiseMessageSerializer(serializers.ModelSerializer):
-    first_name = serializers.CharField(source='user.first_name', read_only=True) 
+    first_name = serializers.CharField(source='user.first_name', read_only=True)  
     seller_first_name = serializers.CharField(source='seller.first_name', read_only=True) 
     buyer_first_name = serializers.CharField(source='buyer.first_name', read_only=True)
     seller_username = serializers.CharField(source='seller.username', read_only=True) 

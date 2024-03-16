@@ -35,8 +35,9 @@ class AuthorAdmin(admin.ModelAdmin):
 class AuthorAdmin(admin.ModelAdmin):
     list_display = (
                     'user',
+                    'seller', 
+                    'buyer', 
                     'promise_message', 
                     'message', 
-                                       
                     'timestamp',                    
                     )

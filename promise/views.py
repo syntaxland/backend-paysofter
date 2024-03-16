@@ -467,7 +467,7 @@ def buyer_create_promise_message(request):
 
     promise_message = PromiseMessage.objects.create(
         buyer=buyer,
-        promise_message=promise,
+        promise_message=promise, 
         message=message,
     )
 
@@ -506,38 +506,6 @@ def seller_create_promise_message(request):
     return Response({'message': 'Promise message created'}, status=status.HTTP_201_CREATED)
 
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated]) 
-# def list_promise_messages(request, promise_id):
-#     print('processing...')
-#     user = request.user
-#     # data  = request.data
-#     # print('data:', data)
-#     print('user:', user)
-
-#     # promise_id = data.get('promise_id')
-#     # print('promise_id:', promise_id)
-
-#     try:
-#         promise_message = PaysofterPromise.objects.get(
-#             # user=user,
-#             promise_id=promise_id
-#             )
-#     except PaysofterPromise.DoesNotExist:
-#         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
-    
-#     print('promise_message:', promise_message)
-    
-#     try:
-#         promise_message = PromiseMessage.objects.filter(
-#             promise_message=promise_message, 
-#             ).order_by('timestamp')
-#         serializer = PromiseMessageSerializer(promise_message, many=True)
-#         return Response(serializer.data)
-#     except PromiseMessage.DoesNotExist:
-#         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 
 def list_buyer_promise_messages(request, promise_id):
@@ -551,7 +519,6 @@ def list_buyer_promise_messages(request, promise_id):
 
     try:
         promise_message = PaysofterPromise.objects.get(
-            # buyer=buyer,
             promise_id=promise_id
             )
     except PaysofterPromise.DoesNotExist:
@@ -561,7 +528,6 @@ def list_buyer_promise_messages(request, promise_id):
     
     try:
         promise_message = PromiseMessage.objects.filter(
-            # buyer=buyer,
             promise_message=promise_message, 
             ).order_by('timestamp')
         serializer = PromiseMessageSerializer(promise_message, many=True)
@@ -583,7 +549,6 @@ def list_seller_promise_messages(request, promise_id):
 
     try:
         promise_message = PaysofterPromise.objects.get(
-            # seller=seller,
             promise_id=promise_id
             )
     except PaysofterPromise.DoesNotExist:
@@ -593,7 +558,6 @@ def list_seller_promise_messages(request, promise_id):
     
     try:
         promise_message = PromiseMessage.objects.filter(
-            # seller=seller,
             promise_message=promise_message, 
             ).order_by('timestamp')
         serializer = PromiseMessageSerializer(promise_message, many=True)
@@ -616,9 +580,11 @@ def clear_seller_promise_message_counter(request):
         promise = PaysofterPromise.objects.get(promise_id=promise_id)
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    promise.buyer_msg_count = 0
-    promise.save()
+    
+    if promise.seller_msg_count > 0:
+        promise.seller_msg_count = 0
+        promise.save()
+        print('seller_msg_count (cleared):', promise.seller_msg_count)
 
     return Response({'message': 'Promise message cleared.'}, status=status.HTTP_200_OK)
 
@@ -638,8 +604,10 @@ def clear_buyer_promise_message_counter(request):
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    promise.seller_msg_count = 0 
-    promise.save()
+    if promise.buyer_msg_count > 0:
+        promise.buyer_msg_count = 0
+        promise.save()
+        print('buyer_msg_count (cleared):', promise.buyer_msg_count)
 
     return Response({'message': 'Promise message cleared.'}, status=status.HTTP_200_OK)
 
