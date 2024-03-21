@@ -35,13 +35,19 @@ def create_support_ticket(request):
     message = data['message']
     ticket_id = generate_ticket_id()
 
-    SupportTicket.objects.create(
+    ticket = SupportTicket.objects.create(
         user=user,
         category=category,
         subject=subject,
         message=message,
         ticket_id=ticket_id,
     )
+
+    if ticket:
+        ticket.admin_user_msg_count += 1
+        ticket.message = message
+        ticket.modified_at = timezone.now()
+        ticket.save()
 
     # Send an email to notify the user that their support ticket is opened
     subject = f"Your support ticket #{ticket_id} is now open"
@@ -146,6 +152,118 @@ def reply_support_ticket(request):
 
     return Response({'message': 'Support ticket replied'}, status=status.HTTP_201_CREATED)
     
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def user_reply_support_ticket(request):
+    user=request.user
+    data=request.data
+
+    ticket_id=data['ticket_id']
+    print('ticket_id:', ticket_id)
+    message=data['message']
+    print('message:', message)
+    
+    try:
+        support_ticket = SupportTicket.objects.get(
+            ticket_id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return Response({'detail': 'Support ticket not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    SupportResponse.objects.create(
+            user=user, 
+            support_ticket=support_ticket,
+            message=message,
+        )
+    
+    if support_ticket:
+        support_ticket.admin_user_msg_count += 1
+        support_ticket.message = message
+        support_ticket.is_closed = False
+        support_ticket.is_resolved = False
+        support_ticket.modified_at = timezone.now()
+        support_ticket.save()
+    return Response({'message': 'Support ticket replied'}, status=status.HTTP_201_CREATED)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def admin_reply_support_ticket(request):
+    user=request.user
+    data=request.data
+
+    ticket_id=data['ticket_id']
+    print('ticket_id:', ticket_id)
+    message=data['message']
+    print('message:', message)
+    
+    try:
+        support_ticket = SupportTicket.objects.get(
+            ticket_id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return Response({'detail': 'Support ticket not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    SupportResponse.objects.create(
+            user=user, 
+            support_ticket=support_ticket,
+            message=message,
+        )
+    
+    if support_ticket:
+        support_ticket.user_msg_count += 1
+        support_ticket.message = message
+        support_ticket.is_closed = False
+        support_ticket.is_resolved = False
+        support_ticket.modified_at = timezone.now()
+        support_ticket.save()
+    return Response({'message': 'Support ticket replied'}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def clear_user_support_message_counter(request):
+    user = request.user
+    data = request.data
+    print('data:', data, 'user:', user)
+
+    ticket_id = data.get('ticket_id')
+    print('ticket_id:', ticket_id)
+
+    try:
+        ticket = SupportTicket.objects.get(ticket_id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return Response({'detail': 'Message not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if ticket.user_msg_count > 0:
+        ticket.user_msg_count = 0
+        ticket.save()
+        print('user_msg_count (cleared):', ticket.user_msg_count)
+
+    return Response({'message': 'Message cleared.'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def clear_admin_support_message_counter(request):
+    user = request.user
+    data = request.data
+    print('data:', data, 'user:', user)
+
+    ticket_id = data.get('ticket_id')
+    print('ticket_id:', ticket_id)
+
+    try:
+        ticket = SupportTicket.objects.get(ticket_id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return Response({'detail': 'Message not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if ticket.admin_user_msg_count > 0:
+        ticket.admin_user_msg_count = 0
+        ticket.save()
+        print('admin_user_msg_count (cleared):', ticket.admin_user_msg_count)
+
+    return Response({'message': 'Message cleared.'}, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

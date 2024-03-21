@@ -10,6 +10,9 @@ class AuthorAdmin(admin.ModelAdmin):
                     'category',
                     'is_closed',
                     'is_resolved', 
+                    'user_msg_count',
+                    'admin_user_msg_count',
+                    'modified_at', 
                      'created_at',
                      )  
 

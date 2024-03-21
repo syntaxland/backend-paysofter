@@ -224,10 +224,12 @@ class PaysofterPromise(models.Model):
     service_charge = models.DecimalField(max_digits=16, decimal_places=2, default=0, null=True, blank=True, editable=False)
     payment_method = models.CharField(max_length=100, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True, default='Paysofter Promise')
     payment_provider = models.CharField(max_length=100, choices=PAYMENT_PROVIDER_CHOICES, default='Paysofter')
+    message = models.TextField(max_length=225, null=True, blank=True)
     buyer_msg_count = models.PositiveIntegerField(default=0)
     seller_msg_count = models.PositiveIntegerField(default=0)
     promise_id = models.CharField(max_length=10, unique=True, null=True, editable=False)
-    timestamp = models.DateTimeField(auto_now_add=True) 
+    modified_at = models.DateTimeField(auto_now=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)  
 
     def save(self, *args, **kwargs):
         if self.duration:

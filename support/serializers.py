@@ -4,23 +4,23 @@ from .models import SupportTicket, SupportResponse
 
      
 class SupportTicketSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', read_only=True)
     account_id = serializers.CharField(source='user.account_id', read_only=True)
-    first_name = serializers.CharField(source='user.first_name', read_only=True)
-    last_name = serializers.CharField(source='user.last_name', read_only=True)
-    email = serializers.CharField(source='user.email', read_only=True)
+    user_first_name = serializers.CharField(source='user.first_name', read_only=True)
+    user_username = serializers.CharField(source='user.username', read_only=True)
+    user_email = serializers.CharField(source='user.email', read_only=True)
+    admin_username = serializers.CharField(source='admin_user.username', read_only=True)
 
     class Meta: 
         model = SupportTicket
-        fields = '__all__'
+        fields = '__all__' 
 
  
 class SupportResponseSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', read_only=True)
     account_id = serializers.CharField(source='user.account_id', read_only=True)
-    first_name = serializers.CharField(source='user.first_name', read_only=True)
-    last_name = serializers.CharField(source='user.last_name', read_only=True)
-    email = serializers.CharField(source='user.email', read_only=True)
+    user_first_name = serializers.CharField(source='user.first_name', read_only=True)
+    user_username = serializers.CharField(source='user.username', read_only=True)
+    user_email = serializers.CharField(source='user.email', read_only=True)
+    admin_username = serializers.CharField(source='admin_user.username', read_only=True)
 
     class Meta:
         model = SupportResponse
