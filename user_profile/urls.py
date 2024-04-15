@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('user-register/', views.user_register_view, name='user-register'),
     path('user-login/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'), 
+    path('update-user-last-login/', views.update_user_last_login, name='update_user_last_login'),
 
     path('google-login/', views.GoogleLogin.as_view(), name='google_login'),
     path('users-logout/', views.LogoutView.as_view(), name='user-logout'),

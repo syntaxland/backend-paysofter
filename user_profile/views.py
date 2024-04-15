@@ -1,4 +1,6 @@
 # user_profile/views.py
+from datetime import datetime, timedelta
+from django.utils import timezone
 import random
 import string
 from rest_framework.permissions import IsAuthenticated
@@ -177,6 +179,26 @@ def user_register_view(request):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+@api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+def update_user_last_login(request):
+    # user = request.user
+    data = request.data
+
+    email = data.get('email')
+    print('email:', email)
+
+    try:
+        user = User.objects.get(email=email)
+        user.last_login = timezone.now()
+        user.user_is_not_active = False
+        user.save()
+        print('user.last_login:', user.last_login)
+        return Response({'message': 'Last login updated successfully'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class GoogleLogin(SocialLoginView):

@@ -1,6 +1,8 @@
 # user_profile/tasks.py
 import random
 import string
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 from celery import shared_task
 from django.contrib.auth import get_user_model
@@ -25,9 +27,21 @@ def update_security_codes_for_users():
     print("Security codes updated for all users.")
 
 
+@shared_task
+def deactivate_inactive_users_every_six_months():
+    # six_months_ago = timezone.now() - timedelta(minutes=1)
+    six_months_ago = timezone.now() - timedelta(days=180)
+    inactive_users = User.objects.filter(last_login__lte=six_months_ago)
+
+    for user in inactive_users:
+        user.user_is_not_active = True
+        user.save()
+
+    print("Inactive users deactivated.")
+
  
 """
-celery -A core.celery worker --pool=solo -l info 
+celery -A core.celery worker --pool=solo -l info   
 (Windows)
 celery -A core.celery worker --loglevel=info (Unix) 
 celery -A core.celery beat --loglevel=info 

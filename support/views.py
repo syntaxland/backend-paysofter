@@ -45,7 +45,6 @@ def create_support_ticket(request):
 
     if ticket:
         ticket.admin_user_msg_count += 1
-        ticket.message = message
         ticket.modified_at = timezone.now()
         ticket.save()
 
@@ -123,34 +122,34 @@ def create_support_ticket(request):
     return Response({'message': 'Support ticket created.'}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def reply_support_ticket(request):
-    user=request.user
-    data=request.data
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def reply_support_ticket(request):
+#     user=request.user
+#     data=request.data
 
-    ticket_id=data['ticket_id']
-    print('ticket_id:', ticket_id)
-    message=data['message']
-    print('message:', message)
+#     ticket_id=data['ticket_id']
+#     print('ticket_id:', ticket_id)
+#     message=data['message']
+#     print('message:', message)
     
-    try:
-        support_ticket = SupportTicket.objects.get(
-            ticket_id=ticket_id)
-    except SupportTicket.DoesNotExist:
-        return Response({'detail': 'Support ticket not found'}, status=status.HTTP_404_NOT_FOUND)
+#     try:
+#         support_ticket = SupportTicket.objects.get(
+#             ticket_id=ticket_id)
+#     except SupportTicket.DoesNotExist:
+#         return Response({'detail': 'Support ticket not found'}, status=status.HTTP_404_NOT_FOUND)
     
-    SupportResponse.objects.create(
-            user=user, 
-            support_ticket=support_ticket,
-            message=message,
-        )
+#     SupportResponse.objects.create(
+#             user=user, 
+#             support_ticket=support_ticket,
+#             message=message,
+#         )
     
-    support_ticket.is_closed = False
-    support_ticket.is_resolved = False
-    support_ticket.save()
+#     support_ticket.is_closed = False
+#     support_ticket.is_resolved = False
+#     support_ticket.save()
 
-    return Response({'message': 'Support ticket replied'}, status=status.HTTP_201_CREATED)
+#     return Response({'message': 'Support ticket replied'}, status=status.HTTP_201_CREATED)
     
 
 @api_view(['POST'])
@@ -178,7 +177,8 @@ def user_reply_support_ticket(request):
     
     if support_ticket:
         support_ticket.admin_user_msg_count += 1
-        support_ticket.message = message
+        print('admin_user_msg_count:', support_ticket.admin_user_msg_count)
+        # support_ticket.message = message
         support_ticket.is_closed = False
         support_ticket.is_resolved = False
         support_ticket.modified_at = timezone.now()
@@ -211,7 +211,7 @@ def admin_reply_support_ticket(request):
     
     if support_ticket:
         support_ticket.user_msg_count += 1
-        support_ticket.message = message
+        # support_ticket.message = message
         support_ticket.is_closed = False
         support_ticket.is_resolved = False
         support_ticket.modified_at = timezone.now()
@@ -273,7 +273,7 @@ def list_support_ticket(request):
 
     try:
         support_ticket = SupportTicket.objects.filter(user=user, 
-                                                      ).order_by('-created_at')
+                                                      ).order_by('modified_at')
         serializer = SupportTicketSerializer(support_ticket, many=True)
         return Response(serializer.data)
     except SupportTicket.DoesNotExist:
@@ -309,7 +309,7 @@ def list_support_ticket_reply(request, ticket_id):
 @permission_classes([IsAuthenticated])
 def list_all_support_ticket(request):
     try:
-        support_ticket = SupportTicket.objects.all().order_by('-created_at')
+        support_ticket = SupportTicket.objects.all().order_by('modified_at')
         serializer = SupportTicketSerializer(support_ticket, many=True)
         return Response(serializer.data)
     except SupportTicket.DoesNotExist:

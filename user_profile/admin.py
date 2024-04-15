@@ -5,7 +5,8 @@ from . import models
 
 @admin.register(models.User)
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('email', 'created_at', 'id', 
+    list_display = ('email', 'last_login', 
+                    'created_at', 'id', 
                     'account_id',
                     'security_code',
                     'first_name',  

@@ -8,7 +8,6 @@ urlpatterns = [
     path('list-support-ticket/', views.list_support_ticket, name='list-support-ticket'),
     path('get-ticket-detail/<int:ticket_id>/', views.get_ticket_detail, name='get-ticket-reply-detail'),
 
-    # path('reply-support-ticket/', views.reply_support_ticket, name='reply-support-ticket'),
     path('list-support-ticket-reply/<int:ticket_id>/', views.list_support_ticket_reply, name='list-support-ticket-reply'),
 
     path('user-reply-support-ticket/', views.user_reply_support_ticket, name='reply-support-ticket'),
