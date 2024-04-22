@@ -22,19 +22,6 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# if os.name == 'nt':
-#     import platform
-#     OSGEO4W = r"C:\OSGeo4W"
-#     if '64' in platform.architecture()[0]:
-#         OSGEO4W += "64"
-#     assert os.path.isdir(OSGEO4W), "Directory does not exist: " + OSGEO4W
-#     os.environ['OSGEO4W_ROOT'] = OSGEO4W
-#     os.environ['GDAL_DATA'] = OSGEO4W + r"\share\gdal"
-#     os.environ['PROJ_LIB'] = OSGEO4W + r"\share\proj"
-#     os.environ['PATH'] = OSGEO4W + r"\bin;" + os.environ['PATH']
-
-# GDAL_LIBRARY_PATH = 'C:\OSGeo4W\bin'
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -45,12 +32,12 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 # DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', 
-                 'localhost:8001', 
-                 '127.0.0.1', 
-                 '127.0.0.1:8001', 
-                 "api.paysofter.com",
-                 ]
+# ALLOWED_HOSTS = ['localhost', 
+#                  'localhost:8001', 
+#                  '127.0.0.1', 
+#                  '127.0.0.1:8001', 
+#                  "api.paysofter.com",
+#                  ]
 
 ALLOWED_HOSTS = ["*"]
 
@@ -121,16 +108,6 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
 }
-
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         # 'rest_framework.authentication.TokenAuthentication',
-#         # 'rest_framework.authentication.BasicAuthentication',
-#         # 'rest_framework.authentication.SessionAuthentication',
-#         'rest_framework_simplejwt.authentication.JWTAuthentication',
-#         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
-#     )
-# }
 
 SIMPLE_JWT = {      
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
@@ -374,7 +351,7 @@ CORS_ALLOW_METHODS = [
     'PUT',
 ]
 
-# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
