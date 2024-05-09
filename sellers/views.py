@@ -31,7 +31,7 @@ def create_seller_account(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
+@api_view(['POST']) 
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
 def create_business_status(request):

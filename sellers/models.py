@@ -11,7 +11,7 @@ BUSINESS_TYPE_CHOICES = [
 
 STAFF_SIZE_CHOICES = [
         ('Small', 'Small (1-50 employees)'),
-        ('Medium', 'Medium (51-250 employees)'),
+        ('Medium', 'Medium (51-250 employees)'), 
         ('Large', 'Large (251+ employees)'),
     ]
 
@@ -92,11 +92,11 @@ class SellerAccount(models.Model):
     business_industry = models.CharField( max_length=50, null=True, choices=BUSINESS_INDUSTRY_CHOICES)    
     business_category = models.CharField( max_length=50, null=True, choices=BUSINESS_CATEGORY_CHOICES)
     business_description = models.TextField(max_length=225, null=True, blank=True)
-    business_phone = models.CharField(max_length=20, null=True, blank=True)
-    business_email = models.CharField(max_length=20, null=True, blank=True)
-    support_email = models.CharField(max_length=20, null=True, blank=True) 
+    business_phone = models.CharField(max_length=225, null=True, blank=True)
+    business_email = models.CharField(max_length=225, null=True, blank=True)
+    support_email = models.CharField(max_length=225, null=True, blank=True) 
     business_website = models.CharField(max_length=225, null=True, blank=True)
-    country = models.CharField(max_length=50, null=True, blank=True)
+    country = models.CharField(max_length=225, null=True, blank=True)
     is_seller_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
