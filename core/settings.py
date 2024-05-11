@@ -36,6 +36,8 @@ DEBUG = True
 #                  'localhost:8001', 
 #                  '127.0.0.1', 
 #                  '127.0.0.1:8001', 
+#                  "0.0.0.0",
+#                  "paysofter.com",
 #                  "api.paysofter.com",
 #                  ]
 
@@ -155,6 +157,47 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Additional CORS Configuration
+CORS_ALLOWED_ORIGINS = [
+    "https://paysofter.com",
+    "https://api.paysofter.com",
+    "http://localhost:8001",
+    "http://127.0.0.1:3001",
+    "http://localhost:3001",
+    "http://127.0.0.1:8001",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://paysofter.com",
+    "https://api.paysofter.com",
+    "http://localhost:8001",
+    "http://127.0.0.1:3001",
+    "http://localhost:3001",
+    "http://127.0.0.1:8001",
+]
+
+CORS_ALLOWED_HEADERS = [
+    'access-control-allow-headers',
+    'access-control-allow-origin',
+    'authorization',
+    'content-type',
+    'x-requested-with',
+    "accept",
+    "x-csrftoken",
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True 
 
 ROOT_URLCONF = 'core.urls'
 
@@ -321,38 +364,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-CORS_ALLOWED_ORIGINS = [
-    "https://paysofter.com",
-    "https://api.paysofter.com",
-    "http://localhost:8001",
-    "http://127.0.0.1:3001",
-    "http://localhost:3001",
-    "http://127.0.0.1:8001",
-]
-
-CORS_ALLOWED_HEADERS = [
-    'access-control-allow-headers',
-    'access-control-allow-origin',
-    'authorization',
-    'content-type',
-    'x-requested-with',
-    "accept",
-    "x-csrftoken",
-]
-
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True 
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')

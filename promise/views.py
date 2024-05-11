@@ -8,7 +8,7 @@ from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status, generics 
 from rest_framework.views import APIView
 
 import sib_api_v3_sdk
@@ -58,7 +58,7 @@ def create_promise(request):
     try:
         seller = User.objects.get(test_api_key=public_api_key)
     except User.DoesNotExist:
-        return Response({'detail': 'Invalid or Seller API Key not found'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'detail': 'Invalid or seller API Key not activated. Please contact the seller.'}, status=status.HTTP_401_UNAUTHORIZED)
     print('seller:', seller)
 
     try:
@@ -331,7 +331,7 @@ def settle_disputed_promise(request):
 def get_buyer_promises(request):
     user = request.user
     try:
-        promise = PaysofterPromise.objects.filter(buyer=user).order_by('modified_at')
+        promise = PaysofterPromise.objects.filter(buyer=user).order_by('-timestamp')
         serializer = PaysofterPromiseSerializer(promise, many=True)
         return Response(serializer.data)
     except PaysofterPromise.DoesNotExist:
@@ -343,7 +343,7 @@ def get_buyer_promises(request):
 def get_seller_promises(request):
     user = request.user
     try:
-        promise = PaysofterPromise.objects.filter(seller=user).order_by('modified_at')
+        promise = PaysofterPromise.objects.filter(seller=user).order_by('-timestamp')
         serializer = PaysofterPromiseSerializer(promise, many=True)
         return Response(serializer.data)
     except PaysofterPromise.DoesNotExist:
