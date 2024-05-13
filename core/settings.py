@@ -82,16 +82,17 @@ LOGGING = {
 }
 
 
-# ALLOWED_HOSTS = ['localhost', 
-#                  'localhost:8001', 
-#                  '127.0.0.1', 
-#                  '127.0.0.1:8001', 
-#                  "0.0.0.0",
-#                  "paysofter.com",
-#                  "api.paysofter.com",
-#                  ]
+ALLOWED_HOSTS = [
+                 "paysofter.com",
+                 "api.paysofter.com",
+                 'localhost', 
+                 'localhost:8001', 
+                 '127.0.0.1', 
+                 '127.0.0.1:8001', 
+                 "0.0.0.0",
+                 ]
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -247,7 +248,7 @@ CORS_ALLOW_METHODS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True 
+# CORS_ALLOW_ALL_ORIGINS = True 
 
 ROOT_URLCONF = 'core.urls'
 
