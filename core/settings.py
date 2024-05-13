@@ -73,6 +73,11 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
+        'corsheaders': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }
 
