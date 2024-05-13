@@ -83,8 +83,10 @@ LOGGING = {
 
 
 ALLOWED_HOSTS = [
-                 "paysofter.com",
-                 "api.paysofter.com",
+                 'paysofter.com',
+                 'api.paysofter.com',
+                 '172.31.95.178',
+                '44.201.253.128',
                  'localhost', 
                  'localhost:8001', 
                  '127.0.0.1', 
