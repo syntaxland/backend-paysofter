@@ -201,7 +201,6 @@ CORS_ALLOWED_ORIGINS = [
     "https://paysofter.com",
     "https://api.paysofter.com",
     "https://sellangle.com",
-    "https://backend.sellangle.com",
     "http://localhost",
     "http://localhost:8001",
     "http://127.0.0.1",
