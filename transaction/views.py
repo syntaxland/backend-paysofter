@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 
 import sib_api_v3_sdk
-from sib_api_v3_sdk.rest import ApiException 
+from sib_api_v3_sdk.rest import ApiException   
 
 from django.conf import settings
 from django.contrib.auth import get_user_model 

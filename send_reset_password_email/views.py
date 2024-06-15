@@ -11,7 +11,7 @@ from .models import PasswordResetToken
 from user_profile.serializers import UserSerializer
 from .serializers import PasswordResetRequestSerializer, ResetPasswordSerializer
 
-from django.urls import reverse
+# from django.urls import reverse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model

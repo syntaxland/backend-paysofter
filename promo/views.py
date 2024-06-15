@@ -7,10 +7,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
-# from app.models import OrderItem, Product
 from .models import PromoCode, Referral
 from .serializers import PromoCodeSerializer, ReferralSerializer
-# from app.serializer import ProductSerializer
 from decimal import Decimal, ROUND_DOWN
 from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from django.utils import timezone

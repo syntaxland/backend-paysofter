@@ -15,7 +15,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
-# Adding dotenv 
+# Adding dotenv
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -32,31 +32,14 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 # DEBUG = False
 
-# LOGGING = {
-#     "version": 1,
-#     "disable_existing_loggers": False,
-#     "handlers": {
-#         "file": {
-#             "level": "ERROR",
-#             "class": "logging.FileHandler",
-#             'filename': f'{BASE_DIR}/logs/error.log',
-#         },
-#     },
-#     "loggers": { 
-#         "django": {
-#             "handlers": ["file"],
-#             "level": "ERROR",
-#             "propagate": True,
-#         },
-#     },
-# }
+APPEND_SLASH = True
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "standard": {
-            "format": "[%(asctime)s] %(levelname)s [%(module)s] [PID:%(process)d] [Thread:%(thread)d]: %(message)s" 
+            "format": "[%(asctime)s] %(levelname)s [%(module)s] [PID:%(process)d] [Thread:%(thread)d]: %(message)s"
         },
     },
     "handlers": {
@@ -81,20 +64,19 @@ LOGGING = {
     },
 }
 
-
 ALLOWED_HOSTS = [
-                 'paysofter.com',
-                 'api.paysofter.com',
-                 '172.31.95.178',
-                '44.201.253.128',
-                 'localhost', 
-                 'localhost:8001', 
-                 '127.0.0.1', 
-                 '127.0.0.1:8001', 
-                 '192.168.43.4',
-                '192.168.43.4:8001',
-                #  "0.0.0.0",
-                 ]
+    'paysofter.com',
+    'api.paysofter.com',
+    '172.31.95.178',
+    '44.201.253.128',
+    'localhost',
+    'localhost:8001',
+    '127.0.0.1',
+    '127.0.0.1:8001',
+    '192.168.43.4',
+    '192.168.43.4:8001',
+    #  "0.0.0.0",
+]
 
 # ALLOWED_HOSTS = ["*"]
 
@@ -109,23 +91,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-   
-    # my apps 
-    'user_profile', 
+
+    # my apps
+    'user_profile',
     'payment',
     'transaction',
     'payout',
-    # 'business_account', 
-    'fund_account', 
+    # 'business_account',
+    'fund_account',
     'promise',
     'commission',
-    # 'subscription', 
+    # 'subscription',
     'send_email_otp',
-    'send_reset_password_email',  
-    'credit_point',  
+    'send_reset_password_email',
+    'credit_point',
     'send_email',
     'send_email_message',
-    'send_message_inbox',  
+    'send_message_inbox',
     # 'recommender',
     # 'live_chat',
     'sellers',
@@ -133,7 +115,7 @@ INSTALLED_APPS = [
     'settings',
     'support',
     'feedback',
- 
+
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
@@ -157,7 +139,7 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         # 'rest_framework.permissions.IsAuthenticated',
-        'rest_framework.permissions.AllowAny',  
+        'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # 'rest_framework.authentication.TokenAuthentication',
@@ -166,7 +148,7 @@ REST_FRAMEWORK = {
     ]
 }
 
-SIMPLE_JWT = {      
+SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': False,
@@ -202,7 +184,8 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",  # Adding third-part corsheaders middleware
+    # Adding third-part corsheaders middleware
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -217,10 +200,18 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "https://paysofter.com",
     "https://api.paysofter.com",
+    "https://sellangle.com",
+    "https://backend.sellangle.com",
+    "http://localhost",
     "http://localhost:8001",
+    "http://127.0.0.1",
     "http://127.0.0.1:3001",
+    "http://127.0.0.1:3002",
     "http://localhost:3001",
+    "http://localhost:3002",
     "http://127.0.0.1:8001",
+    "http://192.168.43.4",
+    "http://192.168.43.4:8001", 
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -286,7 +277,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # }
 
 
-
 # # localhost (dev)
 # DATABASES = {
 #      'default': {
@@ -298,14 +288,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #         'PORT': int(os.getenv('DB_PORT')),
 #      }
 # }
-     
-# AWS RDS (prod) 
+
+# AWS RDS (prod)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'), 
+        'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': int(os.getenv('DB_PORT')),
     }
@@ -413,7 +403,7 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/media/'
 # MEDIA_ROOT = BASE_DIR / 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/') 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -426,7 +416,7 @@ AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_SIGNATURE_NAME = 's3v4',
 AWS_S3_REGION_NAME = 'us-east-1'
 AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL =  None
+AWS_DEFAULT_ACL = None
 AWS_S3_VERITY = True
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
@@ -435,7 +425,7 @@ TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 
-MY_PHONE_NUMBER  = os.getenv('MY_PHONE_NUMBER')
+MY_PHONE_NUMBER = os.getenv('MY_PHONE_NUMBER')
 
 # for captcha
 RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
@@ -473,11 +463,11 @@ PARENT_COMPANY_NAME = os.getenv('PARENT_COMPANY_NAME')
 
 # for google login option
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend', 
+    'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
-]  
-  
-# SITE_ID = 1 
+]
+
+# SITE_ID = 1
 
 # Google OAuth2 settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -506,12 +496,12 @@ LOGIN_REDIRECT_URL = '/'  # Replace with your desired URL
 LOGOUT_REDIRECT_URL = '/login'
 
 # User model
-AUTH_USER_MODEL = 'user_profile.User'  
+AUTH_USER_MODEL = 'user_profile.User'
 
 # Celery Configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  
-CELERY_RESULT_BACKEND = 'django-db'  
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -519,4 +509,3 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Africa/Lagos'
 
 CELERY_BEAT_SHEDULER = 'django-celery-beat.shedulers.DatabaseSheduler'
- 

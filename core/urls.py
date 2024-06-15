@@ -11,7 +11,7 @@ from rest_framework_simplejwt.views import (
 # from live_chat import consumers
 
 # websocket_urlpatterns = [
-#     re_path(r'ws/chat/(?P<room_name>\w+)/$', consumers.ChatConsumer.as_asgi()),
+#     re_path(r'ws/chat/(?P<room_name>\w+)/$', consumers.ChatConsumer.as_asgi()), 
 # ]
 
 
@@ -27,21 +27,21 @@ urlpatterns = [
     path('api/', include('transaction.urls')),
     path('api/', include('payout.urls')),
     path('api/', include('payment.urls')),
-    # path('api/', include('business_account.urls')),
     path('api/', include('fund_account.urls')),
     path('api/', include('promise.urls')),
     path('api/', include('send_email_otp.urls')), 
     path('api/', include('send_reset_password_email.urls')), 
-    path('api/', include('credit_point.urls')),
     path('api/', include('send_email_message.urls')),
-    path('api/', include('send_message_inbox.urls')),
+    path('api/', include('send_message_inbox.urls')),    
+    path('api/', include('sellers.urls')),
+    path('api/', include('referral.urls')),
+    path('api/', include('settings.urls')), 
+    path('api/', include('support.urls')),
+    path('api/', include('feedback.urls')),
+
+    # path('api/', include('credit_point.urls')), 
     # path('api/', include('send_email.urls')),
     # path('api/', include('recommender.urls')),
     # path('api/', include('live_chat.urls')),
-    path('api/', include('sellers.urls')),
-    path('api/', include('referral.urls')),
-    path('api/', include('settings.urls')),
-    path('api/', include('support.urls')),
-    path('api/', include('feedback.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
