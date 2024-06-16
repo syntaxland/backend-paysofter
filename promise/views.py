@@ -1,25 +1,25 @@
 # promise/views.py
 import random
-import string 
+import string
 from decimal import Decimal
 from datetime import datetime, timedelta
-from django.utils import timezone 
+from django.utils import timezone
 
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status, generics 
+from rest_framework import status, generics
 from rest_framework.views import APIView
 
 import sib_api_v3_sdk
-from sib_api_v3_sdk.rest import ApiException 
+from sib_api_v3_sdk.rest import ApiException
 
 
-from .models import PaysofterPromise, PromiseMessage 
+from .models import PaysofterPromise, PromiseMessage
 from .serializers import (PaysofterPromiseSerializer,
-                           PromiseMessageSerializer,
-                           )
-        
+                          PromiseMessageSerializer,
+                          )
+
 
 from send_email_otp.serializers import EmailOTPSerializer
 from send_email_otp.models import EmailOtp
@@ -28,7 +28,7 @@ from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
-User = get_user_model() 
+User = get_user_model()
 
 
 def generate_promise_id():
@@ -37,9 +37,9 @@ def generate_promise_id():
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])  
+@permission_classes([AllowAny])
 def create_promise(request):
-    data = request.data 
+    data = request.data
     print("data:", data)
 
     amount = Decimal(request.data.get('amount'))
@@ -67,7 +67,7 @@ def create_promise(request):
         return Response({'detail': 'Buyer not found'}, status=status.HTTP_404_NOT_FOUND)
     print('buyer:', buyer)
 
-    try:      
+    try:
         promise = PaysofterPromise.objects.create(
             seller=seller,
             buyer=buyer,
@@ -79,7 +79,7 @@ def create_promise(request):
             # payment_provider=payment_provider,
             promise_id=promise_id,
             is_active=True
-        ) 
+        )
 
         if promise.duration:
             if promise.duration == '0 day':
@@ -97,14 +97,14 @@ def create_promise(request):
             elif promise.duration == '2 weeks':
                 promise.duration_hours = timedelta(weeks=2)
             elif promise.duration == '1 month':
-                promise.duration_hours = timedelta(days=30)  
+                promise.duration_hours = timedelta(days=30)
 
             promise.expiration_date = datetime.now() + promise.duration_hours
 
         promise.is_success = True
         promise.save()
 
-        # send email        
+        # send email
         amount = '{:,.0f}'.format(float(request.data.get('amount')))
         print("\amount:", amount)
         sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
@@ -119,42 +119,46 @@ def create_promise(request):
         buyer_first_name = buyer.first_name
         buyer_account_id = buyer.account_id
         formatted_buyer_account_id = format_number(buyer_account_id)
-        
-        print("\nsender_email:", sender_email, "formatted_seller_account_id:", formatted_seller_account_id, "formatted_buyer_account_id:", formatted_buyer_account_id) 
- 
+
+        print("\nsender_email:", sender_email, "formatted_seller_account_id:",
+              formatted_seller_account_id, "formatted_buyer_account_id:", formatted_buyer_account_id)
+
         try:
-            send_buyer_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, buyer_email, buyer_first_name, formatted_seller_account_id)
+            send_buyer_email(request, sender_name, sender_email, amount, currency, promise_id,
+                             created_at, buyer_email, buyer_first_name, formatted_seller_account_id)
         except Exception as e:
             print(e)
             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
-            send_seller_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, seller_email, seller_first_name, formatted_buyer_account_id)
+            send_seller_email(request, sender_name, sender_email, amount, currency, promise_id,
+                              created_at, seller_email, seller_first_name, formatted_buyer_account_id)
         except Exception as e:
             print(e)
             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        return Response({'success': f'Promise created successfully.'}, 
+
+        return Response({'success': f'Promise created successfully.'},
                         status=status.HTTP_201_CREATED)
     except PaysofterPromise.DoesNotExist:
-            return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def send_buyer_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, buyer_email, buyer_first_name, formatted_seller_account_id):
     url = settings.PAYSOFTER_URL
-    buyer_confirm_promise_link =  f"{url}/promise/buyer"
+    buyer_confirm_promise_link = f"{url}/promise/buyer"
 
     # Email Sending API Config
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+        sib_api_v3_sdk.ApiClient(configuration))
 
     # Sending email
     print("\nSending email...")
     # subject =  f"[TEST MODE] Notice of Paysofter Promise Alert of NGN {amount} with  Promise ID [{promise_id}]"
-    subject =  f"Paysofter Promise Alert"
+    subject = f"Paysofter Promise Alert"
     buyer_html_content = f"""
             <!DOCTYPE html>
             <html>
@@ -174,7 +178,7 @@ def send_buyer_email(request, sender_name, sender_email, amount, currency, promi
                 <p>Paysofter Inc.</p>
             </body>
             </html>
-        """ 
+        """
     sender = {"name": sender_name, "email": sender_email}
     to = [{"email": buyer_email}]
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
@@ -193,17 +197,18 @@ def send_buyer_email(request, sender_name, sender_email, amount, currency, promi
 
 def send_seller_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, seller_email, seller_first_name, formatted_buyer_account_id):
     url = settings.PAYSOFTER_URL
-    seller_confirm_promise_link =  f"{url}/promise/seller"
-    
+    seller_confirm_promise_link = f"{url}/promise/seller"
+
     # Email Sending API Config
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+        sib_api_v3_sdk.ApiClient(configuration))
 
     # Sending email
     print("\nSending email...")
     # subject =  f"[TEST MODE] Notice of Paysofter Promise of NGN {amount} with  Promise ID [{promise_id}]"
-    subject =  f"Paysofter Promise Alert"
+    subject = f"Paysofter Promise Alert"
     seller_html_content = f"""
             <!DOCTYPE html>
             <html>
@@ -223,7 +228,7 @@ def send_seller_email(request, sender_name, sender_email, amount, currency, prom
                 <p>Paysofter Inc.</p>
             </body>
             </html>
-        """ 
+        """
     sender = {"name": sender_name, "email": sender_email}
     to = [{"email": seller_email}]
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
@@ -241,7 +246,7 @@ def send_seller_email(request, sender_name, sender_email, amount, currency, prom
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])   
+@permission_classes([IsAuthenticated])
 def buyer_confirm_promise(request):
     user = request.user
     data = request.data
@@ -257,10 +262,11 @@ def buyer_confirm_promise(request):
         return Response({'detail': 'Invalid password.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     try:
-        promise = PaysofterPromise.objects.get(buyer=user, promise_id=promise_id)
+        promise = PaysofterPromise.objects.get(
+            buyer=user, promise_id=promise_id)
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise not found'}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     print('buyer_promise_fulfilled(before):', promise.buyer_promise_fulfilled)
 
     promise.buyer_promise_fulfilled = True
@@ -268,13 +274,13 @@ def buyer_confirm_promise(request):
     promise.is_active = False
     promise.duration = '0 day'
     promise.status = "Fulfilled"
-    promise.save() 
+    promise.save()
     print('buyer_promise_fulfilled(after):', promise.buyer_promise_fulfilled)
     return Response({'detail': 'Promise fulfilled.'}, status=status.HTTP_200_OK)
-    
+
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])   
+@permission_classes([IsAuthenticated])
 def seller_confirm_promise(request):
     user = request.user
     data = request.data
@@ -285,12 +291,14 @@ def seller_confirm_promise(request):
     print('promise_id:', promise_id)
 
     try:
-        promise = PaysofterPromise.objects.get(seller=user, promise_id=promise_id)
+        promise = PaysofterPromise.objects.get(
+            seller=user, promise_id=promise_id)
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise not found'}, status=status.HTTP_400_BAD_REQUEST)
 
-    print('seller_fulfilled_promise(before):', promise.seller_fulfilled_promise)
-    
+    print('seller_fulfilled_promise(before):',
+          promise.seller_fulfilled_promise)
+
     promise.seller_fulfilled_promise = True
     promise.save()
     print('seller_fulfilled_promise(after):', promise.seller_fulfilled_promise)
@@ -298,7 +306,7 @@ def seller_confirm_promise(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])   
+@permission_classes([IsAuthenticated])
 def settle_disputed_promise(request):
     user = request.user
     data = request.data
@@ -310,20 +318,22 @@ def settle_disputed_promise(request):
 
     if keyword != "confirm":
         return Response({'detail': 'Invalid keyword entered.'}, status=status.HTTP_401_UNAUTHORIZED)
-        
+
     try:
         promise = PaysofterPromise.objects.get(
-            Q(buyer=user) | Q(seller=user), 
+            Q(buyer=user) | Q(seller=user),
             promise_id=promise_id)
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise not found'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    print('is_settle_conflict_activated(before):', promise.is_settle_conflict_activated)
+
+    print('is_settle_conflict_activated(before):',
+          promise.is_settle_conflict_activated)
 
     promise.is_settle_conflict_activated = True
-    print('is_settle_conflict_activated(after):', promise.is_settle_conflict_activated)
-    promise.save() 
-    return Response({'detail': 'Settle disputed promise activated.'}, status=status.HTTP_200_OK) 
+    print('is_settle_conflict_activated(after):',
+          promise.is_settle_conflict_activated)
+    promise.save()
+    return Response({'detail': 'Settle disputed promise activated.'}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -331,19 +341,21 @@ def settle_disputed_promise(request):
 def get_buyer_promises(request):
     user = request.user
     try:
-        promise = PaysofterPromise.objects.filter(buyer=user).order_by('-timestamp')
+        promise = PaysofterPromise.objects.filter(
+            buyer=user).order_by('-timestamp')
         serializer = PaysofterPromiseSerializer(promise, many=True)
         return Response(serializer.data)
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise not found'}, status=status.HTTP_404_NOT_FOUND)
-    
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_seller_promises(request):
     user = request.user
     try:
-        promise = PaysofterPromise.objects.filter(seller=user).order_by('-timestamp')
+        promise = PaysofterPromise.objects.filter(
+            seller=user).order_by('-timestamp')
         serializer = PaysofterPromiseSerializer(promise, many=True)
         return Response(serializer.data)
     except PaysofterPromise.DoesNotExist:
@@ -387,9 +399,9 @@ def cancel_promise(request):
     promise.is_success = False
     promise.status = 'Cancelled'
 
-    promise.save() 
+    promise.save()
 
-    return Response({'detail': f'Promise cancelled.',}, status=status.HTTP_200_OK)
+    return Response({'detail': f'Promise cancelled.', }, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -411,7 +423,7 @@ def buyer_create_promise_message(request):
 
     promise_message = PromiseMessage.objects.create(
         buyer=buyer,
-        promise_message=promise, 
+        promise_message=promise,
         message=message,
     )
 
@@ -457,7 +469,7 @@ def seller_create_promise_message(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def list_buyer_promise_messages(request, promise_id):
     buyer = request.user
     # data  = request.data
@@ -470,16 +482,16 @@ def list_buyer_promise_messages(request, promise_id):
     try:
         promise_message = PaysofterPromise.objects.get(
             promise_id=promise_id
-            )
+        )
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
-    
+
     print('promise_message:', promise_message)
-    
+
     try:
         promise_message = PromiseMessage.objects.filter(
-            promise_message=promise_message, 
-            ).order_by('timestamp')
+            promise_message=promise_message,
+        ).order_by('timestamp')
         serializer = PromiseMessageSerializer(promise_message, many=True)
         return Response(serializer.data)
     except PromiseMessage.DoesNotExist:
@@ -487,7 +499,7 @@ def list_buyer_promise_messages(request, promise_id):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def list_seller_promise_messages(request, promise_id):
     seller = request.user
     # data  = request.data
@@ -500,16 +512,16 @@ def list_seller_promise_messages(request, promise_id):
     try:
         promise_message = PaysofterPromise.objects.get(
             promise_id=promise_id
-            )
+        )
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
-    
+
     print('promise_message:', promise_message)
-    
+
     try:
         promise_message = PromiseMessage.objects.filter(
-            promise_message=promise_message, 
-            ).order_by('timestamp')
+            promise_message=promise_message,
+        ).order_by('timestamp')
         serializer = PromiseMessageSerializer(promise_message, many=True)
         return Response(serializer.data)
     except PromiseMessage.DoesNotExist:
@@ -530,7 +542,7 @@ def clear_seller_promise_message_counter(request):
         promise = PaysofterPromise.objects.get(promise_id=promise_id)
     except PaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise message not found'}, status=status.HTTP_404_NOT_FOUND)
-    
+
     if promise.seller_msg_count > 0:
         promise.seller_msg_count = 0
         promise.save()
@@ -569,7 +581,7 @@ def format_email(email):
             # If the username or domain is too short, don't modify the email
             return email
         else:
-            username = parts[0][0] + '*' * (len(parts[0]) - 2) + parts[0][-1] 
+            username = parts[0][0] + '*' * (len(parts[0]) - 2) + parts[0][-1]
             domain = parts[1][0] + '*' * (len(parts[1]) - 2) + parts[1][-1]
             return f"{username}@{domain}"
     else:
