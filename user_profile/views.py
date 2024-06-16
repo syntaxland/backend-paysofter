@@ -83,6 +83,16 @@ def user_register_view(request):
     phone_number = data.get('phone_number') 
     username = data.get('username') 
 
+    # Check if the user has a referral code
+    referral_code = data.get('referral_code')
+    # print('referral_code:', referral_code)
+    if referral_code:
+        try:
+            referrer = User.objects.get(referral_code=referral_code)
+        except User.DoesNotExist:
+            return Response({'detail': 'Incorrect or user with this referral code does not exist.'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+
     try:
         user_with_username = User.objects.get(username=username)
         if user_with_username.is_verified:
@@ -153,10 +163,10 @@ def user_register_view(request):
         except Exception as e:
             print(e)
                          
-        referral_code = data.get('referral_code')
-        print('referral_code:', referral_code)
+        # referral_code = data.get('referral_code')
+        # print('referral_code:', referral_code)
         
-        if referral_code:
+
             try:
                 referrer = User.objects.get(referral_code=referral_code) 
                 referral, created = Referral.objects.get_or_create(referrer=referrer)
