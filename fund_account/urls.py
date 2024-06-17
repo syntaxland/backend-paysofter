@@ -12,7 +12,7 @@ urlpatterns = [
     path('get-user-account-fund-debits/', views.get_user_account_funds_debits, name='get-user-account-fund-debits'),
     path('get-user-account-fund-credits/', views.get_user_account_funds_credits, name='uget-user-account-fund-credits'),
 
-
+ 
     path('debit-user-account-balance/', views.debit_user_fund_account, name='debit-user-account-balance'),
     path('get-user-account-debits/', views.get_user_account_debits, name='get-user-account-debits'),
 
