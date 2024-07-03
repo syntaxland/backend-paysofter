@@ -68,6 +68,8 @@ def fund_user_account_view(request):
     print('fund_account_id:', fund_account_id)
 
     card_number = request.data.get('card_number')
+    expiration_month = request.data.get('expiration_month') 
+    expiration_year = request.data.get('expiration_year') 
     expiration_month_year = request.data.get('expiration_month_year')
     cvv = request.data.get('cvv')
     print('amount:', amount)
@@ -97,6 +99,8 @@ def fund_user_account_view(request):
             card_data = FundAccountCreditCard.objects.create(
                 fund_account=fund_account,
                 card_number=card_number,  
+                expiration_month=expiration_month,  
+                expiration_year=expiration_year,  
                 expiration_month_year=expiration_month_year,  
                 cvv=cvv,  
             ) 
@@ -246,10 +250,10 @@ def debit_user_fund_account(request):
         return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        seller_api_key = User.objects.get(test_api_key=public_api_key)
+        seller = User.objects.get(test_api_key=public_api_key)
     except User.DoesNotExist:
-        return Response({'detail': 'Invalid or Seller API Key not found'}, status=status.HTTP_401_UNAUTHORIZED)
-    print('seller_api_key:', seller_api_key)
+        return Response({'detail': 'Invalid or Seller API Key not found. Please contact the seller.'}, status=status.HTTP_401_UNAUTHORIZED)
+    print('seller:', seller)
 
     payer_email = user.email
     first_name = user.first_name
@@ -329,14 +333,7 @@ def verify_account_debit_email_otp(request):
     debit_account_id = generate_debit_account_id()
     print('fund_account_id:', debit_account_id, 'otp:', otp, 'amount:', amount, 'account_id:', account_id) 
 
-    # public_api_key = request.data.get('public_api_key')
-    # try:
-    #     seller_api_key = User.objects.get(test_api_key=public_api_key)
-    #     if seller_api_key:
-    #         return Response({'detail': 'Seller API Key found'}, status=status.HTTP_200_OK)
-    # except User.DoesNotExist:
-    #     return Response({'detail': 'Invalid or Seller API Key not found'}, status=status.HTTP_401_UNAUTHORIZED)
-    # print('seller_api_key:', seller_api_key)
+    
 
     try:
         user = User.objects.get(account_id=account_id)
@@ -872,12 +869,10 @@ def debit_user_usd_account_fund(request):
         return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        seller_api_key = User.objects.get(test_api_key=public_api_key)
-        # if not seller_api_key:
-        #     return Response({'detail': 'Seller API Key found'}, status=status.HTTP_200_OK)
+        seller = User.objects.get(test_api_key=public_api_key)
     except User.DoesNotExist:
-        return Response({'detail': 'Invalid or Seller API Key not found'}, status=status.HTTP_401_UNAUTHORIZED)
-    print('seller_api_key:', seller_api_key)
+        return Response({'detail': 'Invalid or Seller API Key not found. Please contact the seller.'}, status=status.HTTP_401_UNAUTHORIZED)
+    print('seller:', seller)
 
     payer_email = user.email
     first_name = user.first_name

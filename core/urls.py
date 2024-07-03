@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/', include('send_email_message.urls')),
     path('api/', include('send_message_inbox.urls')),    
     path('api/', include('sellers.urls')),
+    # path('api/', include('promo.urls')),
     path('api/', include('referral.urls')),
     path('api/', include('settings.urls')), 
     path('api/', include('support.urls')),

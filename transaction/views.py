@@ -44,14 +44,15 @@ def initiate_transaction(request):
     currency = request.data.get('currency')
 
     card_number = request.data.get('card_number')
-    # expiration_year = request.data.get('expiration_year')
+    expiration_month = request.data.get('expiration_month') 
+    expiration_year = request.data.get('expiration_year') 
     expiration_month_year = request.data.get('expiration_month_year') 
     cvv = request.data.get('cvv')
     print('amount:', amount)  
     print('public_api_key:', public_api_key) 
     
     try:
-        seller = User.objects.get(test_api_key=public_api_key)
+        seller = User.objects.get(test_api_key=public_api_key) 
     except User.DoesNotExist:
         return Response({'detail': 'Invalid API key'})
     print('seller:', seller)
@@ -89,8 +90,8 @@ def initiate_transaction(request):
             card_data = TransactionCreditCard.objects.create(
                 transaction=transaction,
                 card_number=card_number,  
-                # expiration_month=expiration_month,  
-                # expiration_year=expiration_year,  
+                expiration_month=expiration_month,  
+                expiration_year=expiration_year,  
                 expiration_month_year=expiration_month_year,  
                 cvv=cvv,  
             ) 

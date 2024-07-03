@@ -111,6 +111,7 @@ INSTALLED_APPS = [
     # 'recommender',
     # 'live_chat',
     'sellers',
+    # 'promo', 
     'referral',
     'settings',
     'support',
@@ -443,6 +444,14 @@ EMAIL_SENDER_NAME = os.getenv('EMAIL_SENDER_NAME')
 PAYSOFTER_EMAIL_SENDER_NAME = os.getenv('PAYSOFTER_EMAIL_SENDER_NAME')
 PAYSOFTER_EMAIL_HOST_USER = os.getenv('PAYSOFTER_EMAIL_HOST_USER')
 PAYSOFTER_URL = os.getenv('PAYSOFTER_URL')
+
+PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+PAYSTACK_PAYMENT_URL = os.getenv('PAYSTACK_PAYMENT_URL')
+CALLBACK_URL = os.getenv('CALLBACK_URL')
+
+PAYSOFTER_PUBLIC_KEY = os.getenv('PAYSOFTER_PUBLIC_KEY')
+PAYSOFTER_PAYMENT_URL = os.getenv('PAYSOFTER_PAYMENT_URL')
 
 # for email otp api key
 SENDINBLUE_API_KEY = os.getenv('SENDINBLUE_API_KEY')

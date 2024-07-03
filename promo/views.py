@@ -7,11 +7,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
-from .models import PromoCode, Referral
+# from app.models import OrderItem, Order, Product
+from .models import Referral
 from .serializers import PromoCodeSerializer, ReferralSerializer
+# from app.serializer import ProductSerializer 
 from decimal import Decimal, ROUND_DOWN
 from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from django.utils import timezone
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -28,53 +32,6 @@ def create_promo_code(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST', 'GET'])
-@permission_classes([IsAuthenticated])
-def apply_promo_code(request):
-    data = request.data
-    promo_code = data.get('promoCode')
-    order_id = data.get('order_id')
-    print('promo_code, order_id:', promo_code, order_id)
-
-    try:
-        promo = PromoCode.objects.get(promo_code=promo_code)
-        if not promo.is_valid():
-            return Response({'detail': 'Promo code has expired.'}, status=status.HTTP_400_BAD_REQUEST)
-    except PromoCode.DoesNotExist:
-        return Response({'detail': 'Invalid promo code.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        order_items_with_promo = OrderItem.objects.filter(product__promo_code__promo_code=promo_code, order__user=request.user, order__order_id=order_id)
-        if not order_items_with_promo:
-            return Response({'detail': 'Promo code not for this product.'}, status=status.HTTP_404_NOT_FOUND)
-    except OrderItem.DoesNotExist:
-        return Response({'detail': 'Order item does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    promo_discount = 0
-    discount_percentage = 0
-
-    for product in order_items_with_promo:
-        if product.product and product.product.promo_code:
-            # Calculate discount for each product
-            discount_percentage = product.product.promo_code.discount_percentage
-            product_price = product.price
-            discount_amount = (discount_percentage / 100) * product_price
-            promo_discount += discount_amount
-
-    promo_discount = promo_discount.quantize(Decimal('0.00'), rounding=ROUND_DOWN)
-    print('apply_promo_code promo_discount:', promo_discount, 'discount_percentage:', discount_percentage)
-
-    # Return the promo discount
-    return Response({'promoDiscount': promo_discount, 'discountPercentage': discount_percentage}, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-def get_valid_promo_products(request):
-    current_datetime = timezone.now()
-    promo_products = Product.objects.filter(promo_code__expiration_date__gt=current_datetime)
-    serializer = ProductSerializer(promo_products, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 def generate_referral_code():
     letters_and_digits = string.ascii_letters + string.digits
@@ -85,13 +42,15 @@ def generate_referral_code():
 @permission_classes([IsAuthenticated])
 def generate_referral_link(request):
     user = request.user
+    url = settings.PAYSOFTER_URL 
+    print("url:", url)
     try:
         if not user.referral_code:
             user.referral_code = generate_referral_code()
             user.save()
         if not user.referral_link:
-            referral_link =  f"http://localhost:3000/register?ref={user.referral_code}"
-            # referral_link =  f"http://mcdofglobal.s3-website-us-east-1.amazonaws.com/register?ref={user.referral_code}"
+            # referral_link =  f"http://localhost:3000/register?ref={user.referral_code}"
+            referral_link =  f"{url}/register?ref={user.referral_code}"
             user.referral_link = referral_link
             user.save()
         return Response(
@@ -113,12 +72,14 @@ def generate_referral_link(request):
 @permission_classes([IsAuthenticated])
 def generate_referral_link_button(request):
     user = request.user
+    url = settings.PAYSOFTER_URL
     try:
         if user.referral_code:
             user.referral_code = generate_referral_code()
             user.save()
         if user.referral_link:
-            referral_link =  f"http://localhost:3000/register?ref={user.referral_code}"
+            # referral_link =  f"http://localhost:3000/register?ref={user.referral_code}"
+            referral_link =  f"{url}/register?ref={user.referral_code}"
             # referral_link =  f"http://mcdofglobal.s3-website-us-east-1.amazonaws.com/register?ref={user.referral_code}"
             user.referral_link = referral_link
             user.save()
@@ -159,7 +120,7 @@ def get_all_referrals(request):
         return Response(serializer.data)
     except Referral.DoesNotExist:
         return Response({'detail': 'Referrals not found'}, status=status.HTTP_404_NOT_FOUND)
-    
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -173,3 +134,5 @@ def refer_user(request):
         return Response({"message": "User referred successfully"})
     except Referral.DoesNotExist:
         return Response({"error": "Referral code not found"}, status=400)
+
+

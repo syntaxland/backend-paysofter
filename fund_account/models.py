@@ -112,6 +112,8 @@ class DebitAccountFund(models.Model):
 class FundAccountCreditCard(models.Model):
     fund_account = models.ForeignKey(FundAccount, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_credit_card")
     card_number = models.CharField(max_length=100, null=True, blank=True)
+    expiration_month = models.CharField(max_length=100, null=True, blank=True)
+    expiration_year = models.CharField(max_length=100, null=True, blank=True)
     expiration_month_year = models.CharField(max_length=100, null=True, blank=True)
     cvv = models.CharField(max_length=100, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
