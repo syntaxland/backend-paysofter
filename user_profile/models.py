@@ -70,7 +70,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     referral_link = models.CharField(max_length=225, unique=True, null=True, editable=False)
     test_api_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
     test_api_secret_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
-    live_api_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
+    live_api_key = models.CharField(max_length=100, unique=True, null=True, editable=False) 
     live_api_secret_key = models.CharField(max_length=100, unique=True, null=True, editable=False)
     is_api_key_live = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)

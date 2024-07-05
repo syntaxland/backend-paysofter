@@ -250,7 +250,8 @@ def debit_user_fund_account(request):
         return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        seller = User.objects.get(test_api_key=public_api_key)
+        # seller = User.objects.get(test_api_key=public_api_key)
+        seller = User.objects.filter(Q(test_api_key=public_api_key) | Q(live_api_key=public_api_key)).first()
     except User.DoesNotExist:
         return Response({'detail': 'Invalid or Seller API Key not found. Please contact the seller.'}, status=status.HTTP_401_UNAUTHORIZED)
     print('seller:', seller)
@@ -869,7 +870,8 @@ def debit_user_usd_account_fund(request):
         return Response({'detail': 'Maximum account fund withrawal exceeded.'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        seller = User.objects.get(test_api_key=public_api_key)
+        # seller = User.objects.get(test_api_key=public_api_key)
+        seller = User.objects.filter(Q(test_api_key=public_api_key) | Q(live_api_key=public_api_key)).first()
     except User.DoesNotExist:
         return Response({'detail': 'Invalid or Seller API Key not found. Please contact the seller.'}, status=status.HTTP_401_UNAUTHORIZED)
     print('seller:', seller)
