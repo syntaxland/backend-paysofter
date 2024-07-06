@@ -53,12 +53,12 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["file"],
-            "level": "DEBUG",
+            "level": "ERROR",
             "propagate": True,
         },
         'corsheaders': {
             'handlers': ['file'],
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'propagate': True,
         },
     },
