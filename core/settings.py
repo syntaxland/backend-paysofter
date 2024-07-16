@@ -44,7 +44,7 @@ LOGGING = {
     },
     "handlers": {
         "file": {
-            "level": "DEBUG",
+            "level": "ERROR",
             "class": "logging.FileHandler",
             "filename": f"{BASE_DIR}/django_logs/error.log",
             "formatter": "standard",
@@ -67,6 +67,7 @@ LOGGING = {
 ALLOWED_HOSTS = [
     'paysofter.com',
     'api.paysofter.com',
+     "18.212.51.117",
     '172.31.95.178',
     '44.201.253.128',
     'localhost',
@@ -75,10 +76,13 @@ ALLOWED_HOSTS = [
     '127.0.0.1:8001',
     '192.168.43.4',
     '192.168.43.4:8001',
-    #  "0.0.0.0",
+    #  others
+     "3.216.162.10",
+     "44.210.161.224",
+     "0.0.0.0",
 ]
 
-# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -508,6 +512,8 @@ AUTH_USER_MODEL = 'user_profile.User'
 
 # Celery Configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# broker_url = 'redis://localhost:6379/0'
+# result_backend = 'redis://localhost:6379/0'
 # CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['json']

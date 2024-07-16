@@ -41,7 +41,7 @@ class TestTransaction(models.Model):
  
 class TransactionCreditCard(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.SET_NULL, null=True, blank=True)
-    card_number = models.CharField(max_length=100, null=True, blank=True)
+    card_number = models.CharField(max_length=100, null=True, blank=True) 
     expiration_month = models.CharField(max_length=100, null=True, blank=True)
     expiration_year = models.CharField(max_length=100, null=True, blank=True)
     expiration_month_year = models.CharField(max_length=100, null=True, blank=True)
