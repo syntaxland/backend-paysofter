@@ -16,16 +16,16 @@ app.config_from_object(settings, namespace='CELERY')
 app.conf.beat_schedule = {
     'process-payouts-every-n-time': {
         'task': 'payout.tasks.process_payouts',
-        'schedule': timedelta(minutes=3),
+        'schedule': timedelta(minutes=60),
     },
     'seller-payout-payment-processing-everyday': {
         'task': 'payment.tasks.seller_payout_payment',
-        'schedule': timedelta(minutes=5),
+        'schedule': timedelta(minutes=15),
     },
     'update-security-codes-every-hour': {
         'task': 'user_profile.tasks.update_security_codes_for_users',
         # 'schedule': timedelta(hours=1),
-        'schedule': timedelta(minutes=5),
+        'schedule': timedelta(minutes=25),
     },
     'process-promise-transactions-every-n-time': {
         'task': 'promise.tasks.process_promise_transactions',
@@ -42,7 +42,8 @@ app.conf.beat_schedule = {
     },
     'delete-unverified-users-after-one-hour': {
         'task': 'user_profile.tasks.delete_unverified_users_after_one_hour',
-        'schedule': crontab(minute=0, hour='*/1'),
+        # 'schedule': crontab(minute=0, hour='*/1'),
+        'schedule': timedelta(hours=1),
     },
 }
 
