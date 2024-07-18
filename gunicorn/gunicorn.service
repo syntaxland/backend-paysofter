@@ -6,7 +6,7 @@ After=network.target
 User=ubuntu
 Group=www-data
 WorkingDirectory=/home/ubuntu/backend-paysofter
-ExecStart=/home/ubuntu/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/ubuntu/backend-paysofter/core/core.sock core.wsgi:application
+ExecStart=/home/ubuntu/venv/bin/gunicorn --access-logfile - --workers 2 --bind unix:/home/ubuntu/backend-paysofter/core/core.sock core.wsgi:application
 
     
 [Install]
