@@ -2,7 +2,7 @@
 import random
 import string
 from decimal import Decimal
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.utils import timezone
 
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
@@ -33,7 +33,7 @@ User = get_user_model()
 
 def generate_promise_id():
     letters_and_digits = string.ascii_uppercase + string.digits
-    return 'PRO'+''.join(random.choices(letters_and_digits, k=7))
+    return 'PRO'+''.join(random.choices(letters_and_digits, k=17))
 
 
 @api_view(['POST'])
@@ -99,7 +99,7 @@ def create_promise(request):
             elif promise.duration == '1 month':
                 promise.duration_hours = timedelta(days=30)
 
-            promise.expiration_date = datetime.now() + promise.duration_hours
+            promise.expiration_date = timezone.now() + promise.duration_hours
 
         promise.is_success = True
         promise.save()

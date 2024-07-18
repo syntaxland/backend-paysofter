@@ -1,5 +1,6 @@
 # promise/models.py
-from datetime import timedelta, datetime
+from datetime import timedelta
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -250,7 +251,7 @@ class PaysofterPromise(models.Model):
             elif self.duration == '1 month':
                 self.duration_hours = timedelta(days=30)  
 
-            self.expiration_date = datetime.now() + self.duration_hours
+            self.expiration_date = timezone.now() + self.duration_hours
         
         super().save(*args, **kwargs)
 

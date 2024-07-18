@@ -14,8 +14,8 @@ class Transaction(models.Model):
     is_approved = models.BooleanField(default=False)
     payout_status = models.BooleanField(default=False) 
     is_success = models.BooleanField(default=False)
-    payment_id = models.CharField(max_length=20, unique=True, null=True)
-    transaction_id = models.CharField(max_length=20, unique=True, null=True) 
+    payment_id = models.CharField(max_length=50, unique=True, null=True)
+    transaction_id = models.CharField(max_length=50, unique=True, null=True) 
     payment_provider = models.CharField(max_length=50)
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -30,8 +30,8 @@ class TestTransaction(models.Model):
     currency = models.CharField(max_length=3, null=True, blank=True)
     payment_method = models.CharField(max_length=50, null=True, blank=True)
     is_success = models.BooleanField(default=False)
-    payment_id = models.CharField(max_length=14, unique=True, null=True)
-    transaction_id = models.CharField(max_length=14, unique=True, null=True)
+    payment_id = models.CharField(max_length=50, null=True)
+    transaction_id = models.CharField(max_length=50, unique=True, null=True)
     payment_provider = models.CharField(max_length=50)
     timestamp = models.DateTimeField(auto_now_add=True)
 

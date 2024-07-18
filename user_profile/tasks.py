@@ -1,7 +1,7 @@
 # user_profile/tasks.py
 import random
 import string
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.utils import timezone
 
 from celery import shared_task

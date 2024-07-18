@@ -29,7 +29,7 @@ User = get_user_model()
 #     return 'TID'+''.join(random.choices(letters_and_digits, k=14))
 
 def generate_transaction_id():
-    return 'TID'+''.join(random.choices(string.digits, k=14))
+    return 'TID'+''.join(random.choices(string.digits, k=17))
 
 
 @api_view(['POST'])
@@ -58,8 +58,8 @@ def initiate_transaction(request):
     print('seller:', seller)
     
     transaction_id = generate_transaction_id()
-
     payment_id = None
+
     if payment_id == None:
         payment_id = transaction_id
     else:

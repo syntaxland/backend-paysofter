@@ -11,7 +11,7 @@ from transaction.models import Transaction
 
 
 def generate_transaction_id():
-    return ''.join(random.choices(string.digits, k=10)) 
+    return ''.join(random.choices(string.digits, k=10))  
 
 
 # @shared_task
