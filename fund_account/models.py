@@ -74,7 +74,7 @@ class FundAccount(models.Model):
     is_success = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default="Debit Card", null=True, blank=True)
     payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES, null=True, blank=True)
-    fund_account_id = models.CharField(max_length=10, unique=True, null=True)
+    fund_account_id = models.CharField(max_length=50, unique=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True) 
 
     def __str__(self):
@@ -102,7 +102,7 @@ class DebitAccountFund(models.Model):
     is_success = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
     payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES)
-    debit_account_id = models.CharField(max_length=10, unique=True, null=True, editable=False)
+    debit_account_id = models.CharField(max_length=50, unique=True, null=True, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -140,7 +140,7 @@ class FundUsdAccount(models.Model):
     is_success = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default="Debit Card", null=True, blank=True)
     payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES, null=True, blank=True)
-    fund_account_id = models.CharField(max_length=10, unique=True, null=True)
+    fund_account_id = models.CharField(max_length=50, unique=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True) 
 
     def __str__(self):
@@ -155,7 +155,7 @@ class DebitUsdAccountFund(models.Model):
     is_success = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
     payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES)
-    debit_account_id = models.CharField(max_length=10, unique=True, null=True, editable=False)
+    debit_account_id = models.CharField(max_length=50, unique=True, null=True, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
