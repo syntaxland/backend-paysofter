@@ -413,6 +413,8 @@ def verify_debit_fund_email_otp(request):
                                             status=status.HTTP_401_UNAUTHORIZED)
 
                         amount = '{:,.0f}'.format(float(request.data.get('amount')))
+                        old_bal = '{:,.0f}'.format(old_bal)
+                        new_bal = '{:,.0f}'.format(new_bal)
                         print("\amount:", amount)
                         # send buyer transaction email
                         seller_email = seller.email
