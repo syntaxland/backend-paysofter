@@ -41,6 +41,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
                     'test_api_secret_key',
                     'live_api_key',
                     'live_api_secret_key',
+                    'is_api_key_live',
                     'selected_currency',
                     'user_is_not_active',
                     'is_user_live_banned',

@@ -56,6 +56,11 @@ CURRENCY_CHOICES = (
         ('GBP', 'British Pound Sterling'),
     )
 
+PAYOUT_CHOICES = (
+        ('Paysofter Account Fund', 'Paysofter Account Fund'),
+        ('Bank', 'Bank'),
+    )
+
 class User(AbstractBaseUser, PermissionsMixin):
     account_id = models.CharField(max_length=12, unique=True, null=True, editable=False)  
     security_code = models.CharField(max_length=4, unique=True, null=True, editable=False)  
@@ -78,6 +83,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_seller = models.BooleanField(default=False)
     is_usd_selected = models.BooleanField(default=False)
     selected_currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='USD', null=True, blank=True)
+    seller_payout_choice = models.CharField(max_length=100, choices=PAYOUT_CHOICES, default='Bank', null=True, blank=True)
     is_terms_conditions_read = models.BooleanField(default=False)
 
     user_is_not_active = models.BooleanField(default=False)  

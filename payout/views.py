@@ -10,7 +10,7 @@ from django.http.response import HttpResponse
 from rest_framework.views import APIView
 
 from django.contrib.auth import get_user_model
-from .serializers import PayoutSerializer
+from .serializers import PayoutSerializer  
 from .models import Payout
 from transaction.models import Transaction
 from payout.tasks import process_payouts

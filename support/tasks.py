@@ -2,7 +2,7 @@
 from celery import shared_task
 from support.models import SupportTicket, SupportResponse
 from send_email.send_email_sendinblue import send_email_sendinblue
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import get_user_model

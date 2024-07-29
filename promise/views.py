@@ -15,15 +15,18 @@ import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 
 
-from .models import PaysofterPromise, PromiseMessage
+from .models import PaysofterPromise, PromiseMessage, TestPaysofterPromise
 from .serializers import (PaysofterPromiseSerializer,
                           PromiseMessageSerializer,
+                          TestPaysofterPromiseSerializer
                           )
 
 
 from send_email_otp.serializers import EmailOTPSerializer
 from send_email_otp.models import EmailOtp
+from send_email.send_email_sendinblue import send_email_sendinblue
 
+from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -39,32 +42,275 @@ def generate_promise_id():
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_promise(request):
-    data = request.data
-    print("data:", data)
+    try:
+        amount = Decimal(request.data.get('amount'))
+        currency = request.data.get('currency')
+        duration = request.data.get('duration')
+        public_api_key = request.data.get('public_api_key')
+        account_id = request.data.get('account_id')
+        buyer_email = request.data.get('buyer_email')
+        created_at = request.data.get('created_at')
+        print('creating promise...', amount, currency, created_at)
 
-    amount = Decimal(request.data.get('amount'))
-    currency = request.data.get('currency')
-    duration = request.data.get('duration')
-    created_at = request.data.get('created_at')
-    public_api_key = request.data.get('public_api_key')
-    account_id = data.get('account_id')
+        try:
+            seller = get_object_or_404(
+                User, Q(test_api_key=public_api_key) | Q(live_api_key=public_api_key))
+        except User.DoesNotExist:
+            return Response({'detail': 'Invalid API key. Please contact the seller.'}, status=status.HTTP_404_NOT_FOUND)
+        print('seller:', seller)
 
+        if public_api_key.startswith('test_'):
+            create_test_promise(request, amount,
+                                currency,
+                                duration,
+                                public_api_key,
+                                account_id,
+                                buyer_email,
+                                created_at,
+                                seller)
+            print('test account_id:', account_id)
+        elif public_api_key.startswith('live_'):
+            create_live_promise(request, amount,
+                           currency,
+                           duration,
+                           public_api_key,
+                           account_id,
+                           created_at,
+                           seller)
+            print('live account_id:', account_id)
+        else:
+            return Response({'detail': 'Invalid API key format. Please contact the seller.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'detail': 'Invalid API key. Please contact the seller.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+def create_test_promise(request, amount,
+                        currency,
+                        duration,
+                        public_api_key,
+                        account_id,
+                        buyer_email,
+                        created_at,
+                        seller):
     promise_id = generate_promise_id()
-    print('promise_id:', promise_id)
-    # payment_method = request.data.get('payment_method')
-    # payment_provider = request.data.get('payment_provider')
-    print('account_id:', account_id)
+    # print('promise_id:', promise_id)
+    # print('account_id:', account_id)
+    print('currency', currency)
+
+    # try:
+    #     seller = User.objects.get(test_api_key=public_api_key)
+    # except User.DoesNotExist:
+    #     return {'detail': 'Invalid API key. Please contact the seller.', 'status': 404}
+    # print('test seller:', seller)
+
+    # try:
+    #     buyer = User.objects.get(account_id=account_id)
+    # except User.DoesNotExist:
+    #     return Response({'detail': 'Buyer not found'}, status=status.HTTP_404_NOT_FOUND)
+    print('test buyer_email:', buyer_email)
 
     try:
-        seller = User.objects.get(test_api_key=public_api_key)
-    except User.DoesNotExist:
-        return Response({'detail': 'Invalid or seller API Key not activated. Please contact the seller.'}, status=status.HTTP_401_UNAUTHORIZED)
-    print('seller:', seller)
+        promise = TestPaysofterPromise.objects.create(
+            seller=seller,
+            buyer_email=buyer_email,
+            amount=amount,
+            currency=currency,
+            duration=duration,
+            promise_id=promise_id,
+            is_active=True
+        )
+
+        if promise.duration:
+            if promise.duration == '0 day':
+                promise.duration_hours = timedelta(hours=0)
+            elif promise.duration == 'Within 1 day':
+                promise.duration_hours = timedelta(hours=24)
+            elif promise.duration == '2 days':
+                promise.duration_hours = timedelta(days=2)
+            elif promise.duration == '3 days':
+                promise.duration_hours = timedelta(days=3)
+            elif promise.duration == '5 days':
+                promise.duration_hours = timedelta(days=5)
+            elif promise.duration == '1 week':
+                promise.duration_hours = timedelta(weeks=1)
+            elif promise.duration == '2 weeks':
+                promise.duration_hours = timedelta(weeks=2)
+            elif promise.duration == '1 month':
+                promise.duration_hours = timedelta(days=30)
+
+            promise.expiration_date = timezone.now() + promise.duration_hours
+
+        promise.is_success = True
+        promise.save()
+
+        # send email
+        amount = '{:,.0f}'.format(float(request.data.get('amount')))
+        print("\amount:", amount)
+        sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
+        sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
+
+        seller_email = seller.email
+        seller_first_name = seller.first_name
+        seller_account_id = seller.account_id
+        formatted_seller_account_id = format_number(seller_account_id)
+
+        buyer_email = buyer_email
+        buyer_first_name = 'Tester'
+        # buyer_first_name = buyer.first_name
+        buyer_account_id = account_id
+        formatted_buyer_account_id = format_number(buyer_account_id)
+
+        print("\nsender_email:", sender_email, "formatted_seller_account_id:",
+              formatted_seller_account_id, "formatted_buyer_account_id:", formatted_buyer_account_id)
+
+        try:
+            send_test_buyer_email(request, sender_name, sender_email, amount, currency, promise_id,
+                             created_at, buyer_email, buyer_first_name, formatted_seller_account_id)
+        except Exception as e:
+            print(e)
+            return {'detail': str(e), 'status': 500}
+
+        try:
+            send_test_seller_email(request, sender_name, sender_email, amount, currency, promise_id,
+                              created_at, seller_email, seller_first_name, formatted_buyer_account_id)
+        except Exception as e:
+            print(e)
+            return {'detail': str(e), 'status': 500}
+        return {'detail': 'Promise created successfully', 'status': 201}
+    except TestPaysofterPromise.DoesNotExist:
+        return {'detail': 'Promise not found', 'status': 404}
+    except Exception as e:
+        return {'detail': str(e), 'status': 500}
+
+
+def send_test_buyer_email(request, sender_name, sender_email, amount, currency, promise_id,
+                          created_at, buyer_email, buyer_first_name, formatted_seller_account_id):
+    url = settings.PAYSOFTER_URL
+    buyer_confirm_promise_link = f"{url}"
+
+    # Email Sending API Config
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+        sib_api_v3_sdk.ApiClient(configuration))
+
+    # Sending email
+    print("\nSending email...")
+    subject = f"Paysofter Promise Alert [TEST MODE]"
+    html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Paysofter Promise Alert</title>
+            </head>
+            <body>
+                <p>Hello {buyer_first_name.title()},</p>
+                <p>This is to inform you that you have made a promise of <strong>{amount} {currency}</strong> with 
+                <b>Promise ID: "{promise_id}"</b> to a seller with Account ID: "<strong>{formatted_seller_account_id}</strong>" 
+                at <b>{created_at}</b>.</p>
+                <p>Click the link below to confirm promise:</p>
+                <p><a href="{ buyer_confirm_promise_link }" style="display: inline-block; 
+                background-color: #2196f3; color: #fff; padding: 10px 20px; 
+                text-decoration: none;">Confirm Promise</a></p>
+                <p>If you have any issue with the payment, kindly reply this email.</b></p>
+                <p>If you have received this email in error, please ignore it.</p>
+                <p>Note: This is a mock promise transaction as no real money is debited or credited.</p>
+                <p>Best regards,</p>
+                <p>Paysofter Inc.</p>
+            </body>
+            </html>
+        """
+    sender = {"name": sender_name, "email": sender_email}
+    to = [{"email": buyer_email}]
+    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+        to=to,
+        html_content=html_content,
+        sender=sender,
+        subject=subject
+    )
+    try:
+        api_response = api_instance.send_transac_email(send_smtp_email)
+        print("Email sent!")
+    except ApiException as e:
+        print(e)
+        return {'detail': str(e), 'status': 500}
+
+
+def send_test_seller_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, seller_email,
+                           seller_first_name, formatted_buyer_account_id):
+    url = settings.PAYSOFTER_URL
+    seller_confirm_promise_link = f"{url}"
+
+    # Email Sending API Config
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+        sib_api_v3_sdk.ApiClient(configuration))
+
+    # Sending email
+    print("\nSending email...")
+    # subject =  f"[TEST MODE] Notice of Paysofter Promise of NGN {amount} with  Promise ID [{promise_id}]"
+    subject = f"Paysofter Promise Alert [TEST MODE]"
+    seller_html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Paysofter Promise Alert</title>
+            </head>
+            <body>
+                <p>Hello {seller_first_name.title()},</p>
+                <p>This is to inform you that you have received a promise of <strong>{amount} {currency}</strong> 
+                with <b>Promise ID: "{promise_id}"</b> from a buyer with Account ID: "<strong>{formatted_buyer_account_id}</strong>"
+                  at <b>{created_at}</b>.</p>
+                <p>Click the link below to confirm promise:</p>
+                <p><a href="{ seller_confirm_promise_link }" style="display: inline-block; 
+                background-color: #2196f3; color: #fff; padding: 10px 20px; 
+                text-decoration: none;">Confirm Promise</a></p>
+                <p>If you have any issue with the payment, kindly reply this email.</b></p>
+                <p>If you have received this email in error, please ignore it.</p>
+                <p>Note: This is a mock promise transaction as no real money is debited or credited.</p>
+                <p>Best regards,</p>
+                <p>Paysofter Inc.</p>
+            </body>
+            </html>
+        """
+    sender = {"name": sender_name, "email": sender_email}
+    to = [{"email": seller_email}]
+    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+        to=to,
+        html_content=seller_html_content,
+        sender=sender,
+        subject=subject
+    )
+    try:
+        api_response = api_instance.send_transac_email(send_smtp_email)
+        print("Email sent!")
+    except ApiException as e:
+        print(e)
+        return {'detail': str(e), 'status': 500}
+
+
+def create_live_promise(request, amount,
+                   currency,
+                   duration,
+                   public_api_key,
+                   account_id,
+                   created_at,
+                   seller):
+    promise_id = generate_promise_id()
+    print('account_id:', account_id)
+
+    # try:
+    #     seller = User.objects.get(live_api_key=public_api_key)
+    # except User.DoesNotExist:
+    #     return {'detail': 'Seller not found.', 'status': 404}
+    # print('seller:', seller)
 
     try:
         buyer = User.objects.get(account_id=account_id)
     except User.DoesNotExist:
-        return Response({'detail': 'Buyer not found'}, status=status.HTTP_404_NOT_FOUND)
+        return {'detail': 'Buyer not found.', 'status': 404}
     print('buyer:', buyer)
 
     try:
@@ -74,9 +320,6 @@ def create_promise(request):
             amount=amount,
             currency=currency,
             duration=duration,
-            # duration_hours=duration_hours,
-            # payment_method=payment_method,
-            # payment_provider=payment_provider,
             promise_id=promise_id,
             is_active=True
         )
@@ -128,24 +371,22 @@ def create_promise(request):
                              created_at, buyer_email, buyer_first_name, formatted_seller_account_id)
         except Exception as e:
             print(e)
-            return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            return {'detail': str(e), 'status': 500}
         try:
             send_seller_email(request, sender_name, sender_email, amount, currency, promise_id,
                               created_at, seller_email, seller_first_name, formatted_buyer_account_id)
         except Exception as e:
             print(e)
-            return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response({'success': f'Promise created successfully.'},
-                        status=status.HTTP_201_CREATED)
+            return {'detail': str(e), 'status': 500}
+        return {'detail': 'Promise created successfully', 'status': 201}
     except PaysofterPromise.DoesNotExist:
-        return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
+        return {'detail': 'Promise not found', 'status': 404}
     except Exception as e:
-        return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return {'detail': str(e), 'status': 500}
 
 
-def send_buyer_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, buyer_email, buyer_first_name, formatted_seller_account_id):
+def send_buyer_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, buyer_email,
+                     buyer_first_name, formatted_seller_account_id):
     url = settings.PAYSOFTER_URL
     buyer_confirm_promise_link = f"{url}/promise/buyer"
 
@@ -159,7 +400,7 @@ def send_buyer_email(request, sender_name, sender_email, amount, currency, promi
     print("\nSending email...")
     # subject =  f"[TEST MODE] Notice of Paysofter Promise Alert of NGN {amount} with  Promise ID [{promise_id}]"
     subject = f"Paysofter Promise Alert"
-    buyer_html_content = f"""
+    html_content = f"""
             <!DOCTYPE html>
             <html>
             <head>
@@ -167,7 +408,8 @@ def send_buyer_email(request, sender_name, sender_email, amount, currency, promi
             </head>
             <body>
                 <p>Hello {buyer_first_name.title()},</p>
-                <p>This is to inform you that you have made a promise of <strong>{amount} {currency}</strong> with <b>Promise ID: "{promise_id}"</b> to a seller with Account ID: "<strong>{formatted_seller_account_id}</strong>" at <b>{created_at}</b>.</p>
+                <p>This is to inform you that you have made a promise of <strong>{amount} {currency}</strong> with <b>Promise ID: 
+                "{promise_id}"</b> to a seller with Account ID: "<strong>{formatted_seller_account_id}</strong>" at <b>{created_at}</b>.</p>
                 <p>Click the link below to confirm promise:</p>
                 <p><a href="{ buyer_confirm_promise_link }" style="display: inline-block; 
                 background-color: #2196f3; color: #fff; padding: 10px 20px; 
@@ -183,7 +425,7 @@ def send_buyer_email(request, sender_name, sender_email, amount, currency, promi
     to = [{"email": buyer_email}]
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
         to=to,
-        html_content=buyer_html_content,
+        html_content=html_content,
         sender=sender,
         subject=subject
     )
@@ -195,7 +437,8 @@ def send_buyer_email(request, sender_name, sender_email, amount, currency, promi
         return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def send_seller_email(request, sender_name, sender_email, amount, currency, promise_id, created_at, seller_email, seller_first_name, formatted_buyer_account_id):
+def send_seller_email(request, sender_name, sender_email, amount, currency, promise_id, created_at,
+                      seller_email, seller_first_name, formatted_buyer_account_id):
     url = settings.PAYSOFTER_URL
     seller_confirm_promise_link = f"{url}/promise/seller"
 
@@ -217,7 +460,8 @@ def send_seller_email(request, sender_name, sender_email, amount, currency, prom
             </head>
             <body>
                 <p>Hello {seller_first_name.title()},</p>
-                <p>This is to inform you that you have received a promise of <strong>{amount} {currency}</strong> with <b>Promise ID: "{promise_id}"</b> from a buyer with Account ID: "<strong>{formatted_buyer_account_id}</strong>" at <b>{created_at}</b>.</p>
+                <p>This is to inform you that you have received a promise of <strong>{amount} {currency}</strong> with <b>Promise ID: 
+                "{promise_id}"</b> from a buyer with Account ID: "<strong>{formatted_buyer_account_id}</strong>" at <b>{created_at}</b>.</p>
                 <p>Click the link below to confirm promise:</p>
                 <p><a href="{ seller_confirm_promise_link }" style="display: inline-block; 
                 background-color: #2196f3; color: #fff; padding: 10px 20px; 
@@ -359,6 +603,19 @@ def get_seller_promises(request):
         serializer = PaysofterPromiseSerializer(promise, many=True)
         return Response(serializer.data)
     except PaysofterPromise.DoesNotExist:
+        return Response({'detail': 'Promise not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_seller_promises_test(request):
+    user = request.user
+    try:
+        promise = TestPaysofterPromise.objects.filter(
+            seller=user).order_by('-timestamp')
+        serializer = TestPaysofterPromiseSerializer(promise, many=True)
+        return Response(serializer.data)
+    except TestPaysofterPromise.DoesNotExist:
         return Response({'detail': 'Promise not found'}, status=status.HTTP_404_NOT_FOUND)
 
 

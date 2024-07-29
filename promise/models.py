@@ -269,3 +269,58 @@ class PromiseMessage(models.Model):
     
     def __str__(self): 
         return f"{self.promise_message} | {self.message}"  
+
+
+class TestPaysofterPromise(models.Model):
+    seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_seller_test")
+    buyer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="promise_payer_test")
+    buyer_email = models.CharField(max_length=225, null=True, blank=True)
+    amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True, editable=False)
+    currency = models.CharField(max_length=50, choices=CURRENCY_CHOICES, default='NGN', null=True, blank=True)
+    duration = models.CharField(max_length=100, choices=PROMISE_DURATION_CHOICES, default='Within 1 day', null=True, blank=True)
+    duration_hours = models.DurationField(null=True, blank=True)
+    expiration_date = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=100, choices=PROMISE_STATUS_CHOICES, default='Processing', null=True, blank=True)
+    is_success = models.BooleanField(default=False)
+    is_cancelled = models.BooleanField(default=False)
+    is_delivered = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    buyer_promise_fulfilled = models.BooleanField(default=False)
+    seller_fulfilled_promise = models.BooleanField(default=False)
+    is_settle_conflict_activated = models.BooleanField(default=False)
+    settle_conflict_charges = models.DecimalField(max_digits=16, decimal_places=2, default=0, null=True, blank=True, editable=False)
+    service_charge = models.DecimalField(max_digits=16, decimal_places=2, default=0, null=True, blank=True, editable=False)
+    payment_method = models.CharField(max_length=100, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True, default='Paysofter Promise')
+    payment_provider = models.CharField(max_length=100, choices=PAYMENT_PROVIDER_CHOICES, default='Paysofter')
+    message = models.TextField(max_length=225, null=True, blank=True)
+    buyer_msg_count = models.PositiveIntegerField(default=0)
+    seller_msg_count = models.PositiveIntegerField(default=0)
+    promise_id = models.CharField(max_length=50, unique=True, null=True, editable=False)
+    modified_at = models.DateTimeField(auto_now=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)  
+
+    def save(self, *args, **kwargs):
+        if self.duration:
+            if self.duration == '0 day':
+                self.duration_hours = timedelta(hours=0)
+            elif self.duration == 'Within 1 day':
+                self.duration_hours = timedelta(hours=24)
+            elif self.duration == '2 days':
+                self.duration_hours = timedelta(days=2)
+            elif self.duration == '3 days':
+                self.duration_hours = timedelta(days=3)
+            elif self.duration == '5 days':
+                self.duration_hours = timedelta(days=5)
+            elif self.duration == '1 week':
+                self.duration_hours = timedelta(weeks=1)
+            elif self.duration == '2 weeks':
+                self.duration_hours = timedelta(weeks=2)
+            elif self.duration == '1 month':
+                self.duration_hours = timedelta(days=30)  
+
+            self.expiration_date = timezone.now() + self.duration_hours
+        
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.promise_id}" 

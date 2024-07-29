@@ -170,7 +170,34 @@ class UsdFundAccountCreditCard(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
 
-# class CurrencyChoice(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="currency_choice_user")
-#     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, null=True, blank=True)
-#     timestamp = models.DateTimeField(auto_now_add=True)
+class TestDebitAccountFund(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_account_debit_user_test")
+    buyer_email = models.CharField(max_length=100, null=True, blank=True) 
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, editable=False)
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, null=True, blank=True)
+    old_bal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    new_bal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    is_success = models.BooleanField(default=False)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
+    payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES)
+    debit_account_id = models.CharField(max_length=50, unique=True, null=True, editable=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} -  {self.amount}" 
+
+
+    # class FundTransaction(models.Model):
+    #     seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fund_transaction_seller")
+    #     buyer_email = models.CharField(max_length=100, null=True, blank=True) 
+    #     amount = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True, editable=False)
+    #     currency = models.CharField(max_length=3, null=True, blank=True)
+    #     payment_method = models.CharField(max_length=50, null=True, blank=True)
+    #     is_success = models.BooleanField(default=False)
+    #     payment_id = models.CharField(max_length=50, null=True)
+    #     transaction_id = models.CharField(max_length=50, unique=True, null=True)
+    #     payment_provider = models.CharField(max_length=50)
+    #     timestamp = models.DateTimeField(auto_now_add=True)
+
+    #     def __str__(self):
+    #         return f"{self.seller} - NGN {self.amount} - Payment ID: {self.payment_id}"

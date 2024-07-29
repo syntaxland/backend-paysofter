@@ -18,9 +18,6 @@ urlpatterns = [
     path('get-user-account-fund-credits/', views.get_user_account_funds_credits,
          name='uget-user-account-fund-credits'),
 
-
-
-
     path('get-user-account-debits/', views.get_user_account_debits,
          name='get-user-account-debits'),
 
@@ -31,25 +28,12 @@ urlpatterns = [
     path('set-maximum-usd-withdrawal/', views.set_maximum_usd_fund_withdrawal,
          name='set-maximum-usd-withdrawal'),
 
-    path('debit-user-account-balance/', views.debit_user_fund_account,
-         name='debit-user-account-balance'),
-    path('debit-user-usd-account-fund/', views.debit_user_usd_account_fund,
-         name='debit_user_usd_account_fund'),
-
-    path('verify-otp/', views.verify_account_debit_email_otp, name='verify-otp'),
-    path('verify-usd-account-debit-email-otp/', views.verify_usd_account_debit_email_otp,
-         name='verify_usd_account_debit_email_otp'),
-
-
-
-    # path('verify-ngn-fund-debit-otp/', views.verify_ngn_fund_debit_otp, name='verify-ngn-fund-debit-otp'),
-    # path('verify-usd-fund-debit-otp/', views.verify_usd_fund_debit_otp, name='verify-usd-fund-debit-otp'),
-    # path('verify-ngn-promise-debit-otp/', views.verify_ngn-promise_debit_otp, name='verify-ngn-promise-debit-otp'),
-    # path('verify-usd-promise-debit-otp/', views.verify_usd_promise_debit_otp, name='verify-usd-promise-debit-otp'),
+    path('send-debit-fund-account-otp/', views.send_debit_fund_account_otp,
+         name='send_debit_fund_account_otp'),
+    path('verify-otp/', views.verify_debit_fund_email_otp, name='verify_debit_fund_email_otp'),
 
     path('send-otp-account-disable/', views.send_otp_account_fund_disable,
          name='send-otp-account-fund-disable'),
-
     path('verify-account-fund-disable/', views.verify_otp_account_fund_disable,
          name='verify-account-fund-disable'),
     path('activate-account-fund/', views.activate_account_fund,

@@ -20,9 +20,13 @@ app.conf.beat_schedule = {
     },
     'process-promise-transactions-every-n-time': {
         'task': 'promise.tasks.process_promise_transactions',
-        'schedule': timedelta(hours=1),
+        'schedule': timedelta(seconds=45),
         # 'schedule': timedelta(minutes=1),
-        # 'schedule': timedelta(days=1),
+    },
+    'process-promise-fund-payouts': {
+        'task': 'payout.tasks.process_promise_fund_payouts',
+        # 'schedule': timedelta(hours=1),
+        'schedule': timedelta(minutes=3),
     },
     'process-payouts-every-n-time': {
         'task': 'payout.tasks.process_payouts',

@@ -4,6 +4,6 @@ from . import views
 
 urlpatterns = [
     path('select-currency/', views.select_currency, name='select_currency'),
-    # path('get-selected-currency/', views.get_selected_currency, name='get-selected-currency'),
+    path('toggle-api-key-status/', views.toggle_api_key_status, name='toggle_api_key_status'),
 ]
   
