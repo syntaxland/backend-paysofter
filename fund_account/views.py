@@ -110,19 +110,18 @@ def fund_user_account_view(request):
         except FundAccountCreditCard.DoesNotExist:
             pass
 
+        new_bal = fund_account_balance.balance
+
         # send email
-        amount = '{:,.0f}'.format(float(request.data.get('amount')))
+        amount = '{:,.0f}'.format(float(amount))
         print("\amount:", amount)
-        sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
-        sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
+        old_bal = '{:,.0f}'.format(old_bal)
+        new_bal = '{:,.0f}'.format(new_bal)
         user_email = user.email
         first_name = user.first_name
 
-        print("\nsender_email:", sender_email, "user_email:", user_email)
-
         try:
-            send_user_email(request, sender_name, sender_email, amount,
-                            currency, fund_account_id, created_at, user_email, first_name)
+            send_fund_credit_alert_email(request, amount, currency, fund_account_id, created_at, user_email, first_name, old_bal, new_bal)
         except Exception as e:
             print(e)
             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -135,45 +134,157 @@ def fund_user_account_view(request):
         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def send_user_email(request, sender_name, sender_email, amount, currency, fund_account_id, created_at, user_email, first_name):
-    # Email Sending API Config
-    configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
-        sib_api_v3_sdk.ApiClient(configuration))
+# def send_user_email(request, sender_name, sender_email, amount, currency, fund_account_id, created_at, user_email, first_name):
+#     # Email Sending API Config
+#     configuration = sib_api_v3_sdk.Configuration()
+#     configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
+#     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+#         sib_api_v3_sdk.ApiClient(configuration))
 
-    # Sending email
-    print("\nSending email...")
-    subject = f"[TEST MODE] Notice of Paysofter account fund of {amount} {currency} with  Account Fund ID [{fund_account_id}]"
-    html_content = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Paysofter Receipt</title>
-            </head>
-            <body>
-                <p>Dear {first_name},</p>
-                <p>You have funded your Paysofter account with <strong>{amount} {currency}</strong> with  <b>Account Fund ID: 
-                "{fund_account_id}"</b> at <b>{created_at}</b>.</p>
-                <p>If you have any issue with the payment, kindly reply this email.</b></p>
-                <p>If you have received this email in error, please ignore it.</p>
-                <p>Best regards,</p>
-                <p>Paysofter Inc.</p>
-            </body>
-            </html>
-        """
-    sender = {"name": sender_name, "email": sender_email}
-    to = [{"email": user_email}]
-    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-        to=to,
-        html_content=html_content,
-        sender=sender,
-        subject=subject
-    )
+#     # Sending email
+#     print("\nSending email...")
+#     subject = f"[TEST MODE] Notice of Paysofter account fund of {amount} {currency} with  Account Fund ID [{fund_account_id}]"
+#     html_content = f"""
+#             <!DOCTYPE html>
+#             <html>
+#             <head>
+#                 <title>Paysofter Receipt</title>
+#             </head>
+#             <body>
+#                 <p>Dear {first_name},</p>
+#                 <p>You have funded your Paysofter account with <strong>{amount} {currency}</strong> with  <b>Account Fund ID: 
+#                 "{fund_account_id}"</b> at <b>{created_at}</b>.</p>
+#                 <p>If you have any issue with the payment, kindly reply this email.</b></p>
+#                 <p>If you have received this email in error, please ignore it.</p>
+#                 <p>Best regards,</p>
+#                 <p>Paysofter Inc.</p>
+#             </body>
+#             </html>
+#         """
+#     sender = {"name": sender_name, "email": sender_email}
+#     to = [{"email": user_email}]
+#     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+#         to=to,
+#         html_content=html_content,
+#         sender=sender,
+#         subject=subject
+#     )
+#     try:
+#         api_response = api_instance.send_transac_email(send_smtp_email)
+#         print("Email sent!")
+#     except ApiException as e:
+#         print(e)
+#         return {'detail': str(e), 'status': 500}
+
+
+def send_fund_credit_alert_email(request, amount, currency, fund_account_id, created_at, user_email, first_name, old_bal, new_bal):
+    print("Sending Credit alert email...")
     try:
-        api_response = api_instance.send_transac_email(send_smtp_email)
-        print("Email sent!")
-    except ApiException as e:
+        subject = f"Paysofter Account Fund Credit Alert of {amount} {currency} with Credit Fund ID [{fund_account_id}]"
+        html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Paysofter Account Fund Credit Alert</title>
+                    <style>
+                        body {{
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                        }}
+                        .container {{
+                            max-width: 600px;
+                            margin: 0 auto;
+                        }}
+                        .header {{
+                            background-color: green;
+                            color: white;
+                            padding: 1em;
+                            text-align: center;
+                        }}
+                        .content {{
+                            padding: 1em;
+                        }}
+                        .footer {{
+                            background-color: #f1f1f1;
+                            padding: 1em;
+                            text-align: center;
+                        }}
+                        .button {{
+                            display: inline-block;
+                            background-color: #e53935; /* Red background color */
+                            color: #fff;
+                            padding: 10px 20px;
+                            text-decoration: none;
+                            border-radius: 5px; /* Rounded corners */
+                        }}
+                        .summary-table {{
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }}
+                        .summary-table th, .summary-table td {{
+                            border: 1px solid #ddd;
+                            padding: 8px;
+                            text-align: left;
+                        }}
+                        .summary-table th {{
+                            background-color: #f2f2f2;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h2>Paysofter Account Fund Debit Alert</h2>
+                        </div>
+                        <div class="content">
+                            <p>Dear {first_name},</p>
+                            <p>You have funded your Paysofter account with <strong>{amount} {currency}</strong> with  <b>Account Fund ID: 
+                            "{fund_account_id}"</b> at <b>{created_at}</b>.</p>
+                            <table class="summary-table">
+                                <tr>
+                                    <th>Detail</th>
+                                    <th>Information</th>
+                                </tr>
+                                <tr>
+                                    <td>Amount</td>
+                                    <td>{amount} {currency}</td>
+                                </tr>
+                                <tr>
+                                    <td>Transaction ID</td>
+                                    <td>{fund_account_id}</td>
+                                </tr>
+                                <tr>
+                                    <td>Old Bal</td>
+                                    <td>{old_bal}  {currency}</td>
+                                </tr>
+                                <tr>
+                                    <td>New Bal</td>
+                                    <td>{new_bal}  {currency}</td>
+                                </tr>
+                                <tr>
+                                    <td>Date and Time</td>
+                                    <td>{created_at}</td>
+                                </tr>
+                            </table>
+                            <p>If you have received this email in error, please ignore it.</p>
+                            <p>Best regards,</p>
+                            <p>Paysofter Inc.</p>
+                        </div>
+                        <div class="footer">
+                            <p><em>If you have any issue with this payment, kindly reply this email.</em></p>
+                            <p><em>{settings.COMPANY_NAME} is a subsidiary and registered trademark of {settings.PARENT_COMPANY_NAME}.</em></p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            """
+        html_content = html_content
+        subject = subject
+        to = [{"email": user_email}]
+        send_email_sendinblue(subject, html_content, to)
+    except Exception as e:
         print(e)
         return {'detail': str(e), 'status': 500}
 
@@ -412,13 +523,12 @@ def verify_debit_fund_email_otp(request):
                             return Response({'detail': 'Invalid or seller API Key not activated. Please contact the seller.'},
                                             status=status.HTTP_401_UNAUTHORIZED)
 
-                        amount = '{:,.0f}'.format(float(request.data.get('amount')))
+                        amount = '{:,.0f}'.format(float(amount))
                         old_bal = '{:,.0f}'.format(old_bal)
                         new_bal = '{:,.0f}'.format(new_bal)
                         print("\amount:", amount)
                         # send buyer transaction email
                         seller_email = seller.email
-                        # seller_name = "sellangle.com"
                         buyer_email = buyer.email
                         buyer_name = buyer.first_name
                         formatted_buyer_account_id = format_number(account_id)
@@ -1276,22 +1386,38 @@ def fund_user_usd_account(request):
         except UsdFundAccountCreditCard.DoesNotExist:
             pass
 
+        new_bal = fund_account_balance.balance
+
         # send email
-        amount = '{:,.0f}'.format(float(request.data.get('amount')))
+        amount = '{:,.0f}'.format(float(amount))
         print("\amount:", amount)
-        sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
-        sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
+        old_bal = '{:,.0f}'.format(old_bal)
+        new_bal = '{:,.0f}'.format(new_bal)
         user_email = user.email
         first_name = user.first_name
 
-        print("\nsender_email:", sender_email, "user_email:", user_email)
-
         try:
-            send_usd_user_email(request, sender_name, sender_email, amount,
-                                currency, fund_account_id, created_at, user_email, first_name)
+            send_fund_credit_alert_email(request, amount, currency, fund_account_id, created_at, user_email, first_name, old_bal, new_bal)
         except Exception as e:
             print(e)
             return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # # send email
+        # amount = '{:,.0f}'.format(float(request.data.get('amount')))
+        # print("\amount:", amount)
+        # sender_name = settings.PAYSOFTER_EMAIL_SENDER_NAME
+        # sender_email = settings.PAYSOFTER_EMAIL_HOST_USER
+        # user_email = user.email
+        # first_name = user.first_name
+
+        # print("\nsender_email:", sender_email, "user_email:", user_email)
+
+        # try:
+        #     send_usd_user_email(request, sender_name, sender_email, amount,
+        #                         currency, fund_account_id, created_at, user_email, first_name)
+        # except Exception as e:
+        #     print(e)
+        #     return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({'success': f'Fund account request submitted successfully. Old Bal: NGN {old_bal}'},
                         status=status.HTTP_201_CREATED)
@@ -1301,46 +1427,46 @@ def fund_user_usd_account(request):
         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def send_usd_user_email(request, sender_name, sender_email, amount, currency, fund_account_id, created_at, user_email, first_name):
-    # Email Sending API Config
-    configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
-        sib_api_v3_sdk.ApiClient(configuration))
+# def send_usd_user_email(request, sender_name, sender_email, amount, currency, fund_account_id, created_at, user_email, first_name):
+#     # Email Sending API Config
+#     configuration = sib_api_v3_sdk.Configuration()
+#     configuration.api_key['api-key'] = settings.SENDINBLUE_API_KEY
+#     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+#         sib_api_v3_sdk.ApiClient(configuration))
 
-    # Sending email
-    print("\nSending email...")
-    subject = f"[TEST MODE] Notice of Paysofter account fund of {amount} {currency} with  Account Fund ID [{fund_account_id}]"
-    html_content = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Paysofter Receipt</title>
-            </head>
-            <body>
-                <p>Dear {first_name},</p>
-                <p>You have funded your Paysofter account with <strong>{amount} {currency}</strong> with  <b>Account Fund ID: "{fund_account_id}"</b> at <b>{created_at}</b>.</p>
-                <p>If you have any issue with the payment, kindly reply this email.</b></p>
-                <p>If you have received this email in error, please ignore it.</p>
-                <p>Best regards,</p>
-                <p>Paysofter Inc.</p>
-            </body>
-            </html>
-        """
-    sender = {"name": sender_name, "email": sender_email}
-    to = [{"email": user_email}]
-    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-        to=to,
-        html_content=html_content,
-        sender=sender,
-        subject=subject
-    )
-    try:
-        api_response = api_instance.send_transac_email(send_smtp_email)
-        print("Email sent!")
-    except ApiException as e:
-        print(e)
-        return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#     # Sending email
+#     print("\nSending email...")
+#     subject = f"[TEST MODE] Notice of Paysofter account fund of {amount} {currency} with  Account Fund ID [{fund_account_id}]"
+#     html_content = f"""
+#             <!DOCTYPE html>
+#             <html>
+#             <head>
+#                 <title>Paysofter Receipt</title>
+#             </head>
+#             <body>
+#                 <p>Dear {first_name},</p>
+#                 <p>You have funded your Paysofter account with <strong>{amount} {currency}</strong> with  <b>Account Fund ID: "{fund_account_id}"</b> at <b>{created_at}</b>.</p>
+#                 <p>If you have any issue with the payment, kindly reply this email.</b></p>
+#                 <p>If you have received this email in error, please ignore it.</p>
+#                 <p>Best regards,</p>
+#                 <p>Paysofter Inc.</p>
+#             </body>
+#             </html>
+#         """
+#     sender = {"name": sender_name, "email": sender_email}
+#     to = [{"email": user_email}]
+#     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+#         to=to,
+#         html_content=html_content,
+#         sender=sender,
+#         subject=subject
+#     )
+#     try:
+#         api_response = api_instance.send_transac_email(send_smtp_email)
+#         print("Email sent!")
+#     except ApiException as e:
+#         print(e)
+#         return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # def send_usd_debit_fund_account_otp(request, amount, currency, public_api_key, account_id, security_code, created_at):

@@ -50,10 +50,10 @@ app.conf.beat_schedule = {
         # 'schedule': crontab(month_of_year='*/6'),
         # 'schedule': timedelta(seconds=30),
     },
-    'delete-unverified-users-after-one-hour': {
+    'delete-unverified-users-after-n-hour': {
         'task': 'user_profile.tasks.delete_unverified_users_after_one_hour',
         # 'schedule': crontab(minute=0, hour='*/1'),
-        'schedule': timedelta(hours=1),
+        'schedule': timedelta(hours=24),
     },
 }
 
