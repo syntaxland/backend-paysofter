@@ -236,7 +236,7 @@ def send_fund_credit_alert_email(request, amount, currency, fund_account_id, cre
                 <body>
                     <div class="container">
                         <div class="header">
-                            <h2>Paysofter Account Fund Debit Alert</h2>
+                            <h2>Paysofter Account Fund Credit Alert</h2>
                         </div>
                         <div class="content">
                             <p>Dear {first_name},</p>
