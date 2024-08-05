@@ -39,9 +39,9 @@ def get_api_key_status(request):
             return Response({'detail': 'Invalid API key. Please contact the seller.'}, status=status.HTTP_404_NOT_FOUND)
         print('seller api_key status:', seller)
 
-        if public_api_key.startswith('test_'):
+        if public_api_key.startswith('test_api_key_'):
             return Response({"api_key_status": "test"}, status=status.HTTP_200_OK)
-        elif public_api_key.startswith('live_'):
+        elif public_api_key.startswith('live_api_key_'):
             return Response({"api_key_status": "live"}, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'Invalid API key format. Please contact the seller.'}, status=status.HTTP_400_BAD_REQUEST)
