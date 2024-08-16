@@ -3,6 +3,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 # from django.utils.translation import gettext as _
 from django.utils import timezone
+from io import BytesIO
+from django.core.files import File
+from PIL import Image, ImageDraw
+import qrcode
+
 
 class CustomUserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""

@@ -81,7 +81,7 @@ ALLOWED_HOSTS = [
      "44.210.161.224",
      "0.0.0.0", 
 ]
-
+ 
 ALLOWED_HOSTS = ["*"] 
 
 

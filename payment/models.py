@@ -1,9 +1,54 @@
 # payment/models.py
 from django.db import models
+from io import BytesIO
+from django.core.files import File
+from PIL import Image, ImageDraw
+import qrcode
 from django.contrib.auth import get_user_model
 from payout.models import Payout
 
-User = get_user_model() 
+User = get_user_model()  
+
+
+class PaymentLink(models.Model):
+    seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="payment_link_seller")
+    buyer_name = models.CharField(max_length=225, null=True, blank=True) 
+    buyer_email = models.CharField(max_length=225, null=True, blank=True) 
+    buyer_phone = models.CharField(max_length=225, null=True, blank=True) 
+    payment_name = models.CharField(max_length=225, null=True, blank=True) 
+    payment_link = models.CharField(max_length=225, unique=True, null=True)
+    payment_qrcode = models.ImageField(upload_to='payment/qr_codes/', blank=True, null=True)
+    amount = models.DecimalField(max_digits=16, decimal_places=2, null=True)
+    currency = models.CharField(max_length=3, null=True, blank=True)
+    description = models.TextField(max_length=1000, blank=True, null=True)
+    show_promise_option = models.BooleanField(default=True)
+    show_fund_option = models.BooleanField(default=False)
+    show_card_option = models.BooleanField(default=False)
+    show_buyer_name = models.BooleanField(default=False)
+    show_buyer_phone = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
+    payout_status = models.BooleanField(default=False) 
+    is_success = models.BooleanField(default=False)
+    payment_id = models.CharField(max_length=50, unique=True, null=True)
+    transaction_id = models.CharField(max_length=50, unique=True, null=True) 
+    payment_method = models.CharField(max_length=50, null=True, blank=True)
+    payment_provider = models.CharField(max_length=50, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.seller} - Payment Link: {self.payment_link}"
+
+        # def save(self, *args, **kwargs):
+    #     # If a payment link exists, generate QR code
+    #     if self.referral_link:
+    #         qr_code_img = qrcode.make(self.referral_link)
+    #         canvas = Image.new('RGB', (290, 290), 'white')
+    #         draw = ImageDraw.Draw(canvas)
+    #         canvas.paste(qr_code_img)
+    #         buffer = BytesIO()
+    #         canvas.save(buffer, 'PNG')
+    #         self.payment_qrcode.save(f'qr_code_{self.username}.png', File(buffer), save=False)
+    #         canvas.close()
  
 
 class PayoutPayment(models.Model):
