@@ -23,7 +23,7 @@ urlpatterns = [
     path('get-seller-photo/', views.get_seller_photo, name='get-seller-photo'),
     path('update-seller-photo/', views.update_seller_photo, name='update-seller-photo'),
 
-    path('create-seller-account/', views.create_seller_account, name='create-seller-account'),
+    path('create-seller-account/', views.create_seller_account, name='create-seller-account'), 
     path('business-owner-detail/', views.business_owner_detail, name='business-owner-detail'),
     path('create-seller-bank/', views.create_seller_bank_account, name='create-seller-bank'),
     path('create-seller-bvn/', views.create_seller_bvn, name='seller-bvn'),

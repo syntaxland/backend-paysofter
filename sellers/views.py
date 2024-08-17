@@ -22,6 +22,7 @@ User = get_user_model()
  
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
 def create_seller_account(request):
     seller_account, created = SellerAccount.objects.get_or_create(seller=request.user)
     serializer = SellerAccountSerializer(instance=seller_account, data=request.data)
@@ -112,6 +113,7 @@ def get_seller_account(request):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
 def update_seller_account(request):
     user = request.user
     data = request.data

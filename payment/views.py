@@ -9,6 +9,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from .models import PayoutPayment, PaymentLink
 from .serializers import PaymentSerializer, PaymentLinkSerializer
 from transaction.models import Transaction, TransactionCreditCard
+from sellers.models import SellerAccount
 
 from io import BytesIO
 from PIL import Image, ImageDraw
@@ -21,29 +22,7 @@ from .tasks import seller_payout_payment
 from django.contrib.auth import get_user_model
 
 User = get_user_model() 
-
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# @parser_classes([MultiPartParser, FormParser])
-# def create_payment_link(request):
-#     user = request.user
-#     data = request.data
-#     serializer = PaymentLinkSerializer(data=data)
-#     print('data:', data)
-
-#     if serializer.is_valid():
-#         payment = serializer.save(seller=user)
-#         url = settings.PAYSOFTER_URL
-#         # link = f"{url}/payment-link/{user.username}/{payment.pk}/"
-#         link = f"{url}/payment-link?ref={user.username}&pk={payment.pk}"
-#         payment.payment_link = link 
-
-#         # create and save payment_qrcode
-#         payment.save()  
-
-#         return Response({'success': 'Payment link created successfully.'}, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+  
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -77,7 +56,7 @@ def create_payment_link(request):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-# @parser_classes([MultiPartParser, FormParser])
+@parser_classes([MultiPartParser, FormParser])
 def get_payment_link_detail(request):
     link_id = request.GET.get('link_id', '')
     seller_username = request.GET.get('seller_username', '')
@@ -89,13 +68,30 @@ def get_payment_link_detail(request):
     try:
         payment_link = PaymentLink.objects.get(seller=seller, id=link_id)
         serializer = PaymentLinkSerializer(payment_link)
-        return Response({'data': serializer.data},status=status.HTTP_200_OK)
+
+        try:
+            seller_account = SellerAccount.objects.get(seller=seller)
+            seller_business_name = seller_account.business_name
+            seller_trading_name = seller_account.trading_name
+            seller_logo = seller_account.business_logo.url
+        except SellerAccount.DoesNotExist:
+            seller_business_name = None
+            seller_trading_name = None
+            seller_logo = None
+
+        return Response({'data': serializer.data,
+                         'seller_business_name': seller_business_name,
+                         'seller_trading_name': seller_trading_name,
+                         'seller_logo': seller_logo,
+                         },
+                        status=status.HTTP_200_OK)
+        # return Response({'data': serializer.data},status=status.HTTP_200_OK)
     except PaymentLink.DoesNotExist:
         return Response({'detail': 'Payment link not found'}, status=status.HTTP_404_NOT_FOUND)
     
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated]) 
 @parser_classes([MultiPartParser, FormParser])
 def update_payment_link(request):
     user = request.user

@@ -17,6 +17,7 @@ class PaymentLink(models.Model):
     buyer_phone = models.CharField(max_length=225, null=True, blank=True) 
     payment_name = models.CharField(max_length=225, null=True, blank=True) 
     payment_link = models.CharField(max_length=225, unique=True, null=True)
+    payment_image = models.ImageField(upload_to='payment/img/', blank=True, null=True)
     payment_qrcode = models.ImageField(upload_to='payment/qr_codes/', blank=True, null=True)
     amount = models.DecimalField(max_digits=16, decimal_places=2, null=True)
     currency = models.CharField(max_length=3, null=True, blank=True)
