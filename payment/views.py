@@ -10,6 +10,11 @@ from .models import PayoutPayment, PaymentLink
 from .serializers import PaymentSerializer, PaymentLinkSerializer
 from transaction.models import Transaction, TransactionCreditCard
 
+from io import BytesIO
+from PIL import Image, ImageDraw
+import qrcode
+
+from django.core.files import File
 from django.conf import settings
 from django.http.response import HttpResponse
 from .tasks import seller_payout_payment
@@ -18,6 +23,28 @@ from django.contrib.auth import get_user_model
 User = get_user_model() 
 
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# @parser_classes([MultiPartParser, FormParser])
+# def create_payment_link(request):
+#     user = request.user
+#     data = request.data
+#     serializer = PaymentLinkSerializer(data=data)
+#     print('data:', data)
+
+#     if serializer.is_valid():
+#         payment = serializer.save(seller=user)
+#         url = settings.PAYSOFTER_URL
+#         # link = f"{url}/payment-link/{user.username}/{payment.pk}/"
+#         link = f"{url}/payment-link?ref={user.username}&pk={payment.pk}"
+#         payment.payment_link = link 
+
+#         # create and save payment_qrcode
+#         payment.save()  
+
+#         return Response({'success': 'Payment link created successfully.'}, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
@@ -25,19 +52,47 @@ def create_payment_link(request):
     user = request.user
     data = request.data
     serializer = PaymentLinkSerializer(data=data)
-    print('data:', data)
 
     if serializer.is_valid():
         payment = serializer.save(seller=user)
         url = settings.PAYSOFTER_URL
-        # link = f"{url}/payment-link/{user.username}/{payment.pk}/"
         link = f"{url}/payment-link?ref={user.username}&pk={payment.pk}"
-        payment.payment_link = link 
-        payment.save()  
+        payment.payment_link = link
 
+        # Generate the QR code
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(link)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill='black', back_color='white')
+        blob = BytesIO()
+        img.save(blob, 'PNG')
+        payment.payment_qrcode.save(f'{payment.pk}_qr.png', File(blob), save=False)
+
+        payment.save()
         return Response({'success': 'Payment link created successfully.'}, status=status.HTTP_201_CREATED)
+    
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+# @parser_classes([MultiPartParser, FormParser])
+def get_payment_link_detail(request):
+    link_id = request.GET.get('link_id', '')
+    seller_username = request.GET.get('seller_username', '')
+    print('link_id:', link_id, seller_username)
+
+    seller = User.objects.get(username=seller_username)
+    print('seller:', seller)
+
+    try:
+        payment_link = PaymentLink.objects.get(seller=seller, id=link_id)
+        serializer = PaymentLinkSerializer(payment_link)
+        return Response({'data': serializer.data},status=status.HTTP_200_OK)
+    except PaymentLink.DoesNotExist:
+        return Response({'detail': 'Payment link not found'}, status=status.HTTP_404_NOT_FOUND)
+    
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -74,25 +129,6 @@ def delete_payment_link(request, pk):
         return Response({'detail': 'Link deleted successfully.'})
     except PaymentLink.DoesNotExist:
         return Response({'detail': 'Link not found.'}, status=status.HTTP_404_NOT_FOUND)
-    
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-# @parser_classes([MultiPartParser, FormParser])
-def get_payment_link_detail(request):
-    link_id = request.GET.get('link_id', '')
-    seller_username = request.GET.get('seller_username', '')
-    print('link_id:', link_id, seller_username)
-
-    seller = User.objects.get(username=seller_username)
-    print('seller:', seller)
-
-    try:
-        payment_link = PaymentLink.objects.get(seller=seller, id=link_id)
-        serializer = PaymentLinkSerializer(payment_link)
-        return Response({'data': serializer.data},status=status.HTTP_200_OK)
-    except PaymentLink.DoesNotExist:
-        return Response({'detail': 'Payment link not found'}, status=status.HTTP_404_NOT_FOUND)
     
 
 @api_view(['GET'])
