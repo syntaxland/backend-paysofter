@@ -101,7 +101,7 @@ def get_payment_link_detail(request):
     seller_username = request.GET.get('seller_username', '')
     print('link_id:', link_id, seller_username)
 
-    seller = User.objects.get(username=seller_username)
+    seller = User.objects.get(username=seller_username) 
     print('seller:', seller)
 
     try:
@@ -113,20 +113,29 @@ def get_payment_link_detail(request):
             seller_business_name = seller_account.business_name
             seller_trading_name = seller_account.trading_name
             seller_logo = seller_account.business_logo.url
+            seller_test_api_key = seller.test_api_key
+            seller_live_api_key = seller.live_api_key
+            is_seller_api_key_live = seller.is_api_key_live
         except SellerAccount.DoesNotExist:
             seller_business_name = None
             seller_trading_name = None
             seller_logo = None
+            seller_test_api_key = None
+            seller_live_api_key = None
+            is_seller_api_key_live = None
+        print('is_seller_api_key_live:', is_seller_api_key_live)
 
         return Response({'data': serializer.data,
                          'seller_business_name': seller_business_name,
                          'seller_trading_name': seller_trading_name,
                          'seller_logo': seller_logo,
+                         'seller_test_api_key': seller_test_api_key,
+                         'seller_live_api_key': seller_live_api_key,
+                         'is_seller_api_key_live': is_seller_api_key_live,
                          },
                         status=status.HTTP_200_OK)
-        # return Response({'data': serializer.data},status=status.HTTP_200_OK)
     except PaymentLink.DoesNotExist:
-        return Response({'detail': 'Payment link not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Payment link not found'}, status=status.HTTP_404_NOT_FOUND) 
     
 
 @api_view(['PUT'])
