@@ -36,7 +36,7 @@ User = get_user_model()
 #     if serializer.is_valid():
 #         payment = serializer.save(seller=user)
 #         url = settings.PAYSOFTER_URL
-#         link = f"{url}/payment-link?ref={user.username}&pk={payment.pk}"
+#         link = f"{url}/link?ref={user.username}&pk={payment.pk}"
 #         payment.payment_link = link
 
 #         if 'payment_image' in request.FILES:
@@ -75,7 +75,7 @@ def create_payment_link(request):
     if serializer.is_valid():
         payment = serializer.save(seller=user)
         url = settings.PAYSOFTER_URL
-        link = f"{url}/payment-link?ref={user.username}&pk={payment.pk}"
+        link = f"{url}/link?ref={user.username}&pk={payment.pk}"
         payment.payment_link = link
  
         # Generate the QR code
@@ -152,16 +152,16 @@ def update_payment_link(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def delete_payment_link(request, pk):
+def delete_payment_link(request):
     user = request.user
     data = request.data
-    # pk = data.get('pk')
+    pk = data.get('pk')
     print('data:', data)
     
     try:
         ad = PaymentLink.objects.get(seller=user, id=pk)
         ad.delete()
-        return Response({'detail': 'Link deleted successfully.'})
+        return Response({'detail': 'Link deleted successfully.'}) 
     except PaymentLink.DoesNotExist:
         return Response({'detail': 'Link not found.'}, status=status.HTTP_404_NOT_FOUND)
     
