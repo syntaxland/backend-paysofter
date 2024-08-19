@@ -144,10 +144,11 @@ def get_payment_link_detail(request):
 def update_payment_link(request):
     user = request.user
     data = request.data
-    pk = data.get('pk')
-
+    link_id = data.get('link_id')
+    print('link_id:', link_id)
+ 
     try:
-        payment_link = PaymentLink.objects.get(seller=user, id=pk)
+        payment_link = PaymentLink.objects.get(seller=user, id=link_id)
     except PaymentLink.DoesNotExist:
         return Response({'detail': 'Link not found'}, status=status.HTTP_404_NOT_FOUND)
     

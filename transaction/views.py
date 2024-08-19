@@ -103,6 +103,9 @@ def initiate_transaction(request):
                                                       transaction_id,
                                                       seller)
         elif public_api_key.startswith('live_'):
+            if not seller.is_api_key_live:
+                print('seller.is_api_key_live:', seller.is_api_key_live)
+                return Response({'detail': 'API key is currently in test mode. Please contact the seller.'}, status=status.HTTP_400_BAD_REQUEST)
             response_data = initiate_live_transaction(request, amount,
                                                     buyer_email,
                                                     created_at,
