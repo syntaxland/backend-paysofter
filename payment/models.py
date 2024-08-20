@@ -27,6 +27,8 @@ class PaymentLink(models.Model):
     show_card_option = models.BooleanField(default=False)
     show_buyer_name = models.BooleanField(default=False)
     show_buyer_phone = models.BooleanField(default=False)
+    qty = models.PositiveIntegerField(default=0, editable=False) 
+    show_qty = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
     payout_status = models.BooleanField(default=False) 
     is_success = models.BooleanField(default=False)

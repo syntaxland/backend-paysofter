@@ -55,6 +55,8 @@ def initiate_transaction(request):
     try:
         amount = Decimal(request.data.get('amount'))
         buyer_email = request.data.get('buyer_email')
+        buyer_name = request.data.get('buyer_name')
+        buyer_phone = request.data.get('buyer_phone')
         created_at = request.data.get('created_at')
         public_api_key = request.data.get('public_api_key')
         currency = request.data.get('currency')
@@ -89,6 +91,8 @@ def initiate_transaction(request):
         if public_api_key.startswith('test_'):
             response_data = initiate_test_transaction(request, amount,
                                                       buyer_email,
+                                                      buyer_name,
+                                                      buyer_phone,
                                                       created_at,
                                                       public_api_key,
                                                       currency,
@@ -108,6 +112,8 @@ def initiate_transaction(request):
                 return Response({'detail': 'API key is currently in test mode. Please contact the seller.'}, status=status.HTTP_400_BAD_REQUEST)
             response_data = initiate_live_transaction(request, amount,
                                                     buyer_email,
+                                                    buyer_name,
+                                                    buyer_phone,
                                                     created_at,
                                                     public_api_key,
                                                     currency,
@@ -130,7 +136,7 @@ def initiate_transaction(request):
         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def initiate_test_transaction(request, amount, buyer_email, created_at, public_api_key, currency, card_number, expiration_month, 
+def initiate_test_transaction(request, amount, buyer_email, buyer_name, buyer_phone, created_at, public_api_key, currency, card_number, expiration_month, 
                               expiration_year, expiration_month_year, cvv, payment_method, account_id, payment_id, transaction_id, seller):
     print('Initiated test transaction...',created_at)
 
@@ -144,6 +150,8 @@ def initiate_test_transaction(request, amount, buyer_email, created_at, public_a
         transaction = TestTransaction.objects.create(
             seller=seller,
             buyer_email=buyer_email,
+            buyer_name=buyer_name,
+            buyer_phone=buyer_phone,
             amount=amount,
             currency=currency,
             payment_method=payment_method,
@@ -662,6 +670,8 @@ def send_test_seller_fund_transaction_email(request, amount, currency, seller_em
 
 def initiate_live_transaction(request, amount,
                               buyer_email,
+                              buyer_name, 
+                              buyer_phone, 
                               created_at,
                               public_api_key,
                               currency,
@@ -687,6 +697,8 @@ def initiate_live_transaction(request, amount,
         transaction = Transaction.objects.create(
             seller=seller,
             buyer_email=buyer_email,
+            buyer_name=buyer_name,
+            buyer_phone=buyer_phone,
             amount=amount,
             currency=currency,
             payment_method=payment_method,
