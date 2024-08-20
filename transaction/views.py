@@ -66,12 +66,12 @@ def initiate_transaction(request):
         expiration_month_year = request.data.get('expiration_month_year')
         cvv = request.data.get('cvv')
         payment_method = request.data.get('payment_method')
-        # payment_id = request.data.get('payment_id')
+        payment_id = request.data.get('payment_id')
         account_id = request.data.get('account_id')
         print('initiate_transaction public_api_key:', public_api_key)
 
         transaction_id = generate_transaction_id()
-        payment_id = None
+        payment_id = None 
 
         if payment_id == None:
             payment_id = transaction_id
