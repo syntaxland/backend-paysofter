@@ -55,6 +55,147 @@ def generate_debit_account_id():
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+def fund_user_account(request):
+    user = request.user
+    data = request.data
+    amount = Decimal(request.data.get('amount'))
+    currency = request.data.get('currency')
+    payment_method = request.data.get('payment_method')
+    payment_provider = request.data.get('payment_provider')
+    created_at = request.data.get('created_at')
+    fund_account_id = generate_fund_account_id()
+    print('amount:', amount, currency)
+
+    card_number = request.data.get('card_number')
+    expiration_month = request.data.get('expiration_month')
+    expiration_year = request.data.get('expiration_year')
+    expiration_month_year = request.data.get('expiration_month_year')
+    cvv = request.data.get('cvv')
+    print('amount:', amount)
+
+    try:
+        if currency == "NGN": 
+            print('fund_account_id:', fund_account_id, currency)
+            try:
+                fund_account_balance, created = AccountFundBalance.objects.get_or_create(
+                    user=user)
+                old_bal = fund_account_balance.balance
+
+                fund_account = FundAccount.objects.create(
+                    user=user,
+                    amount=amount,
+                    currency=currency,
+                    old_bal=old_bal,
+                    payment_method=payment_method,
+                    payment_provider=payment_provider,
+                    fund_account_id=fund_account_id,
+                )
+
+                fund_account_balance.balance += amount
+                fund_account_balance.save()
+
+                fund_account.is_success = True
+                fund_account.new_bal = fund_account_balance.balance
+                fund_account.save()
+
+                try:
+                    card_data = FundAccountCreditCard.objects.create(
+                        fund_account=fund_account,
+                        card_number=card_number,
+                        expiration_month=expiration_month,
+                        expiration_year=expiration_year,
+                        expiration_month_year=expiration_month_year,
+                        cvv=cvv,
+                    )
+                    print('card_data', card_data)
+                except FundAccountCreditCard.DoesNotExist:
+                    pass
+
+                new_bal = fund_account_balance.balance
+
+                # send email
+                amount = '{:,.0f}'.format(float(amount))
+                print("\amount:", amount)
+                old_bal = '{:,.0f}'.format(old_bal)
+                new_bal = '{:,.0f}'.format(new_bal)
+                user_email = user.email
+                first_name = user.first_name
+
+                try:
+                    send_fund_credit_alert_email(request, amount, currency, fund_account_id, created_at, user_email, first_name, old_bal, new_bal)
+                except Exception as e:
+                    print(e)
+                    return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                return Response({'success': f'Fund account request submitted successfully. Old Bal: NGN {old_bal}'}, status=status.HTTP_201_CREATED)
+            except FundAccount.DoesNotExist:
+                return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        elif currency == "USD":
+            print('fund_account_id:', fund_account_id, currency)
+            try:
+                fund_account_balance, created = UsdAccountFundBalance.objects.get_or_create(
+                    user=user)
+                old_bal = fund_account_balance.balance
+                fund_account_balance.balance += amount
+                fund_account_balance.save()
+
+                fund_account = FundUsdAccount.objects.create(
+                    user=user,
+                    amount=amount,
+                    currency=currency,
+                    old_bal=old_bal,
+                    payment_method=payment_method,
+                    payment_provider=payment_provider,
+                    fund_account_id=fund_account_id,
+                )
+                fund_account.is_success = True
+                fund_account.new_bal = fund_account_balance.balance
+                fund_account.save()
+
+                try:
+                    card_data = UsdFundAccountCreditCard.objects.create(
+                        fund_account=fund_account,
+                        card_number=card_number,
+                        expiration_month_year=expiration_month_year,
+                        cvv=cvv,
+                    )
+                    print('card_data', card_data)
+                except UsdFundAccountCreditCard.DoesNotExist:
+                    pass
+
+                new_bal = fund_account_balance.balance
+
+                # send email
+                amount = '{:,.0f}'.format(float(amount))
+                print("\amount:", amount)
+                old_bal = '{:,.0f}'.format(old_bal)
+                new_bal = '{:,.0f}'.format(new_bal)
+                user_email = user.email
+                first_name = user.first_name
+
+                try:
+                    send_fund_credit_alert_email(request, amount, currency, fund_account_id, created_at, user_email, first_name, old_bal, new_bal)
+                except Exception as e:
+                    print(e)
+                    return Response({'error': 'Error sending email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'success': f'Fund account request submitted successfully. Old Bal: NGN {old_bal}'}, status=status.HTTP_201_CREATED)
+            except FundUsdAccount.DoesNotExist:
+                return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+    # elif currency == "EUR":
+            # print('fund_account_id:', fund_account_id)
+        else:
+            return Response({'detail': 'Invalid currency format. Please contact the seller.'}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        return Response({'detail': 'Invalid API key. Please contact the seller.'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def fund_user_account_view(request):
     user = request.user
     data = request.data
@@ -130,6 +271,7 @@ def fund_user_account_view(request):
                         status=status.HTTP_201_CREATED)
     except FundAccount.DoesNotExist:
         return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
+    
     except Exception as e:
         return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

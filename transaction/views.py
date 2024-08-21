@@ -71,12 +71,12 @@ def initiate_transaction(request):
         print('initiate_transaction public_api_key:', public_api_key)
 
         transaction_id = generate_transaction_id()
-        payment_id = None 
+        # payment_id = None 
 
-        if payment_id == None:
-            payment_id = transaction_id
-        else:
-            payment_id = request.data.get('payment_id')
+        # if payment_id == None:
+        #     payment_id = transaction_id
+        # else:
+        #     payment_id = request.data.get('payment_id')
 
         print('transaction_id:', transaction_id)
         print('payment_id:', payment_id)
