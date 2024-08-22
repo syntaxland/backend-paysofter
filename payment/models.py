@@ -1,6 +1,9 @@
 # payment/models.py
 from django.db import models
+import os
+import sys
 from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files import File
 from PIL import Image, ImageDraw
 import qrcode
@@ -38,13 +41,30 @@ class PaymentLink(models.Model):
     payment_provider = models.CharField(max_length=50, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def save(self, *args, **kwargs):
+        if self.qty < 1:
+            self.qty = 1
+
+        if self.payment_image and self.payment_name:
+            img = Image.open(self.payment_image)
+            img_name = self.payment_name
+            extension = img.format.lower()
+            thumbnail_size = (200, 200)
+            img.thumbnail(thumbnail_size)
+            thumb_io = BytesIO()
+            img.save(thumb_io, format=extension)
+            thumbnail_name = f"{img_name}_thumb.{extension}"
+            self.payment_image = InMemoryUploadedFile(thumb_io, 'ImageField', thumbnail_name, f'image/{extension}', sys.getsizeof(thumb_io), None)
+
+        super(PaymentLink, self).save(*args, **kwargs)
+
+    def str(self):
         return f"{self.seller} - Payment Link: {self.payment_link}"
 
         # def save(self, *args, **kwargs):
     #     # If a payment link exists, generate QR code
-    #     if self.referral_link:
-    #         qr_code_img = qrcode.make(self.referral_link)
+    #     if self.payment_link:
+    #         qr_code_img = qrcode.make(self.payment_link)
     #         canvas = Image.new('RGB', (290, 290), 'white')
     #         draw = ImageDraw.Draw(canvas)
     #         canvas.paste(qr_code_img)
