@@ -44,8 +44,8 @@ urlpatterns = [
          name='toggle-usd-account'),
     path('get-user-usd-account_fund-balance/', views.get_user_usd_account_fund_balance,
          name='get_user_usd_account_fund_balance'),
-    path('fund-user-usd-account/', views.fund_user_usd_account,
-         name='fund_user_usd_account'),
+#     path('fund-user-usd-account/', views.fund_user_usd_account,
+#          name='fund_user_usd_account'),
 
 
     path('get-user-usd-account-fund-credits/', views.get_user_usd_account_fund_credits,
