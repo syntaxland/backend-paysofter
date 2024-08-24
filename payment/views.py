@@ -25,45 +25,6 @@ from django.contrib.auth import get_user_model
 User = get_user_model() 
   
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# @parser_classes([MultiPartParser, FormParser])
-# def create_payment_link(request):
-#     user = request.user
-#     data = request.data
-#     serializer = PaymentLinkSerializer(data=data)
-
-#     if serializer.is_valid():
-#         payment = serializer.save(seller=user)
-#         url = settings.PAYSOFTER_URL
-#         link = f"{url}/link?ref={user.username}&pk={payment.pk}"
-#         payment.payment_link = link
-
-#         if 'payment_image' in request.FILES:
-#             image = request.FILES['payment_image']
-#             img = Image.open(image)
-#             img.thumbnail((200, 200))  
-#             img_io = BytesIO()
-#             img.save(img_io, format=img.format)
-#             img_io.seek(0)
-#             thumbnail_image = ContentFile(img_io.getvalue(), name=image.name)
-#             payment.payment_image.save(image.name, thumbnail_image, save=False)
-
-#         qr = qrcode.QRCode(version=1, box_size=10, border=5)
-#         qr.add_data(link)
-#         qr.make(fit=True)
-
-#         img = qr.make_image(fill='black', back_color='white')
-#         blob = BytesIO()
-#         img.save(blob, 'PNG') 
-#         blob.seek(0) 
-#         payment.payment_qrcode.save(f'{payment.pk}_qr.png', File(blob), save=False)
-
-#         payment.save()
-#         return Response({'success': 'Payment link created successfully.'}, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])

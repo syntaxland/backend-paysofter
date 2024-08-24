@@ -98,7 +98,8 @@ class SellerAccount(models.Model):
     business_website = models.CharField(max_length=225, null=True, blank=True)
     country = models.CharField(max_length=225, null=True, blank=True)
     business_logo = models.ImageField(upload_to='media/sellers/', null=True, blank=True)
-    is_seller_verified = models.BooleanField(default=False)
+    # is_seller_verified = models.BooleanField(default=False)
+    verified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="seller_verified_by")
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 

@@ -20,6 +20,7 @@ class AuthorAdmin(admin.ModelAdmin):
                     'is_staff', 
                     'is_superuser', 
                     'is_seller', 
+                    'seller_id', 
                     'user_is_not_active', 
                     'is_user_live_banned', 
                     )

@@ -87,6 +87,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)  
     is_seller = models.BooleanField(default=False)
     seller_id = models.CharField(max_length=10, unique=True, null=True, editable=False)   
+    is_seller_account_verified = models.BooleanField(default=False)
+    is_seller_account_disabled = models.BooleanField(default=False)
     is_usd_selected = models.BooleanField(default=False)
     selected_currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='USD', null=True, blank=True)
     seller_payout_choice = models.CharField(max_length=100, choices=PAYOUT_CHOICES, default='Bank', null=True, blank=True)

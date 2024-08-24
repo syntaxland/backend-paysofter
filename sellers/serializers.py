@@ -1,6 +1,6 @@
 # sellers/serializers.py
 from rest_framework import serializers
-from .models import SellerAccount, BusinessOwnerDetail, BankVerificationNumber, SellerPhoto, BankAccount, BusinessStatus
+from .models import SellerAccount, BusinessOwnerDetail, BankVerificationNumber, SellerPhoto, BankAccount, BusinessStatus, UsdBankAccount
 
 
 class SellerAccountSerializer(serializers.ModelSerializer):
@@ -28,6 +28,12 @@ class BankAccountSerializer(serializers.ModelSerializer):
         model = BankAccount
         fields = '__all__'
         # extra_kwargs = {'photo': {'required': True}}
+
+
+class UsdBankAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UsdBankAccount
+        fields = '__all__'
 
 
 class BankVerificationNumberSerializer(serializers.ModelSerializer):

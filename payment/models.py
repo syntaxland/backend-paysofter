@@ -49,7 +49,7 @@ class PaymentLink(models.Model):
             img = Image.open(self.payment_image)
             img_name = self.payment_name
             extension = img.format.lower()
-            thumbnail_size = (200, 200)
+            thumbnail_size = (100, 100)
             img.thumbnail(thumbnail_size)
             thumb_io = BytesIO()
             img.save(thumb_io, format=extension)
