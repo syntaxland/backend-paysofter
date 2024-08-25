@@ -103,6 +103,9 @@ class DebitAccountFund(models.Model):
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
     payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES)
     debit_account_id = models.CharField(max_length=50, unique=True, null=True, editable=False)
+    reference_id = models.CharField(max_length=50, unique=True, null=True)
+    qty = models.PositiveIntegerField(default=1) 
+    product_name = models.CharField(max_length=225, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -156,6 +159,9 @@ class DebitUsdAccountFund(models.Model):
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, null=True, blank=True)
     payment_provider = models.CharField(max_length=50, choices=PAYMENT_PROVIDER_CHOICES)
     debit_account_id = models.CharField(max_length=50, unique=True, null=True, editable=False)
+    reference_id = models.CharField(max_length=50, unique=True, null=True)
+    qty = models.PositiveIntegerField(default=1) 
+    product_name = models.CharField(max_length=225, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

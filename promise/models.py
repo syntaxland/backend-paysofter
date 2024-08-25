@@ -229,6 +229,9 @@ class PaysofterPromise(models.Model):
     buyer_msg_count = models.PositiveIntegerField(default=0)
     seller_msg_count = models.PositiveIntegerField(default=0)
     promise_id = models.CharField(max_length=50, unique=True, null=True, editable=False)
+    reference_id = models.CharField(max_length=50, unique=True, null=True)
+    qty = models.PositiveIntegerField(default=1) 
+    product_name = models.CharField(max_length=225, null=True, blank=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)  
 
