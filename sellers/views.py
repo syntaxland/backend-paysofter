@@ -468,13 +468,13 @@ def get_seller_account_detail(request, seller_username):
 @permission_classes([IsAuthenticated])
 def verify_seller(request):
     data = request.data
-    user = request.user
+    admin_user = request.user
     print('data:', data)
 
     seller_username = data.get('seller_username')
     password = data.get('password')
 
-    if not user.check_password(password):
+    if not admin_user.check_password(password):
         return Response({'detail': 'Invalid password.'}, status=status.HTTP_401_UNAUTHORIZED)
 
     try:
@@ -496,7 +496,6 @@ def verify_seller(request):
 def get_paysofter_account_id(request):
     seller_id = request.data.get('seller_id')
     print('seller_id:', seller_id)
-
     try:
         user = User.objects.get(seller_id=seller_id)
         account_id = user.account_id
@@ -511,7 +510,6 @@ def get_paysofter_account_id(request):
 def verify_paysofter_seller_id(request):
     security_code = request.data.get('security_code')
     print('security_code:', security_code)
-
     try:
         user = User.objects.get(security_code=security_code)
     except User.DoesNotExist:
