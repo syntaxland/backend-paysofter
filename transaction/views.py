@@ -67,6 +67,8 @@ def initiate_transaction(request):
         cvv = request.data.get('cvv')
         payment_method = request.data.get('payment_method')
         reference_id = request.data.get('reference_id')
+        qty = request.data.get('qty')
+        product_name = request.data.get('product_name')
         account_id = request.data.get('account_id')
         print('initiate_transaction public_api_key:', public_api_key)
 
@@ -105,6 +107,8 @@ def initiate_transaction(request):
                                                       account_id,
                                                       reference_id,
                                                       transaction_id,
+                                                      qty,
+                                                      product_name,
                                                       seller)
         elif public_api_key.startswith('live_'):
             if not seller.is_api_key_live:
@@ -130,6 +134,8 @@ def initiate_transaction(request):
                                                     account_id,
                                                     reference_id,
                                                     transaction_id,
+                                                    qty,
+                                                    product_name,
                                                     seller)
         else:
             return Response({'detail': 'Invalid API key format. Please contact the seller.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -141,7 +147,7 @@ def initiate_transaction(request):
 
 
 def initiate_test_transaction(request, amount, buyer_email, buyer_name, buyer_phone, created_at, public_api_key, currency, card_number, expiration_month, 
-                              expiration_year, expiration_month_year, cvv, payment_method, account_id, reference_id, transaction_id, seller):
+                              expiration_year, expiration_month_year, cvv, payment_method, account_id, reference_id, transaction_id, qty, product_name, seller):
     print('Initiated test transaction...',created_at)
 
     # try:
@@ -162,6 +168,8 @@ def initiate_test_transaction(request, amount, buyer_email, buyer_name, buyer_ph
             is_success=True,
             reference_id=reference_id,
             transaction_id=transaction_id,
+            qty=qty,
+            product_name=product_name,
             payment_provider='Paysofter',
         )
 
@@ -216,7 +224,7 @@ def initiate_test_transaction(request, amount, buyer_email, buyer_name, buyer_ph
 def send_test_buyer_card_transaction_email(request, amount, currency, seller_email, reference_id, created_at, buyer_email, formatted_buyer_card_no):
     print("Sending transaction email...", created_at)
     try:
-        subject = f"[TEST MODE] Receipt of payment of {amount} {currency} to {seller_email} with payment ID [{reference_id}]"
+        subject = f"[TEST MODE] Receipt of payment of {amount} {currency} to {seller_email} with Reference ID [{reference_id}]"
         html_content = f"""
                 <!DOCTYPE html>
                 <html>
@@ -277,7 +285,7 @@ def send_test_buyer_card_transaction_email(request, amount, currency, seller_ema
                         <div class="content">
                             <p>Dear valued customer,</p>
                             <p>You have made a payment of <strong>{amount} {currency}</strong> to <b>{seller_email}</b> 
-                            with a <b>Payment ID: "{reference_id}"</b> and card number ending in <strong>{formatted_buyer_card_no}</strong>
+                            with a <b>Reference ID: "{reference_id}"</b> and card number ending in <strong>{formatted_buyer_card_no}</strong>
                               at <b>{created_at}</b>.</p>
                             <table class="summary-table">
                                 <tr>
@@ -289,7 +297,7 @@ def send_test_buyer_card_transaction_email(request, amount, currency, seller_ema
                                     <td>{amount} {currency}</td>
                                 </tr>
                                 <tr>
-                                    <td>Payment ID</td>
+                                    <td>Reference ID</td>
                                     <td>{reference_id}</td>
                                 </tr>
                                 <tr>
@@ -330,7 +338,7 @@ def send_test_buyer_card_transaction_email(request, amount, currency, seller_ema
 def send_test_seller_card_transaction_email(request, amount, currency, seller_email, reference_id, created_at, buyer_email, formatted_buyer_card_no):
     print("Sending transaction email...", created_at)
     try:
-        subject = f"[TEST MODE] Receipt of payment of {amount} {currency} to {seller_email} with payment ID [{reference_id}]"
+        subject = f"[TEST MODE] Receipt of payment of {amount} {currency} to {seller_email} with Reference ID [{reference_id}]"
         html_content = f"""
                 <!DOCTYPE html>
                 <html>
@@ -391,7 +399,7 @@ def send_test_seller_card_transaction_email(request, amount, currency, seller_em
                         <div class="content">
                             <p>Dear valued customer,</p>
                             <p>You have received a payment of <strong> {amount} {currency} </strong> from <b>{buyer_email}</b> 
-                                with a <b>Payment ID: "{reference_id}"</b> and card number ending in <strong>{formatted_buyer_card_no}</strong> 
+                                with a <b>Reference ID: "{reference_id}"</b> and card number ending in <strong>{formatted_buyer_card_no}</strong> 
                                 at <b>{created_at}</b>.</p>
                             <table class="summary-table">
                                 <tr>
@@ -403,7 +411,7 @@ def send_test_seller_card_transaction_email(request, amount, currency, seller_em
                                     <td>{amount} {currency}</td>
                                 </tr>
                                 <tr>
-                                    <td>Payment ID</td>
+                                    <td>Reference ID</td>
                                     <td>{reference_id}</td>
                                 </tr>
                                 <tr>
@@ -445,7 +453,7 @@ def send_test_buyer_fund_transaction_email(request, amount, currency, seller_ema
                                            buyer_email, formatted_buyer_account_id, created_at):
     print("Sending transaction email...", created_at)
     try:
-        subject = f"[TEST MODE] Receipt of payment of {amount} {currency} to {seller_email} with payment ID [{reference_id}]"
+        subject = f"[TEST MODE] Receipt of payment of {amount} {currency} to {seller_email} with Reference ID [{reference_id}]"
         html_content = f"""
                 <!DOCTYPE html>
                 <html>
@@ -506,7 +514,7 @@ def send_test_buyer_fund_transaction_email(request, amount, currency, seller_ema
                         <div class="content">
                             <p>Dear valued customer,</p>
                             <p>You have made a payment of <strong> {amount} {currency} </strong> to <b>{seller_email}</b> 
-                                with a <b>Payment ID: "{reference_id}"</b> and Paysofter Account Fund with Account ID ending in:
+                                with a <b>Reference ID: "{reference_id}"</b> and Paysofter Account Fund with Account ID ending in:
                                       ({formatted_buyer_account_id})
                                 at <b>{created_at}</b>.</p>
                             <table class="summary-table">
@@ -519,7 +527,7 @@ def send_test_buyer_fund_transaction_email(request, amount, currency, seller_ema
                                     <td>{amount} {currency}</td>
                                 </tr>
                                 <tr>
-                                    <td>Payment ID</td>
+                                    <td>Reference ID</td>
                                     <td>{reference_id}</td>
                                 </tr>
                                 <tr>
@@ -561,7 +569,7 @@ def send_test_seller_fund_transaction_email(request, amount, currency, seller_em
                                             buyer_email, formatted_buyer_account_id, created_at):
     print("Sending transaction email...", created_at)
     try:
-        subject = f"[TEST MODE] Receipt of payment of {amount} {currency} to {seller_email} with payment ID [{reference_id}]"
+        subject = f"[TEST MODE] Receipt of payment of {amount} {currency} to {seller_email} with Reference ID [{reference_id}]"
         html_content = f"""
                 <!DOCTYPE html>
                 <html>
@@ -622,7 +630,7 @@ def send_test_seller_fund_transaction_email(request, amount, currency, seller_em
                         <div class="content">
                             <p>Dear valued customer,</p>
                             <p>You have received a payment of <strong> {amount} {currency} </strong> from <b>{buyer_email}</b> 
-                                with a <b>Payment ID: "{reference_id}"</b> and Paysofter Account Fund with Account ID ending in: ({formatted_buyer_account_id})
+                                with a <b>Reference ID: "{reference_id}"</b> and Paysofter Account Fund with Account ID ending in: ({formatted_buyer_account_id})
                                 at <b>{created_at}</b>.</p>
                             <table class="summary-table">
                                 <tr>
@@ -634,7 +642,7 @@ def send_test_seller_fund_transaction_email(request, amount, currency, seller_em
                                     <td>{amount} {currency}</td>
                                 </tr>
                                 <tr>
-                                    <td>Payment ID</td>
+                                    <td>Reference ID</td>
                                     <td>{reference_id}</td>
                                 </tr>
                                 <tr>
@@ -688,6 +696,8 @@ def initiate_live_transaction(request, amount,
                               account_id,
                               reference_id,
                               transaction_id,
+                              qty,
+                              product_name,
                               seller):
     print('Initiated live transaction...',created_at)
 
@@ -709,6 +719,8 @@ def initiate_live_transaction(request, amount,
             is_success=True,
             reference_id=reference_id,
             transaction_id=transaction_id,
+            qty=qty,
+            product_name=product_name,
             payment_provider='Paysofter',
         )
 
@@ -778,7 +790,7 @@ def initiate_live_transaction(request, amount,
 def send_buyer_card_transaction_email(request, amount, currency, seller_email, reference_id, created_at, buyer_email, formatted_buyer_card_no):
     print("Sending transaction email...", created_at)
     try:
-        subject = f"Receipt of payment of {amount} {currency} to {seller_email} with payment ID [{reference_id}]"
+        subject = f"Receipt of payment of {amount} {currency} to {seller_email} with Reference ID [{reference_id}]"
         html_content = f"""
                 <!DOCTYPE html>
                 <html>
@@ -839,7 +851,7 @@ def send_buyer_card_transaction_email(request, amount, currency, seller_email, r
                         <div class="content">
                             <p>Dear valued customer,</p>
                             <p>You have made a payment of <strong>{amount} {currency}</strong> to <b>{seller_email}</b> 
-                            with a <b>Payment ID: "{reference_id}"</b> and card number ending in <strong>{formatted_buyer_card_no}</strong>
+                            with a <b>Reference ID: "{reference_id}"</b> and card number ending in <strong>{formatted_buyer_card_no}</strong>
                               at <b>{created_at}</b>.</p>
                             <table class="summary-table">
                                 <tr>
@@ -851,7 +863,7 @@ def send_buyer_card_transaction_email(request, amount, currency, seller_email, r
                                     <td>{amount} {currency}</td>
                                 </tr>
                                 <tr>
-                                    <td>Payment ID</td>
+                                    <td>Reference ID</td>
                                     <td>{reference_id}</td>
                                 </tr>
                                 <tr>
@@ -891,7 +903,7 @@ def send_buyer_card_transaction_email(request, amount, currency, seller_email, r
 def send_seller_card_transaction_email(request, amount, currency, seller_email, reference_id, created_at, buyer_email, formatted_buyer_card_no):
     print("Sending transaction email...", created_at)
     try:
-        subject = f"Receipt of payment of {amount} {currency} to {seller_email} with payment ID [{reference_id}]"
+        subject = f"Receipt of payment of {amount} {currency} to {seller_email} with Reference ID [{reference_id}]"
         html_content = f"""
                 <!DOCTYPE html>
                 <html>
@@ -952,7 +964,7 @@ def send_seller_card_transaction_email(request, amount, currency, seller_email, 
                         <div class="content">
                             <p>Dear valued customer,</p>
                             <p>You have received a payment of <strong> {amount} {currency} </strong> from <b>{buyer_email}</b> 
-                                with a <b>Payment ID: "{reference_id}"</b> and card number ending in <strong>{formatted_buyer_card_no}</strong> 
+                                with a <b>Reference ID: "{reference_id}"</b> and card number ending in <strong>{formatted_buyer_card_no}</strong> 
                                 at <b>{created_at}</b>.</p>
                             <table class="summary-table">
                                 <tr>
@@ -964,7 +976,7 @@ def send_seller_card_transaction_email(request, amount, currency, seller_email, 
                                     <td>{amount} {currency}</td>
                                 </tr>
                                 <tr>
-                                    <td>Payment ID</td>
+                                    <td>Reference ID</td>
                                     <td>{reference_id}</td>
                                 </tr>
                                 <tr>
@@ -1005,7 +1017,7 @@ def send_buyer_fund_transaction_email(request, amount, currency, seller_email, r
                                       buyer_email, formatted_buyer_account_id, created_at):
     print("Sending transaction email...", created_at)
     try:
-        subject = f"Receipt of payment of {amount} {currency} to {seller_email} with payment ID [{reference_id}]"
+        subject = f"Receipt of payment of {amount} {currency} to {seller_email} with Reference ID [{reference_id}]"
         html_content = f"""
                 <!DOCTYPE html>
                 <html>
@@ -1066,7 +1078,7 @@ def send_buyer_fund_transaction_email(request, amount, currency, seller_email, r
                         <div class="content">
                             <p>Dear valued customer,</p>
                             <p>You have made a payment of <strong> {amount} {currency} </strong> to <b>{seller_email}</b> 
-                                with a <b>Payment ID: "{reference_id}"</b> and Paysofter Account Fund with Account ID ending in:
+                                with a <b>Reference ID: "{reference_id}"</b> and Paysofter Account Fund with Account ID ending in:
                                       ({formatted_buyer_account_id})
                                 at <b>{created_at}</b>.</p>
                             <table class="summary-table">
@@ -1079,7 +1091,7 @@ def send_buyer_fund_transaction_email(request, amount, currency, seller_email, r
                                     <td>{amount} {currency}</td>
                                 </tr>
                                 <tr>
-                                    <td>Payment ID</td>
+                                    <td>Reference ID</td>
                                     <td>{reference_id}</td>
                                 </tr>
                                 <tr>
@@ -1120,7 +1132,7 @@ def send_seller_fund_transaction_email(request, amount, currency, seller_email, 
                                        buyer_email, formatted_buyer_account_id, created_at):
     print("Sending transaction email...", created_at)
     try:
-        subject = f"Receipt of payment of {amount} {currency} to {seller_email} with payment ID [{reference_id}]"
+        subject = f"Receipt of payment of {amount} {currency} to {seller_email} with Reference ID [{reference_id}]"
         html_content = f"""
                 <!DOCTYPE html>
                 <html>
@@ -1181,7 +1193,7 @@ def send_seller_fund_transaction_email(request, amount, currency, seller_email, 
                         <div class="content">
                             <p>Dear valued customer,</p>
                             <p>You have received a payment of <strong> {amount} {currency} </strong> from <b>{buyer_email}</b> 
-                                with a <b>Payment ID: "{reference_id}"</b> and Paysofter Account Fund with Account ID ending in: ({formatted_buyer_account_id})
+                                with a <b>Reference ID: "{reference_id}"</b> and Paysofter Account Fund with Account ID ending in: ({formatted_buyer_account_id})
                                 at <b>{created_at}</b>.</p>
                             <table class="summary-table">
                                 <tr>
@@ -1193,7 +1205,7 @@ def send_seller_fund_transaction_email(request, amount, currency, seller_email, 
                                     <td>{amount} {currency}</td>
                                 </tr>
                                 <tr>
-                                    <td>Payment ID</td>
+                                    <td>Reference ID</td>
                                     <td>{reference_id}</td>
                                 </tr>
                                 <tr>
