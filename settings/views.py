@@ -37,8 +37,16 @@ def select_currency(request):
 def toggle_api_key_status(request):
     user = request.user
     print("user:", user)
-    print("Toggling...")
-    user.is_api_key_live = not user.is_api_key_live
-    user.save()
-    print("Toggled!")
-    return Response({"detail": "API key status toggled successfully."}, status=status.HTTP_200_OK)
+    try:
+        if user.is_seller_account_verified == False:
+            return Response({'detail': "Your seller account is currently not verified. Please contact seller."}, status=status.HTTP_400_BAD_REQUEST)
+        if user.is_seller_account_disabled == True:
+            return Response({'detail': "Your seller account is currently disabled. Please contact seller."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        print("Toggling...")
+        user.is_api_key_live = not user.is_api_key_live
+        user.save()
+        print("Toggled!")
+        return Response({"detail": "API key status toggled successfully."}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
