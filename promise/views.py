@@ -49,6 +49,9 @@ def create_promise(request):
         public_api_key = request.data.get('public_api_key')
         account_id = request.data.get('account_id')
         buyer_email = request.data.get('buyer_email')
+        reference_id = request.data.get('reference_id')
+        qty = request.data.get('qty')
+        product_name = request.data.get('product_name')
         created_at = request.data.get('created_at')
         print('creating promise...', amount, currency, created_at)
 
@@ -65,6 +68,9 @@ def create_promise(request):
                                 duration,
                                 public_api_key,
                                 account_id,
+                                reference_id,
+                                qty,
+                                product_name,
                                 buyer_email,
                                 created_at,
                                 seller)
@@ -82,6 +88,9 @@ def create_promise(request):
                            duration,
                            public_api_key,
                            account_id,
+                           reference_id,
+                            qty,
+                            product_name,
                            created_at,
                            seller)
             print('live account_id:', account_id)
@@ -97,6 +106,9 @@ def create_test_promise(request, amount,
                         duration,
                         public_api_key,
                         account_id,
+                        reference_id,
+                        qty,
+                        product_name,
                         buyer_email,
                         created_at,
                         seller):
@@ -125,6 +137,9 @@ def create_test_promise(request, amount,
             currency=currency,
             duration=duration,
             promise_id=promise_id,
+            reference_id=reference_id,
+            qty=qty,
+            product_name=product_name,
             is_active=True
         )
 
@@ -303,6 +318,9 @@ def create_live_promise(request, amount,
                    duration,
                    public_api_key,
                    account_id,
+                   reference_id,
+                    qty,
+                    product_name,
                    created_at,
                    seller):
     promise_id = generate_promise_id()
@@ -328,6 +346,9 @@ def create_live_promise(request, amount,
             currency=currency,
             duration=duration,
             promise_id=promise_id,
+            reference_id=reference_id,
+            qty=qty,
+            product_name=product_name,
             is_active=True
         )
 
