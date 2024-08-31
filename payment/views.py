@@ -44,15 +44,14 @@ def create_payment_link(request):
         link = f"{url}/link?ref={seller.username}&pk={payment.pk}"
         payment.payment_link = link
  
-        # Generate the QR code
-        qr = qrcode.QRCode(version=1, box_size=10, border=5)
-        qr.add_data(link)
-        qr.make(fit=True)
-
-        img = qr.make_image(fill='black', back_color='white')
-        blob = BytesIO()
-        img.save(blob, 'PNG')
-        payment.payment_qrcode.save(f'{payment.pk}_qr.png', File(blob), save=False)
+        # # Generate the QR code
+        # qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        # qr.add_data(link)
+        # qr.make(fit=True)
+        # img = qr.make_image(fill='black', back_color='white')
+        # blob = BytesIO()
+        # img.save(blob, 'PNG')
+        # payment.payment_qrcode.save(f'{payment.pk}_qr.png', File(blob), save=False)
 
         payment.save()
         return Response({'success': 'Payment link created successfully.'}, status=status.HTTP_201_CREATED)
@@ -89,6 +88,7 @@ def get_payment_link_detail(request):
             seller_test_api_key = None
             seller_live_api_key = None
             is_seller_api_key_live = None
+
         print('is_seller_api_key_live:', is_seller_api_key_live)
 
         return Response({'data': serializer.data,
