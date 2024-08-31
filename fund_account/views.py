@@ -449,6 +449,14 @@ def send_debit_fund_account_otp(request):
         return Response({'detail': 'Invalid API key. Please contact the seller.'}, status=status.HTTP_404_NOT_FOUND)
     print('seller:', seller)
 
+    if not seller.is_api_key_live:
+        print('seller.is_api_key_live:', seller.is_api_key_live)
+        return Response({'detail': 'API key is currently in test mode. Please contact the seller.'}, status=status.HTTP_400_BAD_REQUEST)
+    if seller.is_seller_account_verified == False:
+        return Response({'detail': "Seller account is currently not verified. Please contact seller."}, status=status.HTTP_400_BAD_REQUEST)
+    if seller.is_seller_account_disabled == True:
+        return Response({'detail': "Seller account is currently disabled. Please contact seller."}, status=status.HTTP_400_BAD_REQUEST)
+
     try:
         user = User.objects.get(account_id=account_id)
     except User.DoesNotExist:

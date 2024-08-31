@@ -29,14 +29,19 @@ User = get_user_model()
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
 def create_payment_link(request):
-    user = request.user
+    seller = request.user
     data = request.data
-    serializer = PaymentLinkSerializer(data=data)
 
+    if seller.is_seller_account_verified == False:
+        return Response({'detail': "Seller account is currently not verified. Please contact support."}, status=status.HTTP_400_BAD_REQUEST)
+    if seller.is_seller_account_disabled == True:
+        return Response({'detail': "Seller account is currently disabled. Please contact support."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    serializer = PaymentLinkSerializer(data=data)
     if serializer.is_valid():
-        payment = serializer.save(seller=user)
+        payment = serializer.save(seller=seller)
         url = settings.PAYSOFTER_URL
-        link = f"{url}/link?ref={user.username}&pk={payment.pk}"
+        link = f"{url}/link?ref={seller.username}&pk={payment.pk}"
         payment.payment_link = link
  
         # Generate the QR code
