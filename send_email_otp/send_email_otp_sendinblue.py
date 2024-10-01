@@ -24,7 +24,7 @@ def send_email_otp(request):
     # first_name = serializer.validated_data['first_name'] 
     email = data.get('email')
     first_name = data.get('first_name')
-    if serializer.is_valid():
+    if serializer.is_valid(): 
         
         try:
             # Send email OTP

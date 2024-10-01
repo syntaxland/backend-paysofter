@@ -66,7 +66,7 @@ def generate_referral_code():
 
 def generate_account_id():
     return ''.join(random.choices(string.digits, k=12))
-
+ 
 
 def generate_security_code():
     return ''.join(random.choices(string.digits, k=4))

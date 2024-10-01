@@ -10,7 +10,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/ 
 """
-
+ 
 import os
 from pathlib import Path
 from datetime import timedelta
@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-*b#0c@$@u@x_#srr@d%0v@^pqy%@fjq^#y9vk^65jws_277zz8'
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')  
 DEBUG = True
 # DEBUG = False
 
@@ -67,15 +67,15 @@ LOGGING = {
 ALLOWED_HOSTS = [
     'paysofter.com',
     'api.paysofter.com',
-     "34.238.83.10",
-    '172.31.95.178',
+     "54.242.116.136",
+    '172.31.21.5',
     '44.201.253.128',
     'localhost',
     'localhost:8001',
     '127.0.0.1',
     '127.0.0.1:8001',
-    '192.168.43.4',
-    '192.168.43.4:8001',
+    '192.168.43.5',
+    '192.168.43.5:8001',
     #  others
      "3.216.162.10",
      "44.210.161.224",
@@ -154,8 +154,10 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1), # testing
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=2), # testing
+    # 'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    # 'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
@@ -221,8 +223,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "http://localhost:3002",
     "http://127.0.0.1:8001",
-    "http://192.168.43.4",
-    "http://192.168.43.4:8001", 
+    "http://192.168.43.5",
+    "http://192.168.43.5:8001", 
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -457,7 +459,7 @@ PAYSOFTER_EMAIL_HOST_USER = os.getenv('PAYSOFTER_EMAIL_HOST_USER')
 PAYSOFTER_URL = os.getenv('PAYSOFTER_URL')
 
 PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
-PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')  
 PAYSTACK_PAYMENT_URL = os.getenv('PAYSTACK_PAYMENT_URL')
 CALLBACK_URL = os.getenv('CALLBACK_URL')
  

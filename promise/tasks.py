@@ -1,9 +1,9 @@
 # promise/tasks.py
 import random
 import string
-# from celery import Celery
+# from celery import Celery 
 from celery import shared_task
-from decimal import Decimal
+from decimal import Decimal 
 from django.db.models import Sum
 from django.db.utils import IntegrityError
 from django.conf import settings
