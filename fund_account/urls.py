@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     path('fund-user-account/', views.fund_user_account,
-         name='fund-user-account'),
+         name='fund-user-account'), 
     path('get-user-acount-balance/', views.get_user_account_fund_balance,
          name='get-user-acount-balance'),
     path('get-all-account-fund-balance/', views.get_all_account_fund_balance,

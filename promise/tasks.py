@@ -251,7 +251,7 @@ def process_promise_transactions():
 
 
 """
-redis-server
+redis-server 
 celery -A core.celery worker --pool=solo -l info 
 (Windows)
 celery -A core.celery worker --loglevel=info (Unix) 

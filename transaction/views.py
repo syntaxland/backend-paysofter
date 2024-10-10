@@ -2,7 +2,7 @@
 from decimal import Decimal
 import random
 import string
-# from xhtml2pdf import pisa  
+from xhtml2pdf import pisa 
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes

@@ -34,33 +34,79 @@ DEBUG = True
 
 APPEND_SLASH = True
 
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         "standard": {
+#             "format": "[%(asctime)s] %(levelname)s [%(module)s] [PID:%(process)d] [Thread:%(thread)d]: %(message)s"
+#         },
+#     },
+#     "handlers": {
+#         "file": {
+#             "level": "ERROR",
+#             "class": "logging.FileHandler",
+#             "filename": f"{BASE_DIR}/django_logs/error.log",
+#             "formatter": "standard",
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["file"],
+#             "level": "ERROR",
+#             "propagate": True,
+#         },
+#         'corsheaders': {
+#             'handlers': ['file'],
+#             'level': 'ERROR',
+#             'propagate': True,
+#         }, 
+#     },
+# }
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "standard": {
-            "format": "[%(asctime)s] %(levelname)s [%(module)s] [PID:%(process)d] [Thread:%(thread)d]: %(message)s"
+            "format": "[%(asctime)s] %(levelname)s [%(module)s] [PID:%(process)d] [Thread:%(thread)d]: %(message)s",
         },
     },
     "handlers": {
         "file": {
-            "level": "ERROR",
+            "level": "ERROR",  
             "class": "logging.FileHandler",
             "filename": f"{BASE_DIR}/django_logs/error.log",
+            "formatter": "standard",
+        },
+        "task_file": {  
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": f"{BASE_DIR}/django_logs/task.log",
             "formatter": "standard",
         },
     },
     "loggers": {
         "django": {
             "handlers": ["file"],
-            "level": "ERROR",
+            "level": "INFO",
             "propagate": True,
         },
         'corsheaders': {
             'handlers': ['file'],
             'level': 'ERROR',
             'propagate': True,
-        }, 
+        },
+        'celery': {  
+            'handlers': ['task_file'],
+            'level': 'INFO',  
+            'propagate': False,
+        },
+        'user_profile': {  
+            'handlers': ['task_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
 

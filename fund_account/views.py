@@ -131,7 +131,6 @@ def fund_user_account(request):
                 return Response({'success': f'Fund account request submitted successfully. Old Bal: NGN {old_bal}'}, status=status.HTTP_201_CREATED)
             except FundAccount.DoesNotExist:
                 return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
-
         elif currency == "USD":
             print('fund_account_id:', fund_account_id, currency)
             try:
@@ -183,10 +182,8 @@ def fund_user_account(request):
                 return Response({'success': f'Fund account request submitted successfully. Old Bal: NGN {old_bal}'}, status=status.HTTP_201_CREATED)
             except FundUsdAccount.DoesNotExist:
                 return Response({'detail': 'Fund account request not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
-    # elif currency == "EUR":
-            # print('fund_account_id:', fund_account_id)
+        # elif currency == "EUR":
+        #     print('fund_account_id:', fund_account_id)
         else:
             return Response({'detail': 'Invalid currency format. Please contact the seller.'}, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
